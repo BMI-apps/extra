@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kids Activity Tracker - Role Based</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf9 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+            position: relative; /* Ditambahkan untuk posisi tombol logout */
+        }
+        
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+        }
+        
+        .logo i {
+            font-size: 28px;
+            color: white;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+        
+        .stats-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-card {
+            flex: 1;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 20px;
+        }
+        
+        .time-icon {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+        
+        .complete-icon {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 30px 0 20px;
+        }
+        
+        .section-title h2 {
+            color: #2c3e50;
+            font-size: 20px;
+        }
+        
+        .add-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(238, 90, 36, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .add-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(238, 90, 36, 0.4);
+        }
+        
+        .activities-list {
+            margin-bottom: 30px;
+        }
+        
+        .activity-item {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .activity-item.completed {
+            background: #f8fff9;
+            border-left: 4px solid #2ecc71;
+        }
+        
+        .activity-checkbox {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            border: 2px solid #ddd;
+            margin-right: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .activity-checkbox.checked {
+            background: #2ecc71;
+            border-color: #2ecc71;
+        }
+        
+        .activity-checkbox.checked::after {
+            content: "✓";
+            color: white;
+            font-size: 14px;
+        }
+        
+        .activity-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 18px;
+            color: white;
+        }
+        
+        .activity-details {
+            flex: 1;
+        }
+        
+        .activity-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        
+        .activity-name.completed {
+            text-decoration: line-through;
+            color: #95a5a6;
+        }
+        
+        .activity-meta {
+            display: flex;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        .activity-duration {
+            margin-right: 15px;
+        }
+        
+        .activity-category {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+        
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            font-size: 20px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .delete-btn:hover {
+            opacity: 1;
+        }
+        
+        .modal {
+            /* Diubah dari display:none ke struktur penuh untuk Login */
+            display: none; 
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #login-modal {
+            /* Tampilan awal login (seperti halaman penuh) */
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf9 100%);
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        #login-modal .modal-content {
+             /* Perubahan untuk modal login yang lebih tebal */
+            max-width: 450px;
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .modal-header h3 {
+            color: #2c3e50;
+            font-size: 22px;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #7f8c8d;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .category-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .category-option {
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .category-option.selected {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, 0.1);
+        }
+        
+        .category-option i {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            color: #bdc3c7;
+            margin-bottom: 20px;
+        }
+        
+        .empty-state p {
+            color: #7f8c8d;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        
+        .date-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .date-btn {
+            background: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #2c3e50;
+        }
+        
+        .date-input {
+            border: none;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 150px;
+        }
+        
+        #logout-btn {
+            /* Style tombol logout */
+            position: absolute; 
+            top: 20px; 
+            right: 20px; 
+            background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+            width: 40px; 
+            height: 40px;
+            border-radius: 50%;
+            font-size: 18px;
+        }
+
+        @media (max-width: 480px) {
+            .stats-container {
+                flex-direction: column;
+            }
+            
+            .category-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="modal" id="login-modal" style="display: flex;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Masuk ke Kids Tracker</h3>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-username">Nama Pengguna</label>
+                    <input type="text" id="login-username" class="form-control" required placeholder="ayah / budi">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Kata Sandi</label>
+                    <input type="password" id="login-password" class="form-control" required>
+                </div>
+                <button type="submit" class="submit-btn" id="login-btn">Masuk</button>
+                <p id="login-error" style="color: #e74c3c; text-align: center; margin-top: 10px;"></p>
+            </form>
+        </div>
+    </div>
+    <div class="container" id="main-app-container" style="display: none;"> 
+        <header>
+            <div class="logo">
+                <i class="fas fa-star"></i>
+            </div>
+            <h1>Kids Activity Tracker</h1>
+            <p class="subtitle" id="user-display">Daily Activity Log</p>
+            <button id="logout-btn" class="add-btn" style="display: none;">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </header>
+
+        <div id="supervisor-summary" style="display: none;">
+            <div class="section-title">
+                <h2>Global Activity Summary</h2>
+                <div>
+                    <button class="add-btn" id="toggle-summary-filter" style="width: auto; padding: 10px 15px; border-radius: 10px; font-size: 14px; background: linear-gradient(135deg, #f1c40f, #e67e22) !important;">
+                        <i class="fas fa-calendar-day"></i> Kembali ke Harian
+                    </button>
+                </div>
+            </div>
+            
+            <div class="stats-container" id="global-stats-container">
+                <div class="stat-card">
+                    <div class="stat-icon time-icon" style="background: linear-gradient(135deg, #1abc9c, #16a085);">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-value" id="global-total-kids">0</div>
+                    <div class="stat-label">Total Anak</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon complete-icon">
+                        <i class="fas fa-check-double"></i>
+                    </div>
+                    <div class="stat-value" id="global-completed-count">0</div>
+                    <div class="stat-label">Total Selesai</div>
+                </div>
+            </div>
+            
+            <div class="activities-list" id="global-activities-list">
+                <h3>Ringkasan Per Anak:</h3>
+            </div>
+            <hr style="margin: 30px 0; border: 0; border-top: 1px solid #ddd;">
+        </div>
+        <div id="daily-activities-view">
+            <div class="date-selector">
+                <button class="date-btn" id="prev-day">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <input type="date" class="date-input" id="selected-date">
+                <button class="date-btn" id="next-day">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-icon time-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-value" id="total-time">0</div>
+                    <div class="stat-label">Minutes Today</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon complete-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="stat-value" id="completed-count">0</div>
+                    <div class="stat-label">Completed Today</div>
+                </div>
+            </div>
+            
+            <div class="section-title">
+                <h2 id="daily-section-title">Today's Activities</h2>
+                <button class="add-btn" id="open-modal">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+            
+            <div class="activities-list" id="activities-container">
+                </div>
+        </div>
+        </div>
+    <div class="modal" id="activity-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Activity</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="activity-form">
+                <div class="form-group">
+                    <label for="activity-name">Activity Name</label>
+                    <input type="text" id="activity-name" class="form-control" placeholder="e.g., Reading, Playing..." required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="activity-duration">Duration (minutes)</label>
+                    <input type="number" id="activity-duration" class="form-control" min="1" value="30" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Category</label>
+                    <div class="category-options">
+                        <div class="category-option selected" data-category="learning">
+                            <i class="fas fa-book"></i>
+                            <span>Learning</span>
+                        </div>
+                        <div class="category-option" data-category="play">
+                            <i class="fas fa-gamepad"></i>
+                            <span>Play</span>
+                        </div>
+                        <div class="category-option" data-category="sports">
+                            <i class="fas fa-bicycle"></i>
+                            <span>Sports</span>
+                        </div>
+                        <div class="category-option" data-category="health">
+                            <i class="fas fa-apple-alt"></i>
+                            <span>Health</span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="activity-category" value="learning">
+                </div>
+                
+                <button type="submit" class="submit-btn">Add Activity</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        // Database simulation using localStorage
+        const DB = {
+            // Get activities from localStorage
+            getActivities: function() {
+                const activities = localStorage.getItem('kids_activities');
+                return activities ? JSON.parse(activities) : [];
+            },
+            
+            // Save activities to localStorage
+            saveActivities: function(activities) {
+                localStorage.setItem('kids_activities', JSON.stringify(activities));
+            },
+            
+            // Add new activity
+            addActivity: function(activity) {
+                const activities = this.getActivities();
+                activities.push(activity);
+                this.saveActivities(activities);
+            },
+            
+            // Update activity
+            updateActivity: function(updatedActivity) {
+                const activities = this.getActivities();
+                const index = activities.findIndex(a => a.id === updatedActivity.id);
+                if (index !== -1) {
+                    activities[index] = updatedActivity;
+                    this.saveActivities(activities);
+                }
+            },
+            
+            // Delete activity
+            deleteActivity: function(id) {
+                const activities = this.getActivities();
+                const filtered = activities.filter(a => a.id !== id);
+                this.saveActivities(filtered);
+            }
+        };
+        
+        // --- START: NEW LOGIN/ROLE LOGIC & DOM ELEMENTS ---
+        const AUTH_USERS = [
+            { username: 'papa_syifa', password: '000000', role: 'supervisor' },
+            { username: 'syifa', password: '08062016', role: 'user' }
+        ];
+        const LOGIN_STORAGE_KEY = 'currentUser';
+
+        const loginModal = document.getElementById('login-modal');
+        const loginForm = document.getElementById('login-form');
+        const loginError = document.getElementById('login-error');
+        const mainContainer = document.getElementById('main-app-container');
+        const logoutBtn = document.getElementById('logout-btn');
+        const userDisplay = document.getElementById('user-display');
+
+        const supervisorSummary = document.getElementById('supervisor-summary');
+        const dailyActivitiesView = document.getElementById('daily-activities-view');
+        const toggleSummaryFilterBtn = document.getElementById('toggle-summary-filter');
+        const globalStatsContainer = document.getElementById('global-stats-container');
+        const globalActivitiesList = document.getElementById('global-activities-list');
+        const dailySectionTitle = document.getElementById('daily-section-title');
+
+        let isDailyView = true; 
+        
+        function getLoggedInUser() {
+            return JSON.parse(localStorage.getItem(LOGIN_STORAGE_KEY)) || {};
+        }
+
+        function checkAuth() {
+            const user = getLoggedInUser();
+            if (user && user.role) {
+                // Otentikasi Berhasil
+                loginModal.style.display = 'none';
+                mainContainer.style.display = 'block';
+                logoutBtn.style.display = 'flex';
+                userDisplay.textContent = `Log Aktivitas Harian - ${user.username} (${user.role.toUpperCase()})`;
+                renderApp(user.role);
+            } else {
+                // Belum Login
+                loginModal.style.display = 'flex';
+                mainContainer.style.display = 'none';
+                logoutBtn.style.display = 'none';
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+
+            const user = AUTH_USERS.find(u => u.username === username && u.password === password);
+
+            if (user) {
+                localStorage.setItem(LOGIN_STORAGE_KEY, JSON.stringify({ 
+                    username: user.username, 
+                    role: user.role 
+                }));
+                loginError.textContent = '';
+                checkAuth();
+            } else {
+                loginError.textContent = 'Nama pengguna atau kata sandi salah.';
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem(LOGIN_STORAGE_KEY);
+            // Hapus data sesi untuk Activity Modal jika ada
+            modal.classList.remove('active');
+            modal.style.display = 'none';
+            checkAuth();
+        }
+
+        loginForm.addEventListener('submit', handleLogin);
+        logoutBtn.addEventListener('click', handleLogout);
+        
+        // --- END: NEW LOGIN/ROLE LOGIC ---
+
+        // DOM Elements Lanjutan
+        const activitiesContainer = document.getElementById('activities-container');
+        const modal = document.getElementById('activity-modal');
+        const openModalBtn = document.getElementById('open-modal');
+        const closeModalBtn = document.querySelector('.close-modal');
+        const activityForm = document.getElementById('activity-form');
+        const categoryOptions = document.querySelectorAll('.category-option');
+        const totalTimeElement = document.getElementById('total-time');
+        const completedCountElement = document.getElementById('completed-count');
+        const selectedDateInput = document.getElementById('selected-date');
+        const prevDayBtn = document.getElementById('prev-day');
+        const nextDayBtn = document.getElementById('next-day');
+        
+        // Set today's date as default
+        const today = new Date();
+        const formattedDate = today.toISOString().split('T')[0];
+        selectedDateInput.value = formattedDate;
+        
+        // Navigation functions
+        function navigateDays(direction) {
+            const currentDate = new Date(selectedDateInput.value);
+            currentDate.setDate(currentDate.getDate() + direction);
+            selectedDateInput.value = currentDate.toISOString().split('T')[0];
+            loadActivitiesForDate();
+        }
+        
+        prevDayBtn.addEventListener('click', () => navigateDays(-1));
+        nextDayBtn.addEventListener('click', () => navigateDays(1));
+        selectedDateInput.addEventListener('change', loadActivitiesForDate);
+        
+        // Open modal
+        openModalBtn.addEventListener('click', () => {
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                modal.classList.add('active');
+            }, 10);
+        });
+        
+        // Close modal
+        closeModalBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+        
+        function closeModal() {
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+        
+        // Category selection
+        categoryOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                categoryOptions.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+                document.getElementById('activity-category').value = option.dataset.category;
+            });
+        });
+        
+        // Add new activity (MODIFIED to include user/role)
+        activityForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('activity-name').value;
+            const duration = parseInt(document.getElementById('activity-duration').value);
+            const category = document.getElementById('activity-category').value;
+            const date = selectedDateInput.value;
+            
+            // Ambil data user saat ini
+            const { username, role } = getLoggedInUser();
+
+            if (name.trim() && username) {
+                const newActivity = {
+                    id: Date.now(),
+                    name: name,
+                    duration: duration,
+                    category: category,
+                    date: date,
+                    completed: false,
+                    // Tambahan Properti User & Role (untuk filtering dan summary)
+                    user: username, 
+                    createdByRole: role 
+                };
+                
+                DB.addActivity(newActivity);
+                loadActivitiesForDate();
+                
+                // Reset form
+                activityForm.reset();
+                categoryOptions.forEach(opt => opt.classList.remove('selected'));
+                document.querySelector('.category-option[data-category="learning"]').classList.add('selected');
+                document.getElementById('activity-category').value = 'learning';
+                
+                closeModal();
+            } else {
+                alert("Harap login atau isi semua kolom.");
+            }
+        });
+        
+        // Toggle activity completion
+        window.toggleActivity = function(id) {
+            const activities = DB.getActivities();
+            const activity = activities.find(a => a.id === id);
+            
+            if (activity) {
+                activity.completed = !activity.completed;
+                DB.updateActivity(activity);
+                loadActivitiesForDate();
+            }
+        }
+        
+        // Delete activity
+        window.deleteActivity = function(id) {
+            DB.deleteActivity(id);
+            loadActivitiesForDate();
+        }
+        
+        // Get category info
+        function getCategoryInfo(category) {
+            const categories = {
+                learning: { icon: 'fas fa-book', color: '#3498db', name: 'Learning' },
+                play: { icon: 'fas fa-gamepad', color: '#2ecc71', name: 'Play' },
+                sports: { icon: 'fas fa-bicycle', color: '#e67e22', name: 'Sports' },
+                health: { icon: 'fas fa-apple-alt', color: '#e74c3c', name: 'Health' }
+            };
+            return categories[category] || categories.learning;
+        }
+        
+        // Update stats (Hanya untuk tampilan harian)
+        function updateStats(activities) {
+            const completedActivities = activities.filter(a => a.completed);
+            const totalTime = completedActivities.reduce((sum, a) => sum + a.duration, 0);
+            const completedCount = completedActivities.length;
+            
+            totalTimeElement.textContent = totalTime;
+            completedCountElement.textContent = completedCount;
+        }
+        
+        // Load activities for selected date (MODIFIED to filter by user/role)
+        function loadActivitiesForDate() {
+            const { username, role } = getLoggedInUser();
+            const selectedDate = selectedDateInput.value;
+            const allActivities = DB.getActivities();
+
+            let activitiesForDate;
+            
+            if (role === 'supervisor') {
+                activitiesForDate = allActivities.filter(a => a.date === selectedDate);
+                dailySectionTitle.textContent = `Aktivitas Harian Semua User`;
+            } else {
+                // User: Hanya melihat aktivitas mereka sendiri
+                activitiesForDate = allActivities.filter(a => a.date === selectedDate && a.user === username);
+                dailySectionTitle.textContent = `Aktivitas Hari Ini`;
+            }
+
+            renderActivities(activitiesForDate, role);
+            updateStats(activitiesForDate);
+        }
+        
+        // Render activities (MODIFIED to pass role)
+        function renderActivities(activities, role) {
+            if (activities.length === 0) {
+                activitiesContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-sun"></i>
+                        <p>No activities yet</p>
+                        <p>Add your first activity!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            activitiesContainer.innerHTML = '';
+            
+            activities.forEach(activity => {
+                const categoryInfo = getCategoryInfo(activity.category);
+                
+                const activityElement = document.createElement('div');
+                activityElement.className = `activity-item ${activity.completed ? 'completed' : ''}`;
+                activityElement.innerHTML = `
+                    <div class="activity-checkbox ${activity.completed ? 'checked' : ''}" 
+                        onclick="toggleActivity(${activity.id})"></div>
+                    <div class="activity-icon" style="background: ${categoryInfo.color}">
+                        <i class="${categoryInfo.icon}"></i>
+                    </div>
+                    <div class="activity-details">
+                        <div class="activity-name ${activity.completed ? 'completed' : ''}">${activity.name} 
+                            ${role === 'supervisor' ? `<span style="font-size: 12px; color: #7f8c8d;">(Oleh: ${activity.user})</span>` : ''}
+                        </div>
+                        <div class="activity-meta">
+                            <span class="activity-duration"><i class="far fa-clock"></i> ${activity.duration} min</span>
+                            <span class="activity-category">${categoryInfo.name}</span>
+                        </div>
+                    </div>
+                    ${role === 'supervisor' ? `
+                        <button class="delete-btn" onclick="deleteActivity(${activity.id})">
+                            <i class="fas fa-times"></i>
+                        </button>` : ''}
+                `;
+                
+                activitiesContainer.appendChild(activityElement);
+            });
+        }
+
+        // --- START: SUMMARY DASHBOARD LOGIC (Supervisor Only) ---
+
+        window.toggleSummaryView = function() {
+            const { role } = getLoggedInUser();
+            if (role !== 'supervisor') return;
+
+            isDailyView = !isDailyView;
+            
+            if (!isDailyView) {
+                // Tampilkan Summary Global
+                dailyActivitiesView.style.display = 'none';
+                supervisorSummary.style.display = 'block';
+                toggleSummaryFilterBtn.innerHTML = '<i class="fas fa-calendar-day"></i> Kembali ke Harian';
+                displayGlobalSummary();
+            } else {
+                // Tampilkan Tampilan Harian
+                dailyActivitiesView.style.display = 'block';
+                supervisorSummary.style.display = 'none';
+                toggleSummaryFilterBtn.innerHTML = '<i class="fas fa-list"></i> Lihat Semua Data';
+                loadActivitiesForDate();
+            }
+        }
+        
+        toggleSummaryFilterBtn.addEventListener('click', toggleSummaryView);
+
+        function displayGlobalSummary() {
+            const allActivities = DB.getActivities();
+            
+            // Hitung Ringkasan Global
+            const summary = allActivities.reduce((acc, activity) => {
+                if (!acc[activity.user]) {
+                    acc[activity.user] = { totalDuration: 0, completedCount: 0 };
+                }
+                
+                acc[activity.user].totalDuration += activity.duration;
+                if (activity.completed) {
+                    acc[activity.user].completedCount += 1;
+                }
+                
+                return acc;
+            }, {});
+            
+            // Total Statistik
+            const totalKids = Object.keys(summary).length;
+            const globalCompleted = Object.values(summary).reduce((sum, s) => sum + s.completedCount, 0);
+            const globalDuration = Object.values(summary).reduce((sum, s) => sum + s.totalDuration, 0);
+            
+            // Tampilkan Statistik Global
+            document.getElementById('global-total-kids').textContent = totalKids;
+            document.getElementById('global-completed-count').textContent = globalCompleted;
+            
+            // Menambah card Total Durasi Global (Karena di HTML hanya ada 2)
+            if (globalStatsContainer.children.length === 2) {
+                globalStatsContainer.insertAdjacentHTML('beforeend', `
+                    <div class="stat-card">
+                        <div class="stat-icon time-icon" style="background: linear-gradient(135deg, #f39c12, #d35400);">
+                            <i class="fas fa-stopwatch"></i>
+                        </div>
+                        <div class="stat-value">${globalDuration}</div>
+                        <div class="stat-label">Total Semua Menit</div>
+                    </div>
+                `);
+            } else {
+                 // Update jika card Total Menit sudah ada
+                const totalDurationCard = globalStatsContainer.querySelector('.stat-card:last-child');
+                if (totalDurationCard) {
+                    totalDurationCard.querySelector('.stat-value').textContent = globalDuration;
+                }
+            }
+            
+
+            // Tampilkan Rincian per Anak
+            globalActivitiesList.innerHTML = '<h3>Ringkasan Detail Per Anak:</h3>';
+            Object.keys(summary).forEach(user => {
+                const userSummary = summary[user];
+                const item = document.createElement('div');
+                item.className = 'activity-item';
+                item.innerHTML = `
+                    <div class="activity-details">
+                        <div class="activity-name" style="font-size: 18px;">${user.charAt(0).toUpperCase() + user.slice(1)}</div>
+                        <div class="activity-meta">
+                            <span class="activity-duration">Selesai: <b>${userSummary.completedCount} Akt.</b></span>
+                            <span class="activity-duration">|</span>
+                            <span class="activity-category" style="background: #f1c40f; color: #333; font-weight: 600;">Total: <b>${userSummary.totalDuration} min</b></span>
+                        </div>
+                    </div>
+                `;
+                globalActivitiesList.appendChild(item);
+            });
+        }
+        
+        function renderApp(role) {
+            const isSupervisor = role === 'supervisor';
+            
+            // 1. Tombol Tambah hanya untuk User (Anak)
+            openModalBtn.style.display = isSupervisor ? 'none' : 'flex'; 
+            
+            // 2. Tombol Toggle Summary hanya untuk Supervisor
+            toggleSummaryFilterBtn.style.display = isSupervisor ? 'flex' : 'none'; 
+            
+            // 3. Atur Tampilan Awal: Selalu mulai dari harian
+            isDailyView = true;
+            dailyActivitiesView.style.display = 'block';
+            supervisorSummary.style.display = 'none';
+            toggleSummaryFilterBtn.innerHTML = '<i class="fas fa-list"></i> Lihat Semua Data';
+            
+            loadActivitiesForDate(); 
+        }
+
+        // --- END: SUMMARY DASHBOARD LOGIC ---
+
+        // Initialize (Panggil saat skrip selesai dimuat)
+        document.addEventListener('DOMContentLoaded', checkAuth); 
+    </script>
+</body>
+</html>
