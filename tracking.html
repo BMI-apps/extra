@@ -12,7 +12,6 @@
             --secondary: #00CEC9;
             --accent: #FF7675;
             --success: #55EFC4;
-            --warning: #FAB1A0;
             --bg-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
         }
 
@@ -26,7 +25,7 @@
         body {
             background: var(--bg-gradient);
             min-height: 100vh;
-            padding: 15px;
+            padding: 20px;
             color: #2D3436;
         }
 
@@ -35,50 +34,31 @@
             margin: 0 auto;
         }
 
-        /* --- Header & Logo --- */
+        /* --- Header --- */
         header {
             text-align: center;
-            padding: 20px 0;
+            padding: 30px 0;
             position: relative;
         }
 
         .logo {
-            width: 80px;
-            height: 80px;
+            width: 70px;
+            height: 70px;
             background: white;
-            border-radius: 25px;
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 15px;
-            box-shadow: 0 8px 0px #dfe6e9;
-            transform: rotate(-5deg);
+            box-shadow: 0 6px 0px rgba(0,0,0,0.1);
         }
 
         .logo i {
-            font-size: 40px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        h1 {
-            font-size: 28px;
-            color: #2d3436;
-            text-shadow: 2px 2px 0px #fff;
-        }
-
-        .subtitle {
-            background: rgba(255, 255, 255, 0.5);
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-weight: 600;
+            font-size: 35px;
             color: var(--primary);
-            margin-top: 5px;
         }
 
-        /* --- Stats Card --- */
+        /* --- Stats --- */
         .stats-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -90,313 +70,251 @@
             background: white;
             border-radius: 20px;
             padding: 20px;
-            box-shadow: 0 10px 0px rgba(0,0,0,0.05);
             text-align: center;
-            border: 3px solid transparent;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 8px 0px rgba(0,0,0,0.05);
         }
 
-        .stat-card:hover { transform: scale(1.05); border-color: var(--secondary); }
-
-        .stat-icon {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 10px;
-            color: white;
-            font-size: 20px;
-        }
-
-        .time-icon { background: var(--primary); }
-        .complete-icon { background: var(--success); }
-
-        .stat-value { font-size: 32px; font-weight: 600; color: #2d3436; }
+        .stat-value { font-size: 28px; font-weight: 600; color: var(--primary); }
         .stat-label { font-size: 14px; color: #636e72; }
 
-        /* --- Activities --- */
-        .activity-item {
-            background: white;
-            border-radius: 20px;
-            padding: 15px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 6px 0px rgba(0,0,0,0.03);
-            border: 2px solid #f1f2f6;
-            transition: 0.3s;
-        }
-
-        .activity-item.completed {
-            background: #f1f2f6;
-            border-color: #dfe6e9;
-            opacity: 0.8;
-        }
-
-        .activity-checkbox {
-            width: 30px;
-            height: 30px;
-            border: 3px solid var(--primary);
-            border-radius: 10px;
-            margin-right: 15px;
-            cursor: pointer;
+        /* --- Date & List --- */
+        .date-selector {
             display: flex;
             align-items: center;
             justify-content: center;
-            background: white;
-        }
-
-        .activity-checkbox.checked {
-            background: var(--success);
-            border-color: var(--success);
-        }
-
-        .activity-checkbox.checked::after {
-            content: "\f00c";
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            color: white;
-        }
-
-        .activity-details { flex: 1; }
-        .activity-name { font-weight: 600; font-size: 18px; }
-        .activity-name.completed { text-decoration: line-through; color: #b2bec3; }
-
-        .activity-meta { font-size: 13px; color: #636e72; margin-top: 2px; }
-
-        /* --- Date Selector --- */
-        .date-selector {
-            display: flex;
-            background: white;
-            padding: 10px;
-            border-radius: 50px;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            gap: 10px;
+            margin-bottom: 25px;
         }
 
         .date-input {
             border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
             font-weight: 600;
             color: var(--primary);
-            font-size: 16px;
-            outline: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
 
-        /* --- Buttons --- */
+        .activity-item {
+            background: white;
+            border-radius: 20px;
+            padding: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 5px 0px rgba(0,0,0,0.03);
+            border: 2px solid #f1f2f6;
+        }
+
+        /* --- MODAL STYLE (Perbaikan Jarak) --- */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(45, 52, 54, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: white;
+            border-radius: 35px; /* Lebih bulat */
+            padding: 40px; /* Jarak luas dari border */
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border: 6px solid var(--secondary);
+            transform: scale(0.9);
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal.active .modal-content { transform: scale(1); }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px; /* Jarak aman dari form */
+        }
+
+        .modal-header h3 { font-size: 24px; color: var(--primary); }
+
+        .form-group {
+            margin-bottom: 25px; /* Jarak antar input */
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: #2d3436;
+            padding-left: 5px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #f1f2f6;
+            border-radius: 18px;
+            background: #f9f9f9;
+            font-size: 16px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .form-control:focus { border-color: var(--secondary); background: white; }
+
+        .category-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .category-option {
+            padding: 15px;
+            background: #f1f2f6;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .category-option.selected {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(108, 92, 231, 0.3);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 6px 0px #00b894;
+            margin-top: 10px;
+        }
+
+        .submit-btn:active { transform: translateY(3px); box-shadow: 0 2px 0px #00b894; }
+
         .add-btn {
             background: var(--accent);
             color: white;
             border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 15px;
+            width: 55px; height: 55px;
+            border-radius: 18px;
             font-size: 24px;
             cursor: pointer;
             box-shadow: 0 5px 0px #d63031;
-            transition: 0.2s;
         }
-
-        .add-btn:active { transform: translateY(3px); box-shadow: 0 2px 0px #d63031; }
 
         #logout-btn {
-            position: absolute;
-            top: 10px;
-            right: 0;
-            background: var(--warning);
-            width: 40px; height: 40px;
-            box-shadow: 0 4px 0px #e17055;
-        }
-
-        /* --- Modal --- */
-        .modal-content {
-            border-radius: 30px !important;
-            border: 8px solid var(--secondary);
-        }
-
-        .form-control {
-            background: #f1f2f6;
-            border: 2px solid transparent;
-            border-radius: 15px;
-            padding: 12px;
-            font-size: 16px;
-        }
-
-        .form-control:focus { border-color: var(--secondary); outline: none; }
-
-        .submit-btn {
-            background: var(--secondary);
-            color: white;
-            padding: 15px;
-            border: none;
-            border-radius: 15px;
-            font-weight: 600;
-            font-size: 18px;
-            box-shadow: 0 6px 0px #00b894;
-            cursor: pointer;
-            width: 100%;
-        }
-
-        /* Category chips */
-        .category-option {
-            background: #f1f2f6;
-            border: none !important;
-            border-radius: 15px !important;
-            padding: 10px !important;
-        }
-
-        .category-option.selected {
-            background: var(--primary) !important;
-            color: white;
-        }
-
-        /* --- Responsive --- */
-        @media (max-width: 480px) {
-            h1 { font-size: 22px; }
+            position: absolute; right: 0; top: 20px;
+            background: #dfe6e9; color: #636e72;
+            width: 40px; height: 40px; box-shadow: none;
         }
     </style>
 </head>
 <body>
 
-    <div class="modal" id="login-modal" style="display: flex; background: var(--bg-gradient);">
-        <div class="modal-content" style="opacity:1; transform:none;">
-            <div style="text-align: center; margin-bottom: 20px;">
+    <div class="modal active" id="login-modal">
+        <div class="modal-content" style="border-color: var(--primary);">
+            <div style="text-align: center; margin-bottom: 30px;">
                 <div class="logo"><i class="fas fa-rocket"></i></div>
-                <h2 style="color: var(--primary)">Siap Berpetualang?</h2>
-                <p>Masuk untuk catat misimu!</p>
+                <h3>Masuk Quest!</h3>
             </div>
             <form id="login-form">
                 <div class="form-group">
-                    <label>Nama Keren Kamu</label>
-                    <input type="text" id="login-username" class="form-control" required placeholder="Contoh: Syifa">
+                    <label>Siapa namamu?</label>
+                    <input type="text" id="login-username" class="form-control" placeholder="Ketik nama di sini..." required>
                 </div>
-                <div class="form-group" style="margin-top:15px">
+                <div class="form-group">
                     <label>Kode Rahasia</label>
-                    <input type="password" id="login-password" class="form-control" required placeholder="****">
+                    <input type="password" id="login-password" class="form-control" placeholder="****" required>
                 </div>
-                <button type="submit" class="submit-btn" style="margin-top:25px">Mulai Sekarang!</button>
-                <p id="login-error" style="color: var(--accent); text-align: center; margin-top: 10px; font-weight: 600;"></p>
+                <button type="submit" class="submit-btn" style="background: var(--primary); box-shadow: 0 6px 0px #4834d4;">Mulai Petualangan!</button>
+                <p id="login-error" style="color: var(--accent); text-align: center; margin-top: 15px; font-weight: 600;"></p>
             </form>
         </div>
     </div>
 
     <div class="container" id="main-app-container" style="display: none;">
         <header>
-            <button id="logout-btn" class="add-btn">
-                <i class="fas fa-door-open"></i>
-            </button>
-            <div class="logo">
-                <i class="fas fa-crown"></i>
-            </div>
-            <h1>Quest Tracker</h1>
-            <p class="subtitle" id="user-display">Pahlawan Harian</p>
+            <button id="logout-btn" class="add-btn"><i class="fas fa-sign-out-alt"></i></button>
+            <div class="logo"><i class="fas fa-crown"></i></div>
+            <h1 id="user-display">Quest Tracker</h1>
         </header>
 
         <div class="stats-container">
             <div class="stat-card">
-                <div class="stat-icon time-icon"><i class="fas fa-bolt"></i></div>
                 <div class="stat-value" id="total-time">0</div>
                 <div class="stat-label">Menit Aktif</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon complete-icon"><i class="fas fa-trophy"></i></div>
                 <div class="stat-value" id="completed-count">0</div>
                 <div class="stat-label">Misi Selesai</div>
             </div>
         </div>
 
         <div class="date-selector">
-            <button class="date-btn" id="prev-day" style="border:none; background:none; cursor:pointer; color:var(--primary); font-size:20px"><i class="fas fa-arrow-left"></i></button>
             <input type="date" class="date-input" id="selected-date">
-            <button class="date-btn" id="next-day" style="border:none; background:none; cursor:pointer; color:var(--primary); font-size:20px"><i class="fas fa-arrow-right"></i></button>
         </div>
 
-        <div class="section-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <h2 id="daily-section-title">Misi Hari Ini</h2>
-            <button class="add-btn" id="open-modal">
-                <i class="fas fa-plus"></i>
-            </button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="font-size: 22px;">Misi Hari Ini</h2>
+            <button class="add-btn" id="open-modal"><i class="fas fa-plus"></i></button>
         </div>
 
-        <div class="activities-list" id="activities-container">
-            </div>
+        <div id="activities-container"></div>
     </div>
 
     <div class="modal" id="activity-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Tambah Misi Baru</h3>
-                <button class="close-modal" style="background:none; border:none; font-size:30px; color:#b2bec3">&times;</button>
+                <h3>🚀 Tambah Misi</h3>
+                <button class="close-modal" style="background:none; border:none; font-size:30px; cursor:pointer; color:#b2bec3">&times;</button>
             </div>
             <form id="activity-form">
                 <div class="form-group">
-                    <label>Apa yang mau kamu lakukan?</label>
-                    <input type="text" id="activity-name" class="form-control" placeholder="Baca buku, sepedaan..." required>
+                    <label>Apa rencanamu?</label>
+                    <input type="text" id="activity-name" class="form-control" placeholder="Misal: Baca buku cerita..." required>
                 </div>
-                
-                <div class="form-group" style="margin-top:15px">
+                <div class="form-group">
                     <label>Berapa lama? (menit)</label>
-                    <input type="number" id="activity-duration" class="form-control" min="1" value="30" required>
+                    <input type="number" id="activity-duration" class="form-control" value="30" required>
                 </div>
-                
-                <div class="form-group" style="margin-top:15px">
-                    <label>Pilih Kategori</label>
-                    <div class="category-options" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top:10px">
-                        <div class="category-option selected" data-category="learning">
-                            <i class="fas fa-book"></i> Belajar
-                        </div>
-                        <div class="category-option" data-category="play">
-                            <i class="fas fa-gamepad"></i> Main
-                        </div>
-                        <div class="category-option" data-category="sports">
-                            <i class="fas fa-bicycle"></i> Olahraga
-                        </div>
-                        <div class="category-option" data-category="health">
-                            <i class="fas fa-apple-alt"></i> Sehat
-                        </div>
+                <div class="form-group">
+                    <label>Kategori Misi</label>
+                    <div class="category-options">
+                        <div class="category-option selected" data-category="learning">📚 Belajar</div>
+                        <div class="category-option" data-category="play">🎮 Main</div>
+                        <div class="category-option" data-category="sports">⚽ Olahraga</div>
+                        <div class="category-option" data-category="health">🥗 Sehat</div>
                     </div>
                     <input type="hidden" id="activity-category" value="learning">
                 </div>
-                <button type="submit" class="submit-btn" style="margin-top:20px">Tambahkan Misi!</button>
+                <button type="submit" class="submit-btn">Tambahkan ke Daftar!</button>
             </form>
         </div>
     </div>
 
     <script>
-        // ... (Logika DB, AUTH_USERS, dan Fungsi Anda tetap sama, cukup pastikan ID elemen sesuai) ...
-        // Catatan: Gunakan logika JavaScript dari kode asli Anda di sini.
-        // Hanya perlu menyesuaikan pemanggilan class CSS jika ada perubahan.
-        
-        // Database simulation
         const DB = {
-            getActivities: function() {
-                const activities = localStorage.getItem('kids_activities');
-                return activities ? JSON.parse(activities) : [];
-            },
-            saveActivities: function(activities) {
-                localStorage.setItem('kids_activities', JSON.stringify(activities));
-            },
-            addActivity: function(activity) {
-                const activities = this.getActivities();
-                activities.push(activity);
-                this.saveActivities(activities);
-            },
-            updateActivity: function(updatedActivity) {
-                const activities = this.getActivities();
-                const index = activities.findIndex(a => a.id === updatedActivity.id);
-                if (index !== -1) {
-                    activities[index] = updatedActivity;
-                    this.saveActivities(activities);
-                }
-            },
-            deleteActivity: function(id) {
-                const activities = this.getActivities();
-                const filtered = activities.filter(a => a.id !== id);
-                this.saveActivities(filtered);
-            }
+            get: () => JSON.parse(localStorage.getItem('kids_activities')) || [],
+            save: (data) => localStorage.setItem('kids_activities', JSON.stringify(data))
         };
 
         const AUTH_USERS = [
@@ -404,62 +322,46 @@
             { username: 'syifa', password: 'syifa', role: 'user' }
         ];
 
-        const LOGIN_STORAGE_KEY = 'currentUser';
         const loginModal = document.getElementById('login-modal');
-        const loginForm = document.getElementById('login-form');
-        const mainContainer = document.getElementById('main-app-container');
-        const userDisplay = document.getElementById('user-display');
-        const activitiesContainer = document.getElementById('activities-container');
-        const selectedDateInput = document.getElementById('selected-date');
-        const activityForm = document.getElementById('activity-form');
-        const modal = document.getElementById('activity-modal');
+        const mainApp = document.getElementById('main-app-container');
+        const actModal = document.getElementById('activity-modal');
+        const dateInput = document.getElementById('selected-date');
+        
+        dateInput.value = new Date().toISOString().split('T')[0];
 
-        // Initial Setup
-        selectedDateInput.value = new Date().toISOString().split('T')[0];
-
-        function checkAuth() {
-            const user = JSON.parse(localStorage.getItem(LOGIN_STORAGE_KEY));
-            if (user) {
-                loginModal.style.display = 'none';
-                mainContainer.style.display = 'block';
-                userDisplay.textContent = `Hero: ${user.username}`;
-                loadActivities();
-            } else {
-                loginModal.style.display = 'flex';
-                mainContainer.style.display = 'none';
-            }
-        }
-
-        loginForm.addEventListener('submit', (e) => {
+        // Auth Logic
+        document.getElementById('login-form').onsubmit = (e) => {
             e.preventDefault();
             const u = document.getElementById('login-username').value.toLowerCase();
             const p = document.getElementById('login-password').value;
             const user = AUTH_USERS.find(x => x.username === u && x.password === p);
+            
             if(user) {
-                localStorage.setItem(LOGIN_STORAGE_KEY, JSON.stringify(user));
-                checkAuth();
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                initApp();
             } else {
-                document.getElementById('login-error').textContent = "Ups! Nama atau Kode salah.";
+                document.getElementById('login-error').textContent = "Nama atau kode salah!";
             }
-        });
+        };
 
         document.getElementById('logout-btn').onclick = () => {
-            localStorage.removeItem(LOGIN_STORAGE_KEY);
-            checkAuth();
+            localStorage.removeItem('currentUser');
+            location.reload();
         };
 
-        // Open/Close Modal
-        document.getElementById('open-modal').onclick = () => {
-            modal.style.display = 'flex';
-            setTimeout(() => modal.classList.add('active'), 10);
-        };
+        function initApp() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if(!user) return;
+            loginModal.classList.remove('active');
+            mainApp.style.display = 'block';
+            document.getElementById('user-display').textContent = "Halo, " + user.username + "!";
+            render();
+        }
 
-        document.querySelector('.close-modal').onclick = () => {
-            modal.classList.remove('active');
-            setTimeout(() => modal.style.display = 'none', 300);
-        };
+        // Modal Logic
+        document.getElementById('open-modal').onclick = () => actModal.classList.add('active');
+        document.querySelector('.close-modal').onclick = () => actModal.classList.remove('active');
 
-        // Category Selection
         document.querySelectorAll('.category-option').forEach(opt => {
             opt.onclick = () => {
                 document.querySelectorAll('.category-option').forEach(o => o.classList.remove('selected'));
@@ -468,104 +370,70 @@
             };
         });
 
-        // Add Activity
-        activityForm.onsubmit = (e) => {
+        // Activity Logic
+        document.getElementById('activity-form').onsubmit = (e) => {
             e.preventDefault();
-            const user = JSON.parse(localStorage.getItem(LOGIN_STORAGE_KEY));
-            const newAct = {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            const acts = DB.get();
+            acts.push({
                 id: Date.now(),
                 name: document.getElementById('activity-name').value,
                 duration: parseInt(document.getElementById('activity-duration').value),
                 category: document.getElementById('activity-category').value,
-                date: selectedDateInput.value,
+                date: dateInput.value,
                 completed: false,
                 user: user.username
-            };
-            DB.addActivity(newAct);
-            activityForm.reset();
-            document.querySelector('.close-modal').click();
-            loadActivities();
+            });
+            DB.save(acts);
+            actModal.classList.remove('active');
+            e.target.reset();
+            render();
         };
 
-        window.toggleActivity = (id) => {
-            const acts = DB.getActivities();
+        window.toggleAct = (id) => {
+            const acts = DB.get();
             const a = acts.find(x => x.id === id);
-            if(a) {
-                a.completed = !a.completed;
-                DB.updateActivity(a);
-                loadActivities();
+            if(a) a.completed = !a.completed;
+            DB.save(acts);
+            render();
+        };
+
+        window.deleteAct = (id) => {
+            if(confirm('Hapus misi ini?')) {
+                const acts = DB.get().filter(x => x.id !== id);
+                DB.save(acts);
+                render();
             }
         };
 
-        function loadActivities() {
-            const user = JSON.parse(localStorage.getItem(LOGIN_STORAGE_KEY));
-            const date = selectedDateInput.value;
-            const all = DB.getActivities();
-            const filtered = all.filter(x => x.date === date && (user.role === 'supervisor' || x.user === user.username));
+        function render() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            const acts = DB.get().filter(x => x.date === dateInput.value && (user.role === 'supervisor' || x.user === user.username));
             
-            render(filtered);
-            updateStats(filtered);
-        }
-
-        function updateStats(acts) {
             const done = acts.filter(x => x.completed);
             document.getElementById('total-time').textContent = done.reduce((s, x) => s + x.duration, 0);
             document.getElementById('completed-count').textContent = done.length;
-        }
 
-        function render(acts) {
+            const container = document.getElementById('activities-container');
             if(acts.length === 0) {
-                activitiesContainer.innerHTML = `<div style="text-align:center; padding:30px; color:#636e72">
-                    <i class="fas fa-ghost" style="font-size:40px; margin-bottom:10px"></i>
-                    <p>Belum ada misi. Yuk tambah!</p>
-                </div>`;
+                container.innerHTML = `<p style="text-align:center; padding:40px; color:#b2bec3">Belum ada misi untuk hari ini.</p>`;
                 return;
             }
 
-            const cats = {
-                learning: { icon: 'fa-book', color: '#6C5CE7' },
-                play: { icon: 'fa-gamepad', color: '#00CEC9' },
-                sports: { icon: 'fa-bicycle', color: '#E17055' },
-                health: { icon: 'fa-apple-alt', color: '#55EFC4' }
-            };
-
-            activitiesContainer.innerHTML = acts.map(a => `
-                <div class="activity-item ${a.completed ? 'completed' : ''}">
-                    <div class="activity-checkbox ${a.completed ? 'checked' : ''}" onclick="toggleActivity(${a.id})"></div>
-                    <div class="activity-icon" style="background:${cats[a.category].color}; width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; color:white; margin-right:15px">
-                        <i class="fas ${cats[a.category].icon}"></i>
+            container.innerHTML = acts.map(a => `
+                <div class="activity-item" style="${a.completed ? 'opacity:0.6; background:#f1f2f6' : ''}">
+                    <input type="checkbox" ${a.completed ? 'checked' : ''} onchange="toggleAct(${a.id})" style="width:25px; height:25px; margin-right:15px; cursor:pointer">
+                    <div style="flex:1">
+                        <div style="font-weight:600; font-size:18px; ${a.completed ? 'text-decoration:line-through' : ''}">${a.name}</div>
+                        <div style="font-size:13px; color:#636e72">${a.duration} Menit • ${a.category}</div>
                     </div>
-                    <div class="activity-details">
-                        <div class="activity-name ${a.completed ? 'completed' : ''}">${a.name}</div>
-                        <div class="activity-meta">${a.duration} Menit • ${a.category}</div>
-                    </div>
-                    <button onclick="deleteAct(${a.id})" style="background:none; border:none; color:#ff7675; cursor:pointer"><i class="fas fa-trash"></i></button>
+                    <button onclick="deleteAct(${a.id})" style="background:none; border:none; color:var(--accent); cursor:pointer"><i class="fas fa-trash"></i></button>
                 </div>
             `).join('');
         }
 
-        window.deleteAct = (id) => {
-            if(confirm('Hapus misi ini?')) {
-                DB.deleteActivity(id);
-                loadActivities();
-            }
-        };
-
-        selectedDateInput.onchange = loadActivities;
-        document.getElementById('prev-day').onclick = () => {
-            let d = new Date(selectedDateInput.value);
-            d.setDate(d.getDate() - 1);
-            selectedDateInput.value = d.toISOString().split('T')[0];
-            loadActivities();
-        };
-        document.getElementById('next-day').onclick = () => {
-            let d = new Date(selectedDateInput.value);
-            d.setDate(d.getDate() + 1);
-            selectedDateInput.value = d.toISOString().split('T')[0];
-            loadActivities();
-        };
-
-        checkAuth();
+        dateInput.onchange = render;
+        initApp();
     </script>
 </body>
 </html>
