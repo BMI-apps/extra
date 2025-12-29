@@ -15,161 +15,95 @@
             --bg-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Fredoka', sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Fredoka', sans-serif; }
 
-        body {
-            background: var(--bg-gradient);
-            min-height: 100vh;
-            padding: 20px;
-            color: #2D3436;
-        }
+        body { background: var(--bg-gradient); min-height: 100vh; padding: 20px; color: #2D3436; }
 
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
-        }
+        .container { max-width: 500px; margin: 0 auto; }
 
-        /* --- Header & Logo --- */
-        header {
-            text-align: center;
-            padding: 20px 0 30px;
-            position: relative;
-        }
+        header { text-align: center; padding: 20px 0 30px; position: relative; }
 
         #logout-btn {
-            position: absolute;
-            right: 0;
-            top: 10px;
-            background: #fff;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            color: var(--accent);
-            cursor: pointer;
-            box-shadow: 0 4px 0px #fab1a0;
+            position: absolute; right: 0; top: 10px; background: #fff; border: none;
+            width: 40px; height: 40px; border-radius: 12px; color: var(--accent);
+            cursor: pointer; box-shadow: 0 4px 0px #fab1a0;
         }
 
         .logo {
-            width: 70px;
-            height: 70px;
-            background: white;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 15px;
-            box-shadow: 0 6px 0px rgba(0,0,0,0.1);
+            width: 70px; height: 70px; background: white; border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 15px; box-shadow: 0 6px 0px rgba(0,0,0,0.1);
         }
 
         .logo i { font-size: 35px; color: var(--primary); }
 
-        /* --- Stats --- */
-        .stats-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
+        .stats-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
 
         .stat-card {
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 8px 0px rgba(0,0,0,0.05);
+            background: white; border-radius: 20px; padding: 20px;
+            text-align: center; box-shadow: 0 8px 0px rgba(0,0,0,0.05);
         }
 
         .stat-value { font-size: 28px; font-weight: 600; color: var(--primary); }
         .stat-label { font-size: 14px; color: #636e72; }
 
-        /* --- Modal (Padding Lega) --- */
+        /* --- MODAL (Jarak Border Lega) --- */
         .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(45, 52, 54, 0.85);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: rgba(45, 52, 54, 0.85);
+            z-index: 1000; align-items: center; justify-content: center;
             backdrop-filter: blur(8px);
         }
 
         .modal.active { display: flex; }
 
         .modal-content {
-            background: white;
-            border-radius: 35px;
-            padding: 40px; /* Jarak aman dari border */
-            width: 90%;
-            max-width: 420px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            border: 6px solid var(--secondary);
-            transform: translateY(20px);
+            background: white; border-radius: 35px; padding: 40px;
+            width: 95%; max-width: 450px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border: 6px solid var(--secondary); transform: translateY(20px);
             transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .modal.active .modal-content { transform: translateY(0); }
 
-        .form-group {
-            margin-bottom: 25px; /* Spasi antar baris */
-            text-align: left;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 12px;
-            font-weight: 600;
-        }
+        .form-group { margin-bottom: 25px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 12px; font-weight: 600; }
 
         .form-control {
-            width: 100%;
-            padding: 16px;
-            border: 2px solid #f1f2f6;
-            border-radius: 18px;
-            background: #f9f9f9;
-            font-size: 16px;
-            outline: none;
+            width: 100%; padding: 16px; border: 2px solid #f1f2f6;
+            border-radius: 18px; background: #f9f9f9; font-size: 16px; outline: none;
         }
 
-        /* --- Buttons --- */
+        /* --- KATEGORI BUTTONS --- */
+        .category-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        .category-option {
+            padding: 12px; background: #f1f2f6; border-radius: 15px;
+            text-align: center; cursor: pointer; border: 2px solid transparent;
+            font-size: 14px; transition: 0.2s;
+        }
+
+        .category-option.selected {
+            background: var(--primary); color: white; border-color: var(--primary);
+            box-shadow: 0 4px 10px rgba(108, 92, 231, 0.3);
+        }
+
         .submit-btn {
-            width: 100%;
-            padding: 18px;
-            background: var(--secondary);
-            color: white;
-            border: none;
-            border-radius: 20px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 6px 0px #00b894;
+            width: 100%; padding: 18px; background: var(--secondary);
+            color: white; border: none; border-radius: 20px;
+            font-size: 18px; font-weight: 600; cursor: pointer;
+            box-shadow: 0 6px 0px #00b894; margin-top: 10px;
         }
 
         .add-btn {
-            background: var(--accent);
-            color: white;
-            border: none;
-            width: 55px; height: 55px;
-            border-radius: 18px;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: 0 5px 0px #d63031;
+            background: var(--accent); color: white; border: none;
+            width: 55px; height: 55px; border-radius: 18px;
+            font-size: 24px; cursor: pointer; box-shadow: 0 5px 0px #d63031;
         }
 
         .activity-item {
-            background: white;
-            border-radius: 22px;
-            padding: 20px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
+            background: white; border-radius: 22px; padding: 20px;
+            margin-bottom: 15px; display: flex; align-items: center;
             border: 2px solid #f1f2f6;
         }
 
@@ -221,7 +155,7 @@
         </div>
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-            <h2 id="list-title">Misi Syifa 🚀</h2>
+            <h2 id="list-title">Misi Hari Ini 🚀</h2>
             <button class="add-btn" id="open-modal"><i class="fas fa-plus"></i></button>
         </div>
 
@@ -230,8 +164,8 @@
 
     <div class="modal" id="activity-modal">
         <div class="modal-content">
-            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-                <h3>✨ Tambah Misi</h3>
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                <h3>✨ Misi Baru</h3>
                 <button class="close-modal" style="background:none; border:none; font-size:35px; cursor:pointer; color:#bdc3c7">&times;</button>
             </div>
             <form id="activity-form">
@@ -243,18 +177,27 @@
                     <label>Durasi (Menit)</label>
                     <input type="number" id="activity-duration" class="form-control" value="30" required>
                 </div>
+                <div class="form-group">
+                    <label>Pilih Kategori</label>
+                    <div class="category-options">
+                        <div class="category-option selected" data-cat="Belajar">📚 Belajar</div>
+                        <div class="category-option" data-cat="Main">🎮 Main</div>
+                        <div class="category-option" data-cat="Olahraga">⚽ Olahraga</div>
+                        <div class="category-option" data-cat="Sehat">🥗 Sehat</div>
+                    </div>
+                </div>
                 <button type="submit" class="submit-btn">Tambahkan!</button>
             </form>
         </div>
     </div>
 
     <script>
-        // --- DATA USERS ---
         const AUTH_USERS = [
             { username: 'papa', password: 'papa', role: 'supervisor' },
             { username: 'syifa', password: 'syifa', role: 'user' }
         ];
 
+        let selectedCategory = "Belajar";
         const winSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
         const popSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
 
@@ -263,13 +206,12 @@
             save: (data) => localStorage.setItem('kids_activities', JSON.stringify(data))
         };
 
-        // Auth Logic
+        // Auth
         document.getElementById('login-form').onsubmit = (e) => {
             e.preventDefault();
             const u = document.getElementById('login-username').value.toLowerCase();
             const p = document.getElementById('login-password').value;
             const user = AUTH_USERS.find(x => x.username === u && x.password === p);
-            
             if(user) {
                 localStorage.setItem('currentUser', JSON.stringify(user));
                 initApp();
@@ -284,19 +226,24 @@
             document.getElementById('login-modal').classList.remove('active');
             document.getElementById('main-app-container').style.display = 'block';
             document.getElementById('user-display').textContent = `Halo, ${user.username}!`;
-            document.getElementById('list-title').textContent = user.role === 'supervisor' ? "Misi Semua" : "Misimu 🚀";
             render();
         }
 
-        document.getElementById('logout-btn').onclick = () => {
-            localStorage.removeItem('currentUser');
-            location.reload();
-        };
+        document.getElementById('logout-btn').onclick = () => { localStorage.removeItem('currentUser'); location.reload(); };
 
-        // Modal & Activity Logic
+        // Category Selection
+        document.querySelectorAll('.category-option').forEach(opt => {
+            opt.onclick = () => {
+                document.querySelectorAll('.category-option').forEach(o => o.classList.remove('selected'));
+                opt.classList.add('selected');
+                selectedCategory = opt.dataset.cat;
+            };
+        });
+
         document.getElementById('open-modal').onclick = () => { popSound.play(); document.getElementById('activity-modal').classList.add('active'); };
         document.querySelector('.close-modal').onclick = () => document.getElementById('activity-modal').classList.remove('active');
 
+        // Submit Misi
         document.getElementById('activity-form').onsubmit = (e) => {
             e.preventDefault();
             const user = JSON.parse(localStorage.getItem('currentUser'));
@@ -305,6 +252,7 @@
                 id: Date.now(),
                 name: document.getElementById('activity-name').value,
                 duration: parseInt(document.getElementById('activity-duration').value),
+                category: selectedCategory,
                 user: user.role === 'supervisor' ? 'syifa' : user.username,
                 completed: false
             });
@@ -319,10 +267,7 @@
             const a = acts.find(x => x.id === id);
             if(a) {
                 a.completed = !a.completed;
-                if(a.completed) {
-                    winSound.play();
-                    showToast("Hebat Banget! ✨");
-                }
+                if(a.completed) { winSound.play(); showToast("Hebat Syifa! ✨"); }
             }
             DB.save(acts);
             render();
@@ -347,11 +292,7 @@
         function render() {
             const user = JSON.parse(localStorage.getItem('currentUser'));
             let acts = DB.get();
-            
-            // Jika Syifa login, hanya lihat punya Syifa. Papa bisa lihat semua.
-            if(user.role !== 'supervisor') {
-                acts = acts.filter(x => x.user === user.username);
-            }
+            if(user.role !== 'supervisor') acts = acts.filter(x => x.user === user.username);
 
             const done = acts.filter(x => x.completed);
             document.getElementById('total-time').textContent = done.reduce((s, x) => s + x.duration, 0);
@@ -363,7 +304,7 @@
                     <input type="checkbox" ${a.completed ? 'checked' : ''} onchange="toggleAct(${a.id})" style="width:25px; height:25px; margin-right:15px;">
                     <div style="flex:1">
                         <div style="font-weight:600; ${a.completed ? 'text-decoration:line-through; color:#ccc' : ''}">${a.name}</div>
-                        <div style="font-size:12px; color:#636e72">${a.duration} Menit ${user.role === 'supervisor' ? '• User: '+a.user : ''}</div>
+                        <div style="font-size:12px; color:#636e72">${a.category} • ${a.duration} Menit ${user.role === 'supervisor' ? '• Untuk: '+a.user : ''}</div>
                     </div>
                     <button onclick="deleteAct(${a.id})" style="background:none; border:none; color:var(--accent); cursor:pointer"><i class="fas fa-trash"></i></button>
                 </div>
