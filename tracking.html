@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Super Quest Tracker - Quest & Rewards</title>
+    <title>Quest Tracker - Supervisor Edition</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -12,222 +12,274 @@
             --secondary: #00CEC9;
             --accent: #FF7675;
             --gold: #FFD700;
-            --bg-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            --bg: #F0F2F5;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Fredoka', sans-serif; }
-        body { background: var(--bg-gradient); min-height: 100vh; padding: 20px; color: #2D3436; }
+        body { background: var(--bg); min-height: 100vh; padding: 20px; color: #2D3436; }
         .container { max-width: 500px; margin: 0 auto; }
 
-        /* --- Header & Coin Display --- */
-        header { text-align: center; padding: 10px 0 20px; position: relative; }
-        .coin-badge {
-            background: white; padding: 8px 15px; border-radius: 50px;
-            display: inline-flex; align-items: center; gap: 8px;
-            box-shadow: 0 4px 0px #eee; font-weight: 600; color: #f39c12;
-            margin-top: 10px; border: 2px solid #f1c40f;
+        /* --- Header & Navigation --- */
+        header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .user-info h1 { font-size: 22px; color: var(--primary); }
+        
+        .nav-btns { display: flex; gap: 10px; }
+        .icon-btn { 
+            background: white; border: none; width: 40px; height: 40px; 
+            border-radius: 12px; cursor: pointer; color: #636e72;
+            box-shadow: 0 4px 0 #ddd; transition: 0.2s;
         }
+        .icon-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #ddd; }
+        .icon-btn.logout { color: var(--accent); }
 
-        /* --- Stats Card --- */
-        .stats-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
-        .stat-card {
-            background: white; border-radius: 20px; padding: 15px;
-            text-align: center; box-shadow: 0 8px 0px rgba(0,0,0,0.05);
+        /* --- Reward Section --- */
+        .reward-card {
+            background: white; border-radius: 25px; padding: 20px;
+            margin-bottom: 25px; border: 3px solid var(--gold);
+            position: relative; overflow: hidden;
         }
-        .stat-value { font-size: 24px; font-weight: 600; color: var(--primary); }
-
-        /* --- Progress Chart (Simple) --- */
-        .chart-container {
-            background: white; padding: 20px; border-radius: 25px;
-            margin-bottom: 25px; box-shadow: 0 8px 0px rgba(0,0,0,0.05);
-        }
-        .bar-wrapper { display: flex; align-items: flex-end; justify-content: space-around; height: 100px; padding-top: 10px; }
-        .bar { width: 30px; background: var(--secondary); border-radius: 8px 8px 0 0; transition: 0.5s; position: relative; }
-        .bar-label { font-size: 10px; text-align: center; margin-top: 5px; color: #636e72; }
-
-        /* --- Modal Style --- */
+        .reward-card h3 { font-size: 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .coin-display { font-size: 24px; font-weight: 600; color: #f39c12; margin-bottom: 5px; }
+        
+        /* --- Modal Styles (Lega & Rapih) --- */
         .modal {
             display: none; position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%; background: rgba(45, 52, 54, 0.85);
-            z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(8px);
+            width: 100%; height: 100%; background: rgba(0,0,0,0.7);
+            z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px);
         }
         .modal.active { display: flex; }
         .modal-content {
-            background: white; border-radius: 35px; padding: 35px;
-            width: 90%; max-width: 420px; border: 6px solid var(--secondary);
+            background: white; border-radius: 30px; padding: 40px;
+            width: 90%; max-width: 400px; position: relative;
         }
+        .close-x { position: absolute; right: 25px; top: 20px; font-size: 24px; cursor: pointer; color: #ccc; }
 
+        /* --- Form Elements --- */
         .form-group { margin-bottom: 20px; }
-        .form-control { width: 100%; padding: 14px; border-radius: 15px; border: 2px solid #eee; background: #f9f9f9; }
-
-        .submit-btn {
-            width: 100%; padding: 16px; background: var(--secondary); color: white;
-            border: none; border-radius: 20px; font-weight: 600; cursor: pointer; box-shadow: 0 5px 0 #00b894;
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
+        .form-control { 
+            width: 100%; padding: 15px; border-radius: 15px; 
+            border: 2px solid #eee; background: #F9FAFB; font-size: 16px;
         }
 
-        .activity-item {
-            background: white; border-radius: 20px; padding: 15px; margin-bottom: 12px;
-            display: flex; align-items: center; border: 2px solid #f1f2f6;
+        .btn-block {
+            width: 100%; padding: 15px; border-radius: 15px; border: none;
+            font-weight: 600; font-size: 16px; cursor: pointer; transition: 0.2s;
         }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 5px 0 #4834d4; }
+        .btn-secondary { background: var(--secondary); color: white; box-shadow: 0 5px 0 #00b894; }
+
+        /* --- List Items --- */
+        .item {
+            background: white; padding: 18px; border-radius: 20px;
+            margin-bottom: 12px; display: flex; align-items: center; gap: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .check-btn { width: 28px; height: 28px; cursor: pointer; accent-color: var(--secondary); }
     </style>
 </head>
 <body>
 
     <div class="modal active" id="login-modal">
-        <div class="modal-content" style="border-color: var(--primary);">
-            <h2 style="text-align: center; margin-bottom: 20px;">Quest Login 🚀</h2>
+        <div class="modal-content">
+            <h2 style="text-align:center; margin-bottom:25px;">Quest Login 🚀</h2>
             <form id="login-form">
-                <div class="form-group"><input type="text" id="login-username" class="form-control" placeholder="Nama..." required></div>
-                <div class="form-group"><input type="password" id="login-password" class="form-control" placeholder="Kode..." required></div>
-                <button type="submit" class="submit-btn" style="background:var(--primary); box-shadow: 0 5px 0 #4834d4;">Mulai!</button>
+                <div class="form-group"><input type="text" id="l-user" class="form-control" placeholder="Nama (Papa/Syifa)" required></div>
+                <div class="form-group"><input type="password" id="l-pass" class="form-control" placeholder="Kode Rahasia" required></div>
+                <button type="submit" class="btn-block btn-primary">Masuk Adventure</button>
             </form>
         </div>
     </div>
 
-    <div class="container" id="main-app" style="display: none;">
+    <div class="container" id="app" style="display:none;">
         <header>
-            <h1 id="user-display">Halo Syifa!</h1>
-            <div class="coin-badge">
-                <i class="fas fa-coins" style="color: #f1c40f;"></i>
-                <span id="coin-count">0</span> Koin Syifa
+            <div class="user-info">
+                <h1 id="welcome-text">Halo, Hero!</h1>
+                <div class="coin-display"><i class="fas fa-coins" style="color:var(--gold)"></i> <span id="my-coins">0</span></div>
+            </div>
+            <div class="nav-btns">
+                <button class="icon-btn" id="btn-settings" title="Setting Hadiah"><i class="fas fa-gift"></i></button>
+                <button class="icon-btn logout" id="btn-logout" title="Keluar"><i class="fas fa-sign-out-alt"></i></button>
             </div>
         </header>
 
-        <div class="chart-container">
-            <h3 style="font-size: 16px; margin-bottom: 10px;">📊 Grafik Mingguan (Menit)</h3>
-            <div class="bar-wrapper" id="chart-bars">
-                </div>
+        <div class="reward-card">
+            <h3><i class="fas fa-trophy" style="color:var(--gold)"></i> Target Hadiah</h3>
+            <p id="reward-name" style="font-weight:600; color:var(--primary)">Belum ada hadiah...</p>
+            <div style="font-size:12px; color:#999; margin-top:5px;">
+                Butuh: <span id="reward-cost">0</span> Koin
+            </div>
         </div>
 
-        <div class="stats-container">
-            <div class="stat-card"><div class="stat-value" id="total-time">0</div><div class="stat-label">Menit</div></div>
-            <div class="stat-card"><div class="stat-value" id="total-missions">0</div><div class="stat-label">Selesai</div></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3>Misi Aktif</h3>
+            <button class="icon-btn" onclick="openModal('mission-modal')" style="background:var(--secondary); color:white; box-shadow:0 4px 0 #00b894"><i class="fas fa-plus"></i></button>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <h3>Misi Hari Ini</h3>
-            <button onclick="openModal()" style="background:var(--accent); border:none; width:45px; height:45px; border-radius:15px; color:white; cursor:pointer;"><i class="fas fa-plus"></i></button>
-        </div>
-
-        <div id="activities-list"></div>
+        <div id="mission-list"></div>
     </div>
 
-    <div class="modal" id="activity-modal">
+    <div class="modal" id="settings-modal">
         <div class="modal-content">
-            <h3 style="margin-bottom: 20px;">Tambah Misi Baru</h3>
-            <form id="activity-form">
-                <div class="form-group"><input type="text" id="act-name" class="form-control" placeholder="Nama Misi..." required></div>
-                <div class="form-group"><input type="number" id="act-duration" class="form-control" placeholder="Durasi (Menit)..." required></div>
-                <button type="submit" class="submit-btn">Tambahkan!</button>
-                <button type="button" onclick="closeModal()" style="background:none; border:none; width:100%; margin-top:10px; color:#aaa; cursor:pointer;">Batal</button>
+            <span class="close-x" onclick="closeModal('settings-modal')">&times;</span>
+            <h3 style="margin-bottom:20px;">Atur Hadiah Syifa 🎁</h3>
+            <form id="reward-form">
+                <div class="form-group">
+                    <label>Nama Hadiah</label>
+                    <input type="text" id="set-reward-name" class="form-control" placeholder="Contoh: Es Krim / Mainan" required>
+                </div>
+                <div class="form-group">
+                    <label>Harga (Koin)</label>
+                    <input type="number" id="set-reward-cost" class="form-control" placeholder="Misal: 50" required>
+                </div>
+                <button type="submit" class="btn-block btn-secondary">Simpan Hadiah</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="mission-modal">
+        <div class="modal-content">
+            <span class="close-x" onclick="closeModal('mission-modal')">&times;</span>
+            <h3 style="margin-bottom:20px;">Misi Baru ✨</h3>
+            <form id="mission-form">
+                <div class="form-group">
+                    <label>Nama Aktivitas</label>
+                    <input type="text" id="m-name" class="form-control" placeholder="Baca buku, Ngaji, dll" required>
+                </div>
+                <div class="form-group">
+                    <label>Durasi (Menit)</label>
+                    <input type="number" id="m-time" class="form-control" value="30" required>
+                </div>
+                <button type="submit" class="btn-block btn-primary">Tambahkan Misi</button>
             </form>
         </div>
     </div>
 
     <script>
-        const AUTH_USERS = [
-            { username: 'papa', password: 'papa', role: 'supervisor' },
-            { username: 'syifa', password: 'syifa', role: 'user' }
+        const USERS = [
+            { name: 'papa', pass: 'papa', role: 'admin' },
+            { name: 'syifa', pass: 'syifa', role: 'user' }
         ];
 
+        let currentUser = null;
         const winSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
 
-        // Logic Database
+        // Database
         const DB = {
-            getActs: () => JSON.parse(localStorage.getItem('k_acts')) || [],
-            saveActs: (d) => localStorage.setItem('k_acts', JSON.stringify(d))
+            get: (key) => JSON.parse(localStorage.getItem(key)),
+            save: (key, val) => localStorage.setItem(key, JSON.stringify(val))
         };
 
         // Login
         document.getElementById('login-form').onsubmit = (e) => {
             e.preventDefault();
-            const u = document.getElementById('login-username').value.toLowerCase();
-            const p = document.getElementById('login-password').value;
-            const user = AUTH_USERS.find(x => x.username === u && x.password === p);
-            if(user) {
-                localStorage.setItem('k_user', JSON.stringify(user));
-                initApp();
-            }
+            const u = document.getElementById('l-user').value.toLowerCase();
+            const p = document.getElementById('l-pass').value;
+            const found = USERS.find(x => x.name === u && x.pass === p);
+            
+            if(found) {
+                currentUser = found;
+                sessionStorage.setItem('active_user', JSON.stringify(found));
+                init();
+            } else { alert("Maaf, nama atau kode salah!"); }
         };
 
-        function initApp() {
-            const user = JSON.parse(localStorage.getItem('k_user'));
-            if(!user) return;
+        document.getElementById('btn-logout').onclick = () => {
+            sessionStorage.clear();
+            location.reload();
+        };
+
+        function init() {
+            currentUser = JSON.parse(sessionStorage.getItem('active_user'));
+            if(!currentUser) return;
+
             document.getElementById('login-modal').classList.remove('active');
-            document.getElementById('main-app').style.display = 'block';
-            document.getElementById('user-display').textContent = `Halo, ${user.username}!`;
+            document.getElementById('app').style.display = 'block';
+            document.getElementById('welcome-text').textContent = `Halo, ${currentUser.name}!`;
+            
+            // Papa can access settings, Syifa cannot
+            document.getElementById('btn-settings').style.display = currentUser.role === 'admin' ? 'block' : 'none';
+            
             render();
         }
 
-        function openModal() { document.getElementById('activity-modal').classList.add('active'); }
-        function closeModal() { document.getElementById('activity-modal').classList.remove('active'); }
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-        document.getElementById('activity-form').onsubmit = (e) => {
+        // Misi Logic
+        document.getElementById('mission-form').onsubmit = (e) => {
             e.preventDefault();
-            const user = JSON.parse(localStorage.getItem('k_user'));
-            const acts = DB.getActs();
-            acts.push({
+            const missions = DB.get('missions') || [];
+            missions.push({
                 id: Date.now(),
-                name: document.getElementById('act-name').value,
-                duration: parseInt(document.getElementById('act-duration').value),
-                user: user.role === 'supervisor' ? 'syifa' : user.username,
-                completed: false,
-                date: new Date().toLocaleDateString('id-ID')
+                name: document.getElementById('m-name').value,
+                time: parseInt(document.getElementById('m-time').value),
+                done: false,
+                owner: 'syifa' // Semua misi otomatis untuk Syifa
             });
-            DB.saveActs(acts);
-            closeModal();
+            DB.save('missions', missions);
+            closeModal('mission-modal');
+            e.target.reset();
             render();
         };
 
-        window.toggleAct = (id) => {
-            const acts = DB.getActs();
-            const a = acts.find(x => x.id === id);
-            if(a) {
-                a.completed = !a.completed;
-                if(a.completed) winSound.play();
-            }
-            DB.saveActs(acts);
+        // Reward Logic (Papa Only)
+        document.getElementById('reward-form').onsubmit = (e) => {
+            e.preventDefault();
+            const reward = {
+                name: document.getElementById('set-reward-name').value,
+                cost: parseInt(document.getElementById('set-reward-cost').value)
+            };
+            DB.save('reward_config', reward);
+            closeModal('settings-modal');
             render();
+        };
+
+        window.toggleMisi = (id) => {
+            const missions = DB.get('missions');
+            const m = missions.find(x => x.id === id);
+            if(m) {
+                m.done = !m.done;
+                if(m.done) winSound.play();
+            }
+            DB.save('missions', missions);
+            render();
+        };
+
+        window.delMisi = (id) => {
+            if(confirm('Hapus misi ini?')) {
+                const missions = DB.get('missions').filter(x => x.id !== id);
+                DB.save('missions', missions);
+                render();
+            }
         };
 
         function render() {
-            const user = JSON.parse(localStorage.getItem('k_user'));
-            let acts = DB.getActs();
+            const missions = DB.get('missions') || [];
+            const config = DB.get('reward_config') || { name: 'Belum diatur Papa', cost: 0 };
             
-            // Filter user
-            if(user.role !== 'supervisor') acts = acts.filter(x => x.user === user.username);
-
-            const done = acts.filter(x => x.completed);
-            const totalMinutes = done.reduce((s, x) => s + x.duration, 0);
+            // Calculate Coins (10 mins = 1 coin)
+            const completedTime = missions.filter(x => x.done).reduce((s, x) => s + x.time, 0);
+            const coins = Math.floor(completedTime / 10);
             
-            document.getElementById('total-time').textContent = totalMinutes;
-            document.getElementById('total-missions').textContent = done.length;
-            document.getElementById('coin-count').textContent = Math.floor(totalMinutes / 10);
+            document.getElementById('my-coins').textContent = coins;
+            document.getElementById('reward-name').textContent = config.name;
+            document.getElementById('reward-cost').textContent = config.cost;
 
-            // Render List
-            const list = document.getElementById('activities-list');
-            list.innerHTML = acts.map(a => `
-                <div class="activity-item">
-                    <input type="checkbox" ${a.completed ? 'checked' : ''} onchange="toggleAct(${a.id})" style="width:22px; height:22px; margin-right:12px;">
+            const list = document.getElementById('mission-list');
+            list.innerHTML = missions.map(m => `
+                <div class="item">
+                    <input type="checkbox" class="check-btn" ${m.done ? 'checked' : ''} onchange="toggleMisi(${m.id})">
                     <div style="flex:1">
-                        <div style="${a.completed ? 'text-decoration:line-through; color:#ccc' : ''}; font-weight:600;">${a.name}</div>
-                        <div style="font-size:12px; color:#aaa;">${a.duration} Menit</div>
+                        <div style="font-weight:600; ${m.done ? 'text-decoration:line-through; color:#ccc' : ''}">${m.name}</div>
+                        <div style="font-size:12px; color:#999">${m.time} Menit</div>
                     </div>
-                </div>
-            `).join('');
-
-            // Render Chart (Sederhana)
-            const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
-            const chartBars = document.getElementById('chart-bars');
-            chartBars.innerHTML = days.map(d => `
-                <div style="display:flex; flex-direction:column; align-items:center;">
-                    <div class="bar" style="height: ${Math.min(totalMinutes/2, 100)}px;"></div>
-                    <div class="bar-label">${d}</div>
+                    ${currentUser.role === 'admin' ? `<button onclick="delMisi(${m.id})" style="border:none; background:none; color:#ff7675; cursor:pointer"><i class="fas fa-trash"></i></button>` : ''}
                 </div>
             `).join('');
         }
 
-        initApp();
+        init();
     </script>
 </body>
 </html>
