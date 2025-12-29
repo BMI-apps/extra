@@ -207,44 +207,57 @@
             const ms = DB.get('misi');
             const r = JSON.parse(localStorage.getItem('reward')) || { n: 'Belum diatur Papa', t: 0 };
             
-            // Hitung total menit yang sudah selesai
-            const totalD = ms.filter(x => x.done).reduce((s, x) => s + x.duration || x.d, 0);
-            
-            // Hitung koin (10 menit = 1 koin)
+            // Hitung total menit & koin
+            const totalD = ms.filter(x => x.done).reduce((s, x) => s + (x.duration || x.d), 0);
             const coins = Math.floor(totalD / 10);
             
-            // --- LOGIKA BARU: HITUNG SISA MENIT ---
+            // Hitung sisa
             const koinDibutuhkan = parseInt(r.t);
             const koinKurang = koinDibutuhkan - coins;
             const menitKurang = koinKurang > 0 ? koinKurang * 10 : 0;
             
-            // Update Tampilan Atas
+            // Update angka koin & target
             document.getElementById('coin-val').textContent = coins;
             document.getElementById('reward-display').textContent = r.n;
             document.getElementById('target-val').textContent = r.t;
         
-            // Tampilkan informasi sisa menit di dalam kotak reward
             const rewardCard = document.querySelector('.reward-card');
-            
-            // Hapus info sisa lama jika ada agar tidak double
             const oldInfo = document.getElementById('info-sisa');
             if(oldInfo) oldInfo.remove();
         
+            // LOGIKA PERBEDAAN PESAN PAPA vs SYIFA
+            let pesan = "";
+            let warnaBg = "";
+            let warnaTeks = "";
+        
             if (menitKurang > 0) {
-                const infoSisa = document.createElement('div');
-                infoSisa.id = 'info-sisa';
-                infoSisa.style.cssText = "margin-top: 10px; padding: 10px; background: #FFF9C4; border-radius: 10px; font-size: 13px; color: #F57F17; border-left: 5px solid #FBC02D;";
-                infoSisa.innerHTML = `<i class="fas fa-bolt"></i> Semangat Syifa! Kurang <b>${menitKurang} menit</b> aktivitas lagi untuk dapat <b>${r.n}</b>!`;
-                rewardCard.appendChild(infoSisa);
+                warnaBg = "#FFF9C4"; // Kuning
+                warnaTeks = "#F57F17";
+                // Jika login sebagai Papa (admin)
+                if(userNow.r === 'admin') {
+                    pesan = `<i class="fas fa-search"></i> Pantauan Papa: Syifa kurang <b>${menitKurang} menit</b> lagi.`;
+                } else {
+                    pesan = `<i class="fas fa-bolt"></i> Semangat Syifa! Kurang <b>${menitKurang} menit</b> lagi untuk hadiah!`;
+                }
             } else if (koinDibutuhkan > 0) {
-                const infoSelesai = document.createElement('div');
-                infoSelesai.id = 'info-sisa';
-                infoSelesai.style.cssText = "margin-top: 10px; padding: 10px; background: #C8E6C9; border-radius: 10px; font-size: 13px; color: #2E7D32; border-left: 5px solid #4CAF50;";
-                infoSelesai.innerHTML = `<i class="fas fa-check-circle"></i> HORE! Koin sudah cukup! Tagih hadiah <b>${r.n}</b> ke Papa sekarang! 🎁`;
-                rewardCard.appendChild(infoSelesai);
+                warnaBg = "#C8E6C9"; // Hijau
+                warnaTeks = "#2E7D32";
+                if(userNow.r === 'admin') {
+                    pesan = `<i class="fas fa-gift"></i> Tugas Papa: Koin Syifa sudah cukup untuk <b>${r.n}</b>!`;
+                } else {
+                    pesan = `<i class="fas fa-check-circle"></i> HORE! Koin cukup! Tagih hadiah <b>${r.n}</b> ke Papa!`;
+                }
             }
         
-            // Render List Misi (tetap sama)
+            if (pesan !== "") {
+                const infoDiv = document.createElement('div');
+                infoDiv.id = 'info-sisa';
+                infoDiv.style.cssText = `margin-top:10px; padding:10px; border-radius:10px; font-size:13px; background:${warnaBg}; color:${warnaTeks}; border-left:5px solid ${warnaTeks};`;
+                infoDiv.innerHTML = pesan;
+                rewardCard.appendChild(infoDiv);
+            }
+        
+            // Render List Misi
             const list = document.getElementById('list-misi');
             list.innerHTML = ms.map(m => `
                 <div class="activity-item">
@@ -256,8 +269,8 @@
                     ${userNow.r === 'admin' ? `<button onclick="delM(${m.id})" style="border:none; background:none; color:var(--accent); cursor:pointer"><i class="fas fa-trash"></i></button>` : ''}
                 </div>
             `).join('');
-        }
-        
+        }        
+
         function start() {
             userNow = JSON.parse(sessionStorage.getItem('u'));
             if(!userNow) return;
