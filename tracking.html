@@ -27,7 +27,6 @@
             min-height: 100vh;
             padding: 20px;
             color: #2D3436;
-            overflow-x: hidden;
         }
 
         .container {
@@ -40,6 +39,20 @@
             text-align: center;
             padding: 20px 0 30px;
             position: relative;
+        }
+
+        #logout-btn {
+            position: absolute;
+            right: 0;
+            top: 10px;
+            background: #fff;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            color: var(--accent);
+            cursor: pointer;
+            box-shadow: 0 4px 0px #fab1a0;
         }
 
         .logo {
@@ -75,7 +88,7 @@
         .stat-value { font-size: 28px; font-weight: 600; color: var(--primary); }
         .stat-label { font-size: 14px; color: #636e72; }
 
-        /* --- Modal (Perbaikan Jarak) --- */
+        /* --- Modal (Padding Lega) --- */
         .modal {
             display: none;
             position: fixed;
@@ -93,28 +106,19 @@
         .modal-content {
             background: white;
             border-radius: 35px;
-            padding: 40px; /* Jarak luas dari border */
+            padding: 40px; /* Jarak aman dari border */
             width: 90%;
             max-width: 420px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.3);
             border: 6px solid var(--secondary);
-            position: relative;
             transform: translateY(20px);
             transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .modal.active .modal-content { transform: translateY(0); }
 
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        /* --- Form Elements --- */
         .form-group {
-            margin-bottom: 25px; /* Jarak antar input */
+            margin-bottom: 25px; /* Spasi antar baris */
             text-align: left;
         }
 
@@ -122,7 +126,6 @@
             display: block;
             margin-bottom: 12px;
             font-weight: 600;
-            color: #2d3436;
         }
 
         .form-control {
@@ -133,30 +136,6 @@
             background: #f9f9f9;
             font-size: 16px;
             outline: none;
-        }
-
-        .form-control:focus { border-color: var(--secondary); background: white; }
-
-        .category-options {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .category-option {
-            padding: 12px;
-            background: #f1f2f6;
-            border-radius: 15px;
-            text-align: center;
-            cursor: pointer;
-            font-size: 14px;
-            border: 2px solid transparent;
-        }
-
-        .category-option.selected {
-            background: var(--primary);
-            color: white;
-            box-shadow: 0 4px 10px rgba(108, 92, 231, 0.3);
         }
 
         /* --- Buttons --- */
@@ -171,7 +150,6 @@
             font-weight: 600;
             cursor: pointer;
             box-shadow: 0 6px 0px #00b894;
-            margin-top: 10px;
         }
 
         .add-btn {
@@ -185,7 +163,6 @@
             box-shadow: 0 5px 0px #d63031;
         }
 
-        /* --- Activity List --- */
         .activity-item {
             background: white;
             border-radius: 22px;
@@ -193,17 +170,9 @@
             margin-bottom: 15px;
             display: flex;
             align-items: center;
-            box-shadow: 0 5px 0px rgba(0,0,0,0.03);
             border: 2px solid #f1f2f6;
-            animation: slideIn 0.4s ease forwards;
         }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        /* --- Toast Animation --- */
         @keyframes popUp {
             0% { transform: translateX(-50%) translateY(50px); opacity: 0; }
             100% { transform: translateX(-50%) translateY(0); opacity: 1; }
@@ -221,13 +190,13 @@
             <form id="login-form">
                 <div class="form-group">
                     <label>Siapa namamu?</label>
-                    <input type="text" id="login-username" class="form-control" placeholder="Ketik nama..." required>
+                    <input type="text" id="login-username" class="form-control" placeholder="Papa / Syifa" required>
                 </div>
                 <div class="form-group">
                     <label>Kode Rahasia</label>
                     <input type="password" id="login-password" class="form-control" placeholder="****" required>
                 </div>
-                <button type="submit" class="submit-btn" style="background: var(--primary); box-shadow: 0 6px 0px #4834d4;">Mulai Petualangan!</button>
+                <button type="submit" class="submit-btn" style="background: var(--primary); box-shadow: 0 6px 0px #4834d4;">Mulai!</button>
                 <p id="login-error" style="color: var(--accent); text-align: center; margin-top: 15px; font-weight: 600;"></p>
             </form>
         </div>
@@ -235,8 +204,9 @@
 
     <div class="container" id="main-app-container" style="display: none;">
         <header>
+            <button id="logout-btn"><i class="fas fa-sign-out-alt"></i></button>
             <div class="logo"><i class="fas fa-crown"></i></div>
-            <h1 id="user-display">Halo, Hero!</h1>
+            <h1 id="user-display">Halo!</h1>
         </header>
 
         <div class="stats-container">
@@ -251,7 +221,7 @@
         </div>
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-            <h2 style="font-size: 22px;">Misi Hari Ini 🚀</h2>
+            <h2 id="list-title">Misi Syifa 🚀</h2>
             <button class="add-btn" id="open-modal"><i class="fas fa-plus"></i></button>
         </div>
 
@@ -260,36 +230,31 @@
 
     <div class="modal" id="activity-modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3>✨ Misi Baru</h3>
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <h3>✨ Tambah Misi</h3>
                 <button class="close-modal" style="background:none; border:none; font-size:35px; cursor:pointer; color:#bdc3c7">&times;</button>
             </div>
             <form id="activity-form">
                 <div class="form-group">
                     <label>Nama Misimu</label>
-                    <input type="text" id="activity-name" class="form-control" placeholder="Contoh: Belajar Coding..." required>
+                    <input type="text" id="activity-name" class="form-control" placeholder="Contoh: Belajar Quran..." required>
                 </div>
                 <div class="form-group">
-                    <label>Berapa lama? (Menit)</label>
+                    <label>Durasi (Menit)</label>
                     <input type="number" id="activity-duration" class="form-control" value="30" required>
                 </div>
-                <div class="form-group">
-                    <label>Kategori</label>
-                    <div class="category-options">
-                        <div class="category-option selected" data-category="learning">📚 Belajar</div>
-                        <div class="category-option" data-category="play">🎮 Main</div>
-                        <div class="category-option" data-category="sports">⚽ Olahraga</div>
-                        <div class="category-option" data-category="health">🥗 Sehat</div>
-                    </div>
-                    <input type="hidden" id="activity-category" value="learning">
-                </div>
-                <button type="submit" class="submit-btn">Siap, Mulai!</button>
+                <button type="submit" class="submit-btn">Tambahkan!</button>
             </form>
         </div>
     </div>
 
     <script>
-        // Audio Effects
+        // --- DATA USERS ---
+        const AUTH_USERS = [
+            { username: 'papa', password: 'papa', role: 'supervisor' },
+            { username: 'syifa', password: 'syifa', role: 'user' }
+        ];
+
         const winSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
         const popSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
 
@@ -298,18 +263,15 @@
             save: (data) => localStorage.setItem('kids_activities', JSON.stringify(data))
         };
 
-        const loginModal = document.getElementById('login-modal');
-        const mainApp = document.getElementById('main-app-container');
-        const actModal = document.getElementById('activity-modal');
-
-        // Login Logic
+        // Auth Logic
         document.getElementById('login-form').onsubmit = (e) => {
             e.preventDefault();
-            const u = document.getElementById('login-username').value;
+            const u = document.getElementById('login-username').value.toLowerCase();
             const p = document.getElementById('login-password').value;
+            const user = AUTH_USERS.find(x => x.username === u && x.password === p);
             
-            if(u.toLowerCase() === 'syifa' && p === 'syifa') {
-                localStorage.setItem('currentUser', 'syifa');
+            if(user) {
+                localStorage.setItem('currentUser', JSON.stringify(user));
                 initApp();
             } else {
                 document.getElementById('login-error').textContent = "Nama/Kode salah!";
@@ -317,45 +279,39 @@
         };
 
         function initApp() {
-            const user = localStorage.getItem('currentUser');
+            const user = JSON.parse(localStorage.getItem('currentUser'));
             if(!user) return;
-            loginModal.classList.remove('active');
-            mainApp.style.display = 'block';
-            document.getElementById('user-display').textContent = `Halo, ${user}!`;
+            document.getElementById('login-modal').classList.remove('active');
+            document.getElementById('main-app-container').style.display = 'block';
+            document.getElementById('user-display').textContent = `Halo, ${user.username}!`;
+            document.getElementById('list-title').textContent = user.role === 'supervisor' ? "Misi Semua" : "Misimu 🚀";
             render();
         }
 
-        // Modal Logic
-        document.getElementById('open-modal').onclick = () => {
-            popSound.play();
-            actModal.classList.add('active');
+        document.getElementById('logout-btn').onclick = () => {
+            localStorage.removeItem('currentUser');
+            location.reload();
         };
-        document.querySelector('.close-modal').onclick = () => actModal.classList.remove('active');
 
-        document.querySelectorAll('.category-option').forEach(opt => {
-            opt.onclick = () => {
-                document.querySelectorAll('.category-option').forEach(o => o.classList.remove('selected'));
-                opt.classList.add('selected');
-                document.getElementById('activity-category').value = opt.dataset.category;
-            };
-        });
+        // Modal & Activity Logic
+        document.getElementById('open-modal').onclick = () => { popSound.play(); document.getElementById('activity-modal').classList.add('active'); };
+        document.querySelector('.close-modal').onclick = () => document.getElementById('activity-modal').classList.remove('active');
 
-        // Activity Logic
         document.getElementById('activity-form').onsubmit = (e) => {
             e.preventDefault();
+            const user = JSON.parse(localStorage.getItem('currentUser'));
             const acts = DB.get();
             acts.push({
                 id: Date.now(),
                 name: document.getElementById('activity-name').value,
                 duration: parseInt(document.getElementById('activity-duration').value),
-                category: document.getElementById('activity-category').value,
+                user: user.role === 'supervisor' ? 'syifa' : user.username,
                 completed: false
             });
             DB.save(acts);
-            actModal.classList.remove('active');
+            document.getElementById('activity-modal').classList.remove('active');
             e.target.reset();
             render();
-            showToast("Misi ditambahkan!");
         };
 
         window.toggleAct = (id) => {
@@ -365,8 +321,7 @@
                 a.completed = !a.completed;
                 if(a.completed) {
                     winSound.play();
-                    const pesan = ["Hebat!", "Keren!", "Luar Biasa!", "Misi Tuntas! 🔥", "Heroic! ✨"];
-                    showToast(pesan[Math.floor(Math.random()*pesan.length)]);
+                    showToast("Hebat Banget! ✨");
                 }
             }
             DB.save(acts);
@@ -374,42 +329,43 @@
         };
 
         window.deleteAct = (id) => {
-            const acts = DB.get().filter(x => x.id !== id);
-            DB.save(acts);
-            render();
+            if(confirm('Hapus misi ini?')) {
+                const acts = DB.get().filter(x => x.id !== id);
+                DB.save(acts);
+                render();
+            }
         };
 
         function showToast(text) {
             const toast = document.createElement('div');
             toast.textContent = text;
-            toast.style.cssText = `
-                position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
-                background: var(--primary); color: white; padding: 15px 30px;
-                border-radius: 50px; font-weight: 600; z-index: 3000;
-                box-shadow: 0 10px 20px rgba(0,0,0,0.2); animation: popUp 0.4s ease forwards;
-            `;
+            toast.style.cssText = `position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); background: var(--primary); color: white; padding: 15px 30px; border-radius: 50px; font-weight: 600; z-index: 3000; box-shadow: 0 10px 20px rgba(0,0,0,0.2); animation: popUp 0.4s ease forwards;`;
             document.body.appendChild(toast);
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                setTimeout(() => toast.remove(), 500);
-            }, 2000);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 2000);
         }
 
         function render() {
-            const acts = DB.get();
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            let acts = DB.get();
+            
+            // Jika Syifa login, hanya lihat punya Syifa. Papa bisa lihat semua.
+            if(user.role !== 'supervisor') {
+                acts = acts.filter(x => x.user === user.username);
+            }
+
             const done = acts.filter(x => x.completed);
             document.getElementById('total-time').textContent = done.reduce((s, x) => s + x.duration, 0);
             document.getElementById('completed-count').textContent = done.length;
 
             const container = document.getElementById('activities-container');
             container.innerHTML = acts.map(a => `
-                <div class="activity-item" style="${a.completed ? 'background:#f1f2f6; border-color:#dfe6e9' : ''}">
-                    <input type="checkbox" ${a.completed ? 'checked' : ''} onchange="toggleAct(${a.id})" style="width:25px; height:25px; margin-right:15px; accent-color:var(--secondary);">
+                <div class="activity-item">
+                    <input type="checkbox" ${a.completed ? 'checked' : ''} onchange="toggleAct(${a.id})" style="width:25px; height:25px; margin-right:15px;">
                     <div style="flex:1">
-                        <div style="font-weight:600; font-size:18px; ${a.completed ? 'text-decoration:line-through; color:#b2bec3' : ''}">${a.name}</div>
-                        <div style="font-size:13px; color:#636e72">${a.duration} Menit • ${a.category}</div>
+                        <div style="font-weight:600; ${a.completed ? 'text-decoration:line-through; color:#ccc' : ''}">${a.name}</div>
+                        <div style="font-size:12px; color:#636e72">${a.duration} Menit ${user.role === 'supervisor' ? '• User: '+a.user : ''}</div>
                     </div>
-                    <button onclick="deleteAct(${a.id})" style="background:none; border:none; color:#fab1a0; cursor:pointer"><i class="fas fa-trash-alt"></i></button>
+                    <button onclick="deleteAct(${a.id})" style="background:none; border:none; color:var(--accent); cursor:pointer"><i class="fas fa-trash"></i></button>
                 </div>
             `).join('');
         }
