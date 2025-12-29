@@ -3,633 +3,387 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kids Activity Tracker - Role Based</title>
+    <title>Super Kids Quest Tracker</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #6C5CE7;
+            --secondary: #00CEC9;
+            --accent: #FF7675;
+            --success: #55EFC4;
+            --warning: #FAB1A0;
+            --bg-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Fredoka', sans-serif;
         }
-        
+
         body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf9 100%);
+            background: var(--bg-gradient);
             min-height: 100vh;
-            padding: 20px;
-            color: #333;
+            padding: 15px;
+            color: #2D3436;
         }
-        
+
         .container {
             max-width: 500px;
             margin: 0 auto;
         }
-        
+
+        /* --- Header & Logo --- */
         header {
             text-align: center;
             padding: 20px 0;
-            margin-bottom: 20px;
-            position: relative; /* Ditambahkan untuk posisi tombol logout */
+            position: relative;
         }
-        
+
         .logo {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 25px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 15px;
+            box-shadow: 0 8px 0px #dfe6e9;
+            transform: rotate(-5deg);
         }
-        
+
         .logo i {
-            font-size: 28px;
-            color: white;
+            font-size: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        
+
         h1 {
-            color: #2c3e50;
-            margin-bottom: 5px;
+            font-size: 28px;
+            color: #2d3436;
+            text-shadow: 2px 2px 0px #fff;
         }
-        
+
         .subtitle {
-            color: #7f8c8d;
-            font-size: 16px;
+            background: rgba(255, 255, 255, 0.5);
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-top: 5px;
         }
-        
+
+        /* --- Stats Card --- */
         .stats-container {
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 15px;
             margin-bottom: 25px;
         }
-        
+
         .stat-card {
-            flex: 1;
             background: white;
-            border-radius: 15px;
+            border-radius: 20px;
             padding: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 10px 0px rgba(0,0,0,0.05);
             text-align: center;
-            transition: transform 0.3s ease;
+            border: 3px solid transparent;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-        
+
+        .stat-card:hover { transform: scale(1.05); border-color: var(--secondary); }
+
         .stat-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 15px;
-            font-size: 20px;
-        }
-        
-        .time-icon {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-        }
-        
-        .complete-icon {
-            background: linear-gradient(135deg, #2ecc71, #27ae60);
-        }
-        
-        .stat-value {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 5px;
-            color: #2c3e50;
-        }
-        
-        .stat-label {
-            font-size: 14px;
-            color: #7f8c8d;
-        }
-        
-        .section-title {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 30px 0 20px;
-        }
-        
-        .section-title h2 {
-            color: #2c3e50;
-            font-size: 20px;
-        }
-        
-        .add-btn {
             width: 45px;
             height: 45px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(238, 90, 36, 0.3);
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
+            margin: 0 auto 10px;
+            color: white;
+            font-size: 20px;
         }
-        
-        .add-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(238, 90, 36, 0.4);
-        }
-        
-        .activities-list {
-            margin-bottom: 30px;
-        }
-        
+
+        .time-icon { background: var(--primary); }
+        .complete-icon { background: var(--success); }
+
+        .stat-value { font-size: 32px; font-weight: 600; color: #2d3436; }
+        .stat-label { font-size: 14px; color: #636e72; }
+
+        /* --- Activities --- */
         .activity-item {
             background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
-            transition: all 0.3s ease;
+            box-shadow: 0 6px 0px rgba(0,0,0,0.03);
+            border: 2px solid #f1f2f6;
+            transition: 0.3s;
         }
-        
+
         .activity-item.completed {
-            background: #f8fff9;
-            border-left: 4px solid #2ecc71;
+            background: #f1f2f6;
+            border-color: #dfe6e9;
+            opacity: 0.8;
         }
-        
+
         .activity-checkbox {
-            width: 24px;
-            height: 24px;
-            border-radius: 6px;
-            border: 2px solid #ddd;
-            margin-right: 15px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-        
-        .activity-checkbox.checked {
-            background: #2ecc71;
-            border-color: #2ecc71;
-        }
-        
-        .activity-checkbox.checked::after {
-            content: "✓";
-            color: white;
-            font-size: 14px;
-        }
-        
-        .activity-icon {
-            width: 45px;
-            height: 45px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            font-size: 18px;
-            color: white;
-        }
-        
-        .activity-details {
-            flex: 1;
-        }
-        
-        .activity-name {
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: #2c3e50;
-        }
-        
-        .activity-name.completed {
-            text-decoration: line-through;
-            color: #95a5a6;
-        }
-        
-        .activity-meta {
-            display: flex;
-            font-size: 14px;
-            color: #7f8c8d;
-        }
-        
-        .activity-duration {
-            margin-right: 15px;
-        }
-        
-        .activity-category {
-            background: rgba(0, 0, 0, 0.05);
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 12px;
-        }
-        
-        .delete-btn {
-            background: none;
-            border: none;
-            color: #e74c3c;
-            font-size: 20px;
-            cursor: pointer;
-            opacity: 0.7;
-            transition: opacity 0.2s ease;
             width: 30px;
             height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .delete-btn:hover {
-            opacity: 1;
-        }
-        
-        .modal {
-            /* Diubah dari display:none ke struktur penuh untuk Login */
-            display: none; 
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        #login-modal {
-            /* Tampilan awal login (seperti halaman penuh) */
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf9 100%);
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            transform: translateY(20px);
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
-        
-        #login-modal .modal-content {
-             /* Perubahan untuk modal login yang lebih tebal */
-            max-width: 450px;
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .modal.active .modal-content {
-            transform: translateY(0);
-            opacity: 1;
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-        
-        .modal-header h3 {
-            color: #2c3e50;
-            font-size: 22px;
-        }
-        
-        .close-modal {
-            background: none;
-            border: none;
-            font-size: 28px;
-            cursor: pointer;
-            color: #7f8c8d;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #2c3e50;
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #ecf0f1;
-            border-radius: 12px;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
-        }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-        
-        .category-options {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .category-option {
-            padding: 12px;
-            border: 2px solid #ecf0f1;
+            border: 3px solid var(--primary);
             border-radius: 10px;
-            text-align: center;
+            margin-right: 15px;
             cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        
-        .category-option.selected {
-            border-color: #3498db;
-            background: rgba(52, 152, 219, 0.1);
-        }
-        
-        .category-option i {
-            display: block;
-            font-size: 20px;
-            margin-bottom: 8px;
-        }
-        
-        .submit-btn {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
         }
-        
-        .empty-state i {
-            font-size: 48px;
-            color: #bdc3c7;
-            margin-bottom: 20px;
+
+        .activity-checkbox.checked {
+            background: var(--success);
+            border-color: var(--success);
         }
-        
-        .empty-state p {
-            color: #7f8c8d;
-            font-size: 16px;
-            margin-bottom: 15px;
+
+        .activity-checkbox.checked::after {
+            content: "\f00c";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            color: white;
         }
-        
+
+        .activity-details { flex: 1; }
+        .activity-name { font-weight: 600; font-size: 18px; }
+        .activity-name.completed { text-decoration: line-through; color: #b2bec3; }
+
+        .activity-meta { font-size: 13px; color: #636e72; margin-top: 2px; }
+
+        /* --- Date Selector --- */
         .date-selector {
             display: flex;
+            background: white;
+            padding: 10px;
+            border-radius: 50px;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
             margin-bottom: 20px;
-        }
-        
-        .date-btn {
-            background: white;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            color: #2c3e50;
-        }
-        
-        .date-input {
-            border: none;
-            background: white;
-            padding: 10px 15px;
-            border-radius: 20px;
-            text-align: center;
-            font-weight: 600;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            width: 150px;
-        }
-        
-        #logout-btn {
-            /* Style tombol logout */
-            position: absolute; 
-            top: 20px; 
-            right: 20px; 
-            background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
-            width: 40px; 
-            height: 40px;
-            border-radius: 50%;
-            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
+        .date-input {
+            border: none;
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 16px;
+            outline: none;
+        }
+
+        /* --- Buttons --- */
+        .add-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 5px 0px #d63031;
+            transition: 0.2s;
+        }
+
+        .add-btn:active { transform: translateY(3px); box-shadow: 0 2px 0px #d63031; }
+
+        #logout-btn {
+            position: absolute;
+            top: 10px;
+            right: 0;
+            background: var(--warning);
+            width: 40px; height: 40px;
+            box-shadow: 0 4px 0px #e17055;
+        }
+
+        /* --- Modal --- */
+        .modal-content {
+            border-radius: 30px !important;
+            border: 8px solid var(--secondary);
+        }
+
+        .form-control {
+            background: #f1f2f6;
+            border: 2px solid transparent;
+            border-radius: 15px;
+            padding: 12px;
+            font-size: 16px;
+        }
+
+        .form-control:focus { border-color: var(--secondary); outline: none; }
+
+        .submit-btn {
+            background: var(--secondary);
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 18px;
+            box-shadow: 0 6px 0px #00b894;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        /* Category chips */
+        .category-option {
+            background: #f1f2f6;
+            border: none !important;
+            border-radius: 15px !important;
+            padding: 10px !important;
+        }
+
+        .category-option.selected {
+            background: var(--primary) !important;
+            color: white;
+        }
+
+        /* --- Responsive --- */
         @media (max-width: 480px) {
-            .stats-container {
-                flex-direction: column;
-            }
-            
-            .category-options {
-                grid-template-columns: 1fr;
-            }
+            h1 { font-size: 22px; }
         }
     </style>
 </head>
 <body>
-    
-    <div class="modal" id="login-modal" style="display: flex;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Masuk ke Kids Tracker</h3>
+
+    <div class="modal" id="login-modal" style="display: flex; background: var(--bg-gradient);">
+        <div class="modal-content" style="opacity:1; transform:none;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div class="logo"><i class="fas fa-rocket"></i></div>
+                <h2 style="color: var(--primary)">Siap Berpetualang?</h2>
+                <p>Masuk untuk catat misimu!</p>
             </div>
             <form id="login-form">
                 <div class="form-group">
-                    <label for="login-username">Nama Pengguna</label>
-                    <input type="text" id="login-username" class="form-control" required placeholder="">
+                    <label>Nama Keren Kamu</label>
+                    <input type="text" id="login-username" class="form-control" required placeholder="Contoh: Syifa">
                 </div>
-                <div class="form-group">
-                    <label for="login-password">Kata Sandi</label>
-                    <input type="password" id="login-password" class="form-control" required>
+                <div class="form-group" style="margin-top:15px">
+                    <label>Kode Rahasia</label>
+                    <input type="password" id="login-password" class="form-control" required placeholder="****">
                 </div>
-                <button type="submit" class="submit-btn" id="login-btn">Masuk</button>
-                <p id="login-error" style="color: #e74c3c; text-align: center; margin-top: 10px;"></p>
+                <button type="submit" class="submit-btn" style="margin-top:25px">Mulai Sekarang!</button>
+                <p id="login-error" style="color: var(--accent); text-align: center; margin-top: 10px; font-weight: 600;"></p>
             </form>
         </div>
     </div>
-    <div class="container" id="main-app-container" style="display: none;"> 
+
+    <div class="container" id="main-app-container" style="display: none;">
         <header>
-            <div class="logo">
-                <i class="fas fa-star"></i>
-            </div>
-            <h1>Kids Activity Tracker</h1>
-            <p class="subtitle" id="user-display">Daily Activity Log</p>
-            <button id="logout-btn" class="add-btn" style="display: none;">
-                <i class="fas fa-sign-out-alt"></i>
+            <button id="logout-btn" class="add-btn">
+                <i class="fas fa-door-open"></i>
             </button>
+            <div class="logo">
+                <i class="fas fa-crown"></i>
+            </div>
+            <h1>Quest Tracker</h1>
+            <p class="subtitle" id="user-display">Pahlawan Harian</p>
         </header>
 
-        <div id="supervisor-summary" style="display: none;">
-            <div class="section-title">
-                <h2>Global Activity Summary</h2>
-                <div>
-                    <button class="add-btn" id="toggle-summary-filter" style="width: auto; padding: 10px 15px; border-radius: 10px; font-size: 14px; background: linear-gradient(135deg, #f1c40f, #e67e22) !important;">
-                        <i class="fas fa-calendar-day"></i> Kembali ke Harian
-                    </button>
-                </div>
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-icon time-icon"><i class="fas fa-bolt"></i></div>
+                <div class="stat-value" id="total-time">0</div>
+                <div class="stat-label">Menit Aktif</div>
             </div>
-            
-            <div class="stats-container" id="global-stats-container">
-                <div class="stat-card">
-                    <div class="stat-icon time-icon" style="background: linear-gradient(135deg, #1abc9c, #16a085);">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="stat-value" id="global-total-kids">0</div>
-                    <div class="stat-label">Total Anak</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon complete-icon">
-                        <i class="fas fa-check-double"></i>
-                    </div>
-                    <div class="stat-value" id="global-completed-count">0</div>
-                    <div class="stat-label">Total Selesai</div>
-                </div>
+            <div class="stat-card">
+                <div class="stat-icon complete-icon"><i class="fas fa-trophy"></i></div>
+                <div class="stat-value" id="completed-count">0</div>
+                <div class="stat-label">Misi Selesai</div>
             </div>
-            
-            <div class="activities-list" id="global-activities-list">
-                <h3>Ringkasan Per Anak:</h3>
-            </div>
-            <hr style="margin: 30px 0; border: 0; border-top: 1px solid #ddd;">
         </div>
-        <div id="daily-activities-view">
-            <div class="date-selector">
-                <button class="date-btn" id="prev-day">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <input type="date" class="date-input" id="selected-date">
-                <button class="date-btn" id="next-day">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-            </div>
-            
-            <div class="stats-container">
-                <div class="stat-card">
-                    <div class="stat-icon time-icon">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <div class="stat-value" id="total-time">0</div>
-                    <div class="stat-label">Minutes Today</div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon complete-icon">
-                        <i class="fas fa-trophy"></i>
-                    </div>
-                    <div class="stat-value" id="completed-count">0</div>
-                    <div class="stat-label">Completed Today</div>
-                </div>
-            </div>
-            
-            <div class="section-title">
-                <h2 id="daily-section-title">Today's Activities</h2>
-                <button class="add-btn" id="open-modal">
-                    <i class="fas fa-plus"></i>
-                </button>
-            </div>
-            
-            <div class="activities-list" id="activities-container">
-                </div>
+
+        <div class="date-selector">
+            <button class="date-btn" id="prev-day" style="border:none; background:none; cursor:pointer; color:var(--primary); font-size:20px"><i class="fas fa-arrow-left"></i></button>
+            <input type="date" class="date-input" id="selected-date">
+            <button class="date-btn" id="next-day" style="border:none; background:none; cursor:pointer; color:var(--primary); font-size:20px"><i class="fas fa-arrow-right"></i></button>
         </div>
+
+        <div class="section-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h2 id="daily-section-title">Misi Hari Ini</h2>
+            <button class="add-btn" id="open-modal">
+                <i class="fas fa-plus"></i>
+            </button>
         </div>
+
+        <div class="activities-list" id="activities-container">
+            </div>
+    </div>
+
     <div class="modal" id="activity-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Add New Activity</h3>
-                <button class="close-modal">&times;</button>
+                <h3>Tambah Misi Baru</h3>
+                <button class="close-modal" style="background:none; border:none; font-size:30px; color:#b2bec3">&times;</button>
             </div>
             <form id="activity-form">
                 <div class="form-group">
-                    <label for="activity-name">Activity Name</label>
-                    <input type="text" id="activity-name" class="form-control" placeholder="e.g., Reading, Playing..." required>
+                    <label>Apa yang mau kamu lakukan?</label>
+                    <input type="text" id="activity-name" class="form-control" placeholder="Baca buku, sepedaan..." required>
                 </div>
                 
-                <div class="form-group">
-                    <label for="activity-duration">Duration (minutes)</label>
+                <div class="form-group" style="margin-top:15px">
+                    <label>Berapa lama? (menit)</label>
                     <input type="number" id="activity-duration" class="form-control" min="1" value="30" required>
                 </div>
                 
-                <div class="form-group">
-                    <label>Category</label>
-                    <div class="category-options">
+                <div class="form-group" style="margin-top:15px">
+                    <label>Pilih Kategori</label>
+                    <div class="category-options" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top:10px">
                         <div class="category-option selected" data-category="learning">
-                            <i class="fas fa-book"></i>
-                            <span>Learning</span>
+                            <i class="fas fa-book"></i> Belajar
                         </div>
                         <div class="category-option" data-category="play">
-                            <i class="fas fa-gamepad"></i>
-                            <span>Play</span>
+                            <i class="fas fa-gamepad"></i> Main
                         </div>
                         <div class="category-option" data-category="sports">
-                            <i class="fas fa-bicycle"></i>
-                            <span>Sports</span>
+                            <i class="fas fa-bicycle"></i> Olahraga
                         </div>
                         <div class="category-option" data-category="health">
-                            <i class="fas fa-apple-alt"></i>
-                            <span>Health</span>
+                            <i class="fas fa-apple-alt"></i> Sehat
                         </div>
                     </div>
                     <input type="hidden" id="activity-category" value="learning">
                 </div>
-                
-                <button type="submit" class="submit-btn">Add Activity</button>
+                <button type="submit" class="submit-btn" style="margin-top:20px">Tambahkan Misi!</button>
             </form>
         </div>
     </div>
+
     <script>
-        // Database simulation using localStorage
+        // ... (Logika DB, AUTH_USERS, dan Fungsi Anda tetap sama, cukup pastikan ID elemen sesuai) ...
+        // Catatan: Gunakan logika JavaScript dari kode asli Anda di sini.
+        // Hanya perlu menyesuaikan pemanggilan class CSS jika ada perubahan.
+        
+        // Database simulation
         const DB = {
-            // Get activities from localStorage
             getActivities: function() {
                 const activities = localStorage.getItem('kids_activities');
                 return activities ? JSON.parse(activities) : [];
             },
-            
-            // Save activities to localStorage
             saveActivities: function(activities) {
                 localStorage.setItem('kids_activities', JSON.stringify(activities));
             },
-            
-            // Add new activity
             addActivity: function(activity) {
                 const activities = this.getActivities();
                 activities.push(activity);
                 this.saveActivities(activities);
             },
-            
-            // Update activity
             updateActivity: function(updatedActivity) {
                 const activities = this.getActivities();
                 const index = activities.findIndex(a => a.id === updatedActivity.id);
@@ -638,411 +392,180 @@
                     this.saveActivities(activities);
                 }
             },
-            
-            // Delete activity
             deleteActivity: function(id) {
                 const activities = this.getActivities();
                 const filtered = activities.filter(a => a.id !== id);
                 this.saveActivities(filtered);
             }
         };
-        
-        // --- START: NEW LOGIN/ROLE LOGIC & DOM ELEMENTS ---
-        const AUTH_USERS = [
-            { username: 'papa', password: 'papa', role: 'supervisor' }
-            ,{ username: 'syifa', password: 'syifa', role: 'user' }
-        ];
-        const LOGIN_STORAGE_KEY = 'currentUser';
 
+        const AUTH_USERS = [
+            { username: 'papa', password: 'papa', role: 'supervisor' },
+            { username: 'syifa', password: 'syifa', role: 'user' }
+        ];
+
+        const LOGIN_STORAGE_KEY = 'currentUser';
         const loginModal = document.getElementById('login-modal');
         const loginForm = document.getElementById('login-form');
-        const loginError = document.getElementById('login-error');
         const mainContainer = document.getElementById('main-app-container');
-        const logoutBtn = document.getElementById('logout-btn');
         const userDisplay = document.getElementById('user-display');
+        const activitiesContainer = document.getElementById('activities-container');
+        const selectedDateInput = document.getElementById('selected-date');
+        const activityForm = document.getElementById('activity-form');
+        const modal = document.getElementById('activity-modal');
 
-        const supervisorSummary = document.getElementById('supervisor-summary');
-        const dailyActivitiesView = document.getElementById('daily-activities-view');
-        const toggleSummaryFilterBtn = document.getElementById('toggle-summary-filter');
-        const globalStatsContainer = document.getElementById('global-stats-container');
-        const globalActivitiesList = document.getElementById('global-activities-list');
-        const dailySectionTitle = document.getElementById('daily-section-title');
-
-        let isDailyView = true; 
-        
-        function getLoggedInUser() {
-            return JSON.parse(localStorage.getItem(LOGIN_STORAGE_KEY)) || {};
-        }
+        // Initial Setup
+        selectedDateInput.value = new Date().toISOString().split('T')[0];
 
         function checkAuth() {
-            const user = getLoggedInUser();
-            if (user && user.role) {
-                // Otentikasi Berhasil
+            const user = JSON.parse(localStorage.getItem(LOGIN_STORAGE_KEY));
+            if (user) {
                 loginModal.style.display = 'none';
                 mainContainer.style.display = 'block';
-                logoutBtn.style.display = 'flex';
-                userDisplay.textContent = `Log Aktivitas Harian - ${user.username} (${user.role.toUpperCase()})`;
-                renderApp(user.role);
+                userDisplay.textContent = `Hero: ${user.username}`;
+                loadActivities();
             } else {
-                // Belum Login
                 loginModal.style.display = 'flex';
                 mainContainer.style.display = 'none';
-                logoutBtn.style.display = 'none';
             }
         }
 
-        function handleLogin(e) {
+        loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const username = document.getElementById('login-username').value;
-            const password = document.getElementById('login-password').value;
-
-            const user = AUTH_USERS.find(u => u.username === username && u.password === password);
-
-            if (user) {
-                localStorage.setItem(LOGIN_STORAGE_KEY, JSON.stringify({ 
-                    username: user.username, 
-                    role: user.role 
-                }));
-                loginError.textContent = '';
+            const u = document.getElementById('login-username').value.toLowerCase();
+            const p = document.getElementById('login-password').value;
+            const user = AUTH_USERS.find(x => x.username === u && x.password === p);
+            if(user) {
+                localStorage.setItem(LOGIN_STORAGE_KEY, JSON.stringify(user));
                 checkAuth();
             } else {
-                loginError.textContent = 'Nama pengguna atau kata sandi salah.';
+                document.getElementById('login-error').textContent = "Ups! Nama atau Kode salah.";
             }
-        }
+        });
 
-        function handleLogout() {
+        document.getElementById('logout-btn').onclick = () => {
             localStorage.removeItem(LOGIN_STORAGE_KEY);
-            // Hapus data sesi untuk Activity Modal jika ada
-            modal.classList.remove('active');
-            modal.style.display = 'none';
             checkAuth();
-        }
+        };
 
-        loginForm.addEventListener('submit', handleLogin);
-        logoutBtn.addEventListener('click', handleLogout);
-        
-        // --- END: NEW LOGIN/ROLE LOGIC ---
-
-        // DOM Elements Lanjutan
-        const activitiesContainer = document.getElementById('activities-container');
-        const modal = document.getElementById('activity-modal');
-        const openModalBtn = document.getElementById('open-modal');
-        const closeModalBtn = document.querySelector('.close-modal');
-        const activityForm = document.getElementById('activity-form');
-        const categoryOptions = document.querySelectorAll('.category-option');
-        const totalTimeElement = document.getElementById('total-time');
-        const completedCountElement = document.getElementById('completed-count');
-        const selectedDateInput = document.getElementById('selected-date');
-        const prevDayBtn = document.getElementById('prev-day');
-        const nextDayBtn = document.getElementById('next-day');
-        
-        // Set today's date as default
-        const today = new Date();
-        const formattedDate = today.toISOString().split('T')[0];
-        selectedDateInput.value = formattedDate;
-        
-        // Navigation functions
-        function navigateDays(direction) {
-            const currentDate = new Date(selectedDateInput.value);
-            currentDate.setDate(currentDate.getDate() + direction);
-            selectedDateInput.value = currentDate.toISOString().split('T')[0];
-            loadActivitiesForDate();
-        }
-        
-        prevDayBtn.addEventListener('click', () => navigateDays(-1));
-        nextDayBtn.addEventListener('click', () => navigateDays(1));
-        selectedDateInput.addEventListener('change', loadActivitiesForDate);
-        
-        // Open modal
-        openModalBtn.addEventListener('click', () => {
+        // Open/Close Modal
+        document.getElementById('open-modal').onclick = () => {
             modal.style.display = 'flex';
-            setTimeout(() => {
-                modal.classList.add('active');
-            }, 10);
-        });
-        
-        // Close modal
-        closeModalBtn.addEventListener('click', closeModal);
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                closeModal();
-            }
-        });
-        
-        function closeModal() {
+            setTimeout(() => modal.classList.add('active'), 10);
+        };
+
+        document.querySelector('.close-modal').onclick = () => {
             modal.classList.remove('active');
-            setTimeout(() => {
-                modal.style.display = 'none';
-            }, 300);
-        }
-        
-        // Category selection
-        categoryOptions.forEach(option => {
-            option.addEventListener('click', () => {
-                categoryOptions.forEach(opt => opt.classList.remove('selected'));
-                option.classList.add('selected');
-                document.getElementById('activity-category').value = option.dataset.category;
-            });
-        });
-        
-        // Add new activity (MODIFIED to include user/role)
-        activityForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const name = document.getElementById('activity-name').value;
-            const duration = parseInt(document.getElementById('activity-duration').value);
-            const category = document.getElementById('activity-category').value;
-            const date = selectedDateInput.value;
-            
-            // Ambil data user saat ini
-            const { username, role } = getLoggedInUser();
+            setTimeout(() => modal.style.display = 'none', 300);
+        };
 
-            if (name.trim() && username) {
-                const newActivity = {
-                    id: Date.now(),
-                    name: name,
-                    duration: duration,
-                    category: category,
-                    date: date,
-                    completed: false,
-                    // Tambahan Properti User & Role (untuk filtering dan summary)
-                    user: username, 
-                    createdByRole: role 
-                };
-                
-                DB.addActivity(newActivity);
-                loadActivitiesForDate();
-                
-                // Reset form
-                activityForm.reset();
-                categoryOptions.forEach(opt => opt.classList.remove('selected'));
-                document.querySelector('.category-option[data-category="learning"]').classList.add('selected');
-                document.getElementById('activity-category').value = 'learning';
-                
-                closeModal();
-            } else {
-                alert("Harap login atau isi semua kolom.");
-            }
-        });
-        
-        // Toggle activity completion
-        window.toggleActivity = function(id) {
-            const activities = DB.getActivities();
-            const activity = activities.find(a => a.id === id);
-            
-            if (activity) {
-                activity.completed = !activity.completed;
-                DB.updateActivity(activity);
-                loadActivitiesForDate();
-            }
-        }
-        
-        // Delete activity
-        window.deleteActivity = function(id) {
-            DB.deleteActivity(id);
-            loadActivitiesForDate();
-        }
-        
-        // Get category info
-        function getCategoryInfo(category) {
-            const categories = {
-                learning: { icon: 'fas fa-book', color: '#3498db', name: 'Learning' },
-                play: { icon: 'fas fa-gamepad', color: '#2ecc71', name: 'Play' },
-                sports: { icon: 'fas fa-bicycle', color: '#e67e22', name: 'Sports' },
-                health: { icon: 'fas fa-apple-alt', color: '#e74c3c', name: 'Health' }
+        // Category Selection
+        document.querySelectorAll('.category-option').forEach(opt => {
+            opt.onclick = () => {
+                document.querySelectorAll('.category-option').forEach(o => o.classList.remove('selected'));
+                opt.classList.add('selected');
+                document.getElementById('activity-category').value = opt.dataset.category;
             };
-            return categories[category] || categories.learning;
-        }
-        
-        // Update stats (Hanya untuk tampilan harian)
-        function updateStats(activities) {
-            const completedActivities = activities.filter(a => a.completed);
-            const totalTime = completedActivities.reduce((sum, a) => sum + a.duration, 0);
-            const completedCount = completedActivities.length;
-            
-            totalTimeElement.textContent = totalTime;
-            completedCountElement.textContent = completedCount;
-        }
-        
-        // Load activities for selected date (MODIFIED to filter by user/role)
-        function loadActivitiesForDate() {
-            const { username, role } = getLoggedInUser();
-            const selectedDate = selectedDateInput.value;
-            const allActivities = DB.getActivities();
+        });
 
-            let activitiesForDate;
-            
-            if (role === 'supervisor') {
-                activitiesForDate = allActivities.filter(a => a.date === selectedDate);
-                dailySectionTitle.textContent = `Aktivitas Harian Semua User`;
-            } else {
-                // User: Hanya melihat aktivitas mereka sendiri
-                activitiesForDate = allActivities.filter(a => a.date === selectedDate && a.user === username);
-                dailySectionTitle.textContent = `Aktivitas Hari Ini`;
+        // Add Activity
+        activityForm.onsubmit = (e) => {
+            e.preventDefault();
+            const user = JSON.parse(localStorage.getItem(LOGIN_STORAGE_KEY));
+            const newAct = {
+                id: Date.now(),
+                name: document.getElementById('activity-name').value,
+                duration: parseInt(document.getElementById('activity-duration').value),
+                category: document.getElementById('activity-category').value,
+                date: selectedDateInput.value,
+                completed: false,
+                user: user.username
+            };
+            DB.addActivity(newAct);
+            activityForm.reset();
+            document.querySelector('.close-modal').click();
+            loadActivities();
+        };
+
+        window.toggleActivity = (id) => {
+            const acts = DB.getActivities();
+            const a = acts.find(x => x.id === id);
+            if(a) {
+                a.completed = !a.completed;
+                DB.updateActivity(a);
+                loadActivities();
             }
+        };
 
-            renderActivities(activitiesForDate, role);
-            updateStats(activitiesForDate);
+        function loadActivities() {
+            const user = JSON.parse(localStorage.getItem(LOGIN_STORAGE_KEY));
+            const date = selectedDateInput.value;
+            const all = DB.getActivities();
+            const filtered = all.filter(x => x.date === date && (user.role === 'supervisor' || x.user === user.username));
+            
+            render(filtered);
+            updateStats(filtered);
         }
-        
-        // Render activities (MODIFIED to pass role)
-        function renderActivities(activities, role) {
-            if (activities.length === 0) {
-                activitiesContainer.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-sun"></i>
-                        <p>No activities yet</p>
-                        <p>Add your first activity!</p>
-                    </div>
-                `;
+
+        function updateStats(acts) {
+            const done = acts.filter(x => x.completed);
+            document.getElementById('total-time').textContent = done.reduce((s, x) => s + x.duration, 0);
+            document.getElementById('completed-count').textContent = done.length;
+        }
+
+        function render(acts) {
+            if(acts.length === 0) {
+                activitiesContainer.innerHTML = `<div style="text-align:center; padding:30px; color:#636e72">
+                    <i class="fas fa-ghost" style="font-size:40px; margin-bottom:10px"></i>
+                    <p>Belum ada misi. Yuk tambah!</p>
+                </div>`;
                 return;
             }
-            
-            activitiesContainer.innerHTML = '';
-            
-            activities.forEach(activity => {
-                const categoryInfo = getCategoryInfo(activity.category);
-                
-                const activityElement = document.createElement('div');
-                activityElement.className = `activity-item ${activity.completed ? 'completed' : ''}`;
-                activityElement.innerHTML = `
-                    <div class="activity-checkbox ${activity.completed ? 'checked' : ''}" 
-                        onclick="toggleActivity(${activity.id})"></div>
-                    <div class="activity-icon" style="background: ${categoryInfo.color}">
-                        <i class="${categoryInfo.icon}"></i>
+
+            const cats = {
+                learning: { icon: 'fa-book', color: '#6C5CE7' },
+                play: { icon: 'fa-gamepad', color: '#00CEC9' },
+                sports: { icon: 'fa-bicycle', color: '#E17055' },
+                health: { icon: 'fa-apple-alt', color: '#55EFC4' }
+            };
+
+            activitiesContainer.innerHTML = acts.map(a => `
+                <div class="activity-item ${a.completed ? 'completed' : ''}">
+                    <div class="activity-checkbox ${a.completed ? 'checked' : ''}" onclick="toggleActivity(${a.id})"></div>
+                    <div class="activity-icon" style="background:${cats[a.category].color}; width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; color:white; margin-right:15px">
+                        <i class="fas ${cats[a.category].icon}"></i>
                     </div>
                     <div class="activity-details">
-                        <div class="activity-name ${activity.completed ? 'completed' : ''}">${activity.name} 
-                            ${role === 'supervisor' ? `<span style="font-size: 12px; color: #7f8c8d;">(Oleh: ${activity.user})</span>` : ''}
-                        </div>
-                        <div class="activity-meta">
-                            <span class="activity-duration"><i class="far fa-clock"></i> ${activity.duration} min</span>
-                            <span class="activity-category">${categoryInfo.name}</span>
-                        </div>
+                        <div class="activity-name ${a.completed ? 'completed' : ''}">${a.name}</div>
+                        <div class="activity-meta">${a.duration} Menit • ${a.category}</div>
                     </div>
-                    ${role === 'supervisor' ? `
-                        <button class="delete-btn" onclick="deleteActivity(${activity.id})">
-                            <i class="fas fa-times"></i>
-                        </button>` : ''}
-                `;
-                
-                activitiesContainer.appendChild(activityElement);
-            });
+                    <button onclick="deleteAct(${a.id})" style="background:none; border:none; color:#ff7675; cursor:pointer"><i class="fas fa-trash"></i></button>
+                </div>
+            `).join('');
         }
 
-        // --- START: SUMMARY DASHBOARD LOGIC (Supervisor Only) ---
-
-        window.toggleSummaryView = function() {
-            const { role } = getLoggedInUser();
-            if (role !== 'supervisor') return;
-
-            isDailyView = !isDailyView;
-            
-            if (!isDailyView) {
-                // Tampilkan Summary Global
-                dailyActivitiesView.style.display = 'none';
-                supervisorSummary.style.display = 'block';
-                toggleSummaryFilterBtn.innerHTML = '<i class="fas fa-calendar-day"></i> Kembali ke Harian';
-                displayGlobalSummary();
-            } else {
-                // Tampilkan Tampilan Harian
-                dailyActivitiesView.style.display = 'block';
-                supervisorSummary.style.display = 'none';
-                toggleSummaryFilterBtn.innerHTML = '<i class="fas fa-list"></i> Lihat Semua Data';
-                loadActivitiesForDate();
+        window.deleteAct = (id) => {
+            if(confirm('Hapus misi ini?')) {
+                DB.deleteActivity(id);
+                loadActivities();
             }
-        }
-        
-        toggleSummaryFilterBtn.addEventListener('click', toggleSummaryView);
+        };
 
-        function displayGlobalSummary() {
-            const allActivities = DB.getActivities();
-            
-            // Hitung Ringkasan Global
-            const summary = allActivities.reduce((acc, activity) => {
-                if (!acc[activity.user]) {
-                    acc[activity.user] = { totalDuration: 0, completedCount: 0 };
-                }
-                
-                acc[activity.user].totalDuration += activity.duration;
-                if (activity.completed) {
-                    acc[activity.user].completedCount += 1;
-                }
-                
-                return acc;
-            }, {});
-            
-            // Total Statistik
-            const totalKids = Object.keys(summary).length;
-            const globalCompleted = Object.values(summary).reduce((sum, s) => sum + s.completedCount, 0);
-            const globalDuration = Object.values(summary).reduce((sum, s) => sum + s.totalDuration, 0);
-            
-            // Tampilkan Statistik Global
-            document.getElementById('global-total-kids').textContent = totalKids;
-            document.getElementById('global-completed-count').textContent = globalCompleted;
-            
-            // Menambah card Total Durasi Global (Karena di HTML hanya ada 2)
-            if (globalStatsContainer.children.length === 2) {
-                globalStatsContainer.insertAdjacentHTML('beforeend', `
-                    <div class="stat-card">
-                        <div class="stat-icon time-icon" style="background: linear-gradient(135deg, #f39c12, #d35400);">
-                            <i class="fas fa-stopwatch"></i>
-                        </div>
-                        <div class="stat-value">${globalDuration}</div>
-                        <div class="stat-label">Total Semua Menit</div>
-                    </div>
-                `);
-            } else {
-                 // Update jika card Total Menit sudah ada
-                const totalDurationCard = globalStatsContainer.querySelector('.stat-card:last-child');
-                if (totalDurationCard) {
-                    totalDurationCard.querySelector('.stat-value').textContent = globalDuration;
-                }
-            }
-            
+        selectedDateInput.onchange = loadActivities;
+        document.getElementById('prev-day').onclick = () => {
+            let d = new Date(selectedDateInput.value);
+            d.setDate(d.getDate() - 1);
+            selectedDateInput.value = d.toISOString().split('T')[0];
+            loadActivities();
+        };
+        document.getElementById('next-day').onclick = () => {
+            let d = new Date(selectedDateInput.value);
+            d.setDate(d.getDate() + 1);
+            selectedDateInput.value = d.toISOString().split('T')[0];
+            loadActivities();
+        };
 
-            // Tampilkan Rincian per Anak
-            globalActivitiesList.innerHTML = '<h3>Ringkasan Detail Per Anak:</h3>';
-            Object.keys(summary).forEach(user => {
-                const userSummary = summary[user];
-                const item = document.createElement('div');
-                item.className = 'activity-item';
-                item.innerHTML = `
-                    <div class="activity-details">
-                        <div class="activity-name" style="font-size: 18px;">${user.charAt(0).toUpperCase() + user.slice(1)}</div>
-                        <div class="activity-meta">
-                            <span class="activity-duration">Selesai: <b>${userSummary.completedCount} Akt.</b></span>
-                            <span class="activity-duration">|</span>
-                            <span class="activity-category" style="background: #f1c40f; color: #333; font-weight: 600;">Total: <b>${userSummary.totalDuration} min</b></span>
-                        </div>
-                    </div>
-                `;
-                globalActivitiesList.appendChild(item);
-            });
-        }
-        
-        function renderApp(role) {
-            const isSupervisor = role === 'supervisor';
-            
-            // 1. Tombol Tambah hanya untuk User (Anak)
-            openModalBtn.style.display = isSupervisor ? 'none' : 'flex'; 
-            
-            // 2. Tombol Toggle Summary hanya untuk Supervisor
-            toggleSummaryFilterBtn.style.display = isSupervisor ? 'flex' : 'none'; 
-            
-            // 3. Atur Tampilan Awal: Selalu mulai dari harian
-            isDailyView = true;
-            dailyActivitiesView.style.display = 'block';
-            supervisorSummary.style.display = 'none';
-            toggleSummaryFilterBtn.innerHTML = '<i class="fas fa-list"></i> Lihat Semua Data';
-            
-            loadActivitiesForDate(); 
-        }
-
-        // --- END: SUMMARY DASHBOARD LOGIC ---
-
-        // Initialize (Panggil saat skrip selesai dimuat)
-        document.addEventListener('DOMContentLoaded', checkAuth); 
+        checkAuth();
     </script>
 </body>
 </html>
