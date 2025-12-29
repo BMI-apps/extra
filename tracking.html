@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Super Kids Quest Tracker</title>
+    <title>Super Quest Tracker - Kids Edition</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -27,6 +27,7 @@
             min-height: 100vh;
             padding: 20px;
             color: #2D3436;
+            overflow-x: hidden;
         }
 
         .container {
@@ -34,10 +35,10 @@
             margin: 0 auto;
         }
 
-        /* --- Header --- */
+        /* --- Header & Logo --- */
         header {
             text-align: center;
-            padding: 30px 0;
+            padding: 20px 0 30px;
             position: relative;
         }
 
@@ -53,10 +54,7 @@
             box-shadow: 0 6px 0px rgba(0,0,0,0.1);
         }
 
-        .logo i {
-            font-size: 35px;
-            color: var(--primary);
-        }
+        .logo i { font-size: 35px; color: var(--primary); }
 
         /* --- Stats --- */
         .stats-container {
@@ -77,73 +75,44 @@
         .stat-value { font-size: 28px; font-weight: 600; color: var(--primary); }
         .stat-label { font-size: 14px; color: #636e72; }
 
-        /* --- Date & List --- */
-        .date-selector {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 25px;
-        }
-
-        .date-input {
-            border: none;
-            padding: 10px 20px;
-            border-radius: 50px;
-            font-weight: 600;
-            color: var(--primary);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
-
-        .activity-item {
-            background: white;
-            border-radius: 20px;
-            padding: 18px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 5px 0px rgba(0,0,0,0.03);
-            border: 2px solid #f1f2f6;
-        }
-
-        /* --- MODAL STYLE (Perbaikan Jarak) --- */
+        /* --- Modal (Perbaikan Jarak) --- */
         .modal {
             display: none;
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(45, 52, 54, 0.8);
+            background: rgba(45, 52, 54, 0.85);
             z-index: 1000;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(8px);
         }
 
         .modal.active { display: flex; }
 
         .modal-content {
             background: white;
-            border-radius: 35px; /* Lebih bulat */
+            border-radius: 35px;
             padding: 40px; /* Jarak luas dari border */
             width: 90%;
-            max-width: 450px;
+            max-width: 420px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.3);
             border: 6px solid var(--secondary);
-            transform: scale(0.9);
+            position: relative;
+            transform: translateY(20px);
             transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .modal.active .modal-content { transform: scale(1); }
+        .modal.active .modal-content { transform: translateY(0); }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px; /* Jarak aman dari form */
+            margin-bottom: 30px;
         }
 
-        .modal-header h3 { font-size: 24px; color: var(--primary); }
-
+        /* --- Form Elements --- */
         .form-group {
             margin-bottom: 25px; /* Jarak antar input */
             text-align: left;
@@ -154,7 +123,6 @@
             margin-bottom: 12px;
             font-weight: 600;
             color: #2d3436;
-            padding-left: 5px;
         }
 
         .form-control {
@@ -165,7 +133,6 @@
             background: #f9f9f9;
             font-size: 16px;
             outline: none;
-            transition: 0.3s;
         }
 
         .form-control:focus { border-color: var(--secondary); background: white; }
@@ -174,26 +141,25 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
-            margin-top: 10px;
         }
 
         .category-option {
-            padding: 15px;
+            padding: 12px;
             background: #f1f2f6;
             border-radius: 15px;
             text-align: center;
             cursor: pointer;
-            transition: 0.2s;
+            font-size: 14px;
             border: 2px solid transparent;
         }
 
         .category-option.selected {
             background: var(--primary);
             color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 10px rgba(108, 92, 231, 0.3);
+            box-shadow: 0 4px 10px rgba(108, 92, 231, 0.3);
         }
 
+        /* --- Buttons --- */
         .submit-btn {
             width: 100%;
             padding: 18px;
@@ -208,8 +174,6 @@
             margin-top: 10px;
         }
 
-        .submit-btn:active { transform: translateY(3px); box-shadow: 0 2px 0px #00b894; }
-
         .add-btn {
             background: var(--accent);
             color: white;
@@ -221,10 +185,28 @@
             box-shadow: 0 5px 0px #d63031;
         }
 
-        #logout-btn {
-            position: absolute; right: 0; top: 20px;
-            background: #dfe6e9; color: #636e72;
-            width: 40px; height: 40px; box-shadow: none;
+        /* --- Activity List --- */
+        .activity-item {
+            background: white;
+            border-radius: 22px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 5px 0px rgba(0,0,0,0.03);
+            border: 2px solid #f1f2f6;
+            animation: slideIn 0.4s ease forwards;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* --- Toast Animation --- */
+        @keyframes popUp {
+            0% { transform: translateX(-50%) translateY(50px); opacity: 0; }
+            100% { transform: translateX(-50%) translateY(0); opacity: 1; }
         }
     </style>
 </head>
@@ -234,12 +216,12 @@
         <div class="modal-content" style="border-color: var(--primary);">
             <div style="text-align: center; margin-bottom: 30px;">
                 <div class="logo"><i class="fas fa-rocket"></i></div>
-                <h3>Masuk Quest!</h3>
+                <h2>Masuk Quest!</h2>
             </div>
             <form id="login-form">
                 <div class="form-group">
                     <label>Siapa namamu?</label>
-                    <input type="text" id="login-username" class="form-control" placeholder="Ketik nama di sini..." required>
+                    <input type="text" id="login-username" class="form-control" placeholder="Ketik nama..." required>
                 </div>
                 <div class="form-group">
                     <label>Kode Rahasia</label>
@@ -253,9 +235,8 @@
 
     <div class="container" id="main-app-container" style="display: none;">
         <header>
-            <button id="logout-btn" class="add-btn"><i class="fas fa-sign-out-alt"></i></button>
             <div class="logo"><i class="fas fa-crown"></i></div>
-            <h1 id="user-display">Quest Tracker</h1>
+            <h1 id="user-display">Halo, Hero!</h1>
         </header>
 
         <div class="stats-container">
@@ -269,12 +250,8 @@
             </div>
         </div>
 
-        <div class="date-selector">
-            <input type="date" class="date-input" id="selected-date">
-        </div>
-
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 style="font-size: 22px;">Misi Hari Ini</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <h2 style="font-size: 22px;">Misi Hari Ini 🚀</h2>
             <button class="add-btn" id="open-modal"><i class="fas fa-plus"></i></button>
         </div>
 
@@ -284,20 +261,20 @@
     <div class="modal" id="activity-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>🚀 Tambah Misi</h3>
-                <button class="close-modal" style="background:none; border:none; font-size:30px; cursor:pointer; color:#b2bec3">&times;</button>
+                <h3>✨ Misi Baru</h3>
+                <button class="close-modal" style="background:none; border:none; font-size:35px; cursor:pointer; color:#bdc3c7">&times;</button>
             </div>
             <form id="activity-form">
                 <div class="form-group">
-                    <label>Apa rencanamu?</label>
-                    <input type="text" id="activity-name" class="form-control" placeholder="Misal: Baca buku cerita..." required>
+                    <label>Nama Misimu</label>
+                    <input type="text" id="activity-name" class="form-control" placeholder="Contoh: Belajar Coding..." required>
                 </div>
                 <div class="form-group">
-                    <label>Berapa lama? (menit)</label>
+                    <label>Berapa lama? (Menit)</label>
                     <input type="number" id="activity-duration" class="form-control" value="30" required>
                 </div>
                 <div class="form-group">
-                    <label>Kategori Misi</label>
+                    <label>Kategori</label>
                     <div class="category-options">
                         <div class="category-option selected" data-category="learning">📚 Belajar</div>
                         <div class="category-option" data-category="play">🎮 Main</div>
@@ -306,60 +283,53 @@
                     </div>
                     <input type="hidden" id="activity-category" value="learning">
                 </div>
-                <button type="submit" class="submit-btn">Tambahkan ke Daftar!</button>
+                <button type="submit" class="submit-btn">Siap, Mulai!</button>
             </form>
         </div>
     </div>
 
     <script>
+        // Audio Effects
+        const winSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
+        const popSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
+
         const DB = {
             get: () => JSON.parse(localStorage.getItem('kids_activities')) || [],
             save: (data) => localStorage.setItem('kids_activities', JSON.stringify(data))
         };
 
-        const AUTH_USERS = [
-            { username: 'papa', password: 'papa', role: 'supervisor' },
-            { username: 'syifa', password: 'syifa', role: 'user' }
-        ];
-
         const loginModal = document.getElementById('login-modal');
         const mainApp = document.getElementById('main-app-container');
         const actModal = document.getElementById('activity-modal');
-        const dateInput = document.getElementById('selected-date');
-        
-        dateInput.value = new Date().toISOString().split('T')[0];
 
-        // Auth Logic
+        // Login Logic
         document.getElementById('login-form').onsubmit = (e) => {
             e.preventDefault();
-            const u = document.getElementById('login-username').value.toLowerCase();
+            const u = document.getElementById('login-username').value;
             const p = document.getElementById('login-password').value;
-            const user = AUTH_USERS.find(x => x.username === u && x.password === p);
             
-            if(user) {
-                localStorage.setItem('currentUser', JSON.stringify(user));
+            if(u.toLowerCase() === 'syifa' && p === 'syifa') {
+                localStorage.setItem('currentUser', 'syifa');
                 initApp();
             } else {
-                document.getElementById('login-error').textContent = "Nama atau kode salah!";
+                document.getElementById('login-error').textContent = "Nama/Kode salah!";
             }
         };
 
-        document.getElementById('logout-btn').onclick = () => {
-            localStorage.removeItem('currentUser');
-            location.reload();
-        };
-
         function initApp() {
-            const user = JSON.parse(localStorage.getItem('currentUser'));
+            const user = localStorage.getItem('currentUser');
             if(!user) return;
             loginModal.classList.remove('active');
             mainApp.style.display = 'block';
-            document.getElementById('user-display').textContent = "Halo, " + user.username + "!";
+            document.getElementById('user-display').textContent = `Halo, ${user}!`;
             render();
         }
 
         // Modal Logic
-        document.getElementById('open-modal').onclick = () => actModal.classList.add('active');
+        document.getElementById('open-modal').onclick = () => {
+            popSound.play();
+            actModal.classList.add('active');
+        };
         document.querySelector('.close-modal').onclick = () => actModal.classList.remove('active');
 
         document.querySelectorAll('.category-option').forEach(opt => {
@@ -373,66 +343,77 @@
         // Activity Logic
         document.getElementById('activity-form').onsubmit = (e) => {
             e.preventDefault();
-            const user = JSON.parse(localStorage.getItem('currentUser'));
             const acts = DB.get();
             acts.push({
                 id: Date.now(),
                 name: document.getElementById('activity-name').value,
                 duration: parseInt(document.getElementById('activity-duration').value),
                 category: document.getElementById('activity-category').value,
-                date: dateInput.value,
-                completed: false,
-                user: user.username
+                completed: false
             });
             DB.save(acts);
             actModal.classList.remove('active');
             e.target.reset();
             render();
+            showToast("Misi ditambahkan!");
         };
 
         window.toggleAct = (id) => {
             const acts = DB.get();
             const a = acts.find(x => x.id === id);
-            if(a) a.completed = !a.completed;
+            if(a) {
+                a.completed = !a.completed;
+                if(a.completed) {
+                    winSound.play();
+                    const pesan = ["Hebat!", "Keren!", "Luar Biasa!", "Misi Tuntas! 🔥", "Heroic! ✨"];
+                    showToast(pesan[Math.floor(Math.random()*pesan.length)]);
+                }
+            }
             DB.save(acts);
             render();
         };
 
         window.deleteAct = (id) => {
-            if(confirm('Hapus misi ini?')) {
-                const acts = DB.get().filter(x => x.id !== id);
-                DB.save(acts);
-                render();
-            }
+            const acts = DB.get().filter(x => x.id !== id);
+            DB.save(acts);
+            render();
         };
 
+        function showToast(text) {
+            const toast = document.createElement('div');
+            toast.textContent = text;
+            toast.style.cssText = `
+                position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
+                background: var(--primary); color: white; padding: 15px 30px;
+                border-radius: 50px; font-weight: 600; z-index: 3000;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.2); animation: popUp 0.4s ease forwards;
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 500);
+            }, 2000);
+        }
+
         function render() {
-            const user = JSON.parse(localStorage.getItem('currentUser'));
-            const acts = DB.get().filter(x => x.date === dateInput.value && (user.role === 'supervisor' || x.user === user.username));
-            
+            const acts = DB.get();
             const done = acts.filter(x => x.completed);
             document.getElementById('total-time').textContent = done.reduce((s, x) => s + x.duration, 0);
             document.getElementById('completed-count').textContent = done.length;
 
             const container = document.getElementById('activities-container');
-            if(acts.length === 0) {
-                container.innerHTML = `<p style="text-align:center; padding:40px; color:#b2bec3">Belum ada misi untuk hari ini.</p>`;
-                return;
-            }
-
             container.innerHTML = acts.map(a => `
-                <div class="activity-item" style="${a.completed ? 'opacity:0.6; background:#f1f2f6' : ''}">
-                    <input type="checkbox" ${a.completed ? 'checked' : ''} onchange="toggleAct(${a.id})" style="width:25px; height:25px; margin-right:15px; cursor:pointer">
+                <div class="activity-item" style="${a.completed ? 'background:#f1f2f6; border-color:#dfe6e9' : ''}">
+                    <input type="checkbox" ${a.completed ? 'checked' : ''} onchange="toggleAct(${a.id})" style="width:25px; height:25px; margin-right:15px; accent-color:var(--secondary);">
                     <div style="flex:1">
-                        <div style="font-weight:600; font-size:18px; ${a.completed ? 'text-decoration:line-through' : ''}">${a.name}</div>
+                        <div style="font-weight:600; font-size:18px; ${a.completed ? 'text-decoration:line-through; color:#b2bec3' : ''}">${a.name}</div>
                         <div style="font-size:13px; color:#636e72">${a.duration} Menit • ${a.category}</div>
                     </div>
-                    <button onclick="deleteAct(${a.id})" style="background:none; border:none; color:var(--accent); cursor:pointer"><i class="fas fa-trash"></i></button>
+                    <button onclick="deleteAct(${a.id})" style="background:none; border:none; color:#fab1a0; cursor:pointer"><i class="fas fa-trash-alt"></i></button>
                 </div>
             `).join('');
         }
 
-        dateInput.onchange = render;
         initApp();
     </script>
 </body>
