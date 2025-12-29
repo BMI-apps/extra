@@ -92,11 +92,11 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, updateDoc, doc, deleteDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-        // --- GANTI DENGAN CONFIG PAPA DI SINI ---
-        const firebaseConfig = {
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, updateDoc, doc, deleteDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    
+    // MASUKKAN CONFIG PAPA DI SINI
+    const firebaseConfig = {
           apiKey: "AIzaSyAE72y6Rg0_h7kuNR_n1777K1r0hGlwIA0",
           authDomain: "questsyifa.firebaseapp.com",
           projectId: "questsyifa",
@@ -104,128 +104,129 @@
           messagingSenderId: "361840364826",
           appId: "1:361840364826:web:2f555b73dd074e7dabf0a3",
           measurementId: "G-9D8M0W9T0C"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const soundWin = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
-        let userNow = JSON.parse(sessionStorage.getItem('u_online'));
-        let selectedCat = "Belajar";
-
-        // Login Logic
-        document.getElementById('form-login').onsubmit = (e) => {
-            e.preventDefault();
-            const u = document.getElementById('user-in').value.toLowerCase();
-            const p = document.getElementById('pass-in').value;
-            if((u === 'papa' && p === 'papa') || (u === 'syifa' && p === 'syifa')) {
-                const data = { n: u, r: u === 'papa' ? 'admin' : 'user' };
-                sessionStorage.setItem('u_online', JSON.stringify(data));
-                location.reload();
-            } else { alert("User tidak dikenal"); }
-        };
-
-        if(userNow) {
-            document.getElementById('modal-login').classList.remove('active');
-            document.getElementById('app').style.display = 'block';
-            document.getElementById('hi-user').textContent = `Halo, ${userNow.n}!`;
-            if(userNow.r === 'admin') document.getElementById('btn-gift').style.display = 'block';
-            
-            // Listen Reward Online
-            onSnapshot(doc(db, "settings", "reward"), (doc) => {
-                const r = doc.data() || { n: 'Belum diatur', t: 0 };
-                document.getElementById('reward-display').textContent = r.n;
-                document.getElementById('target-val').textContent = r.t;
-                updateSisa(r);
-            });
-
-            // Listen Misi Online
-            onSnapshot(collection(db, "misi"), (snapshot) => {
-                const ms = [];
-                snapshot.forEach(d => ms.push({ id: d.id, ...d.data() }));
-                renderMisi(ms);
-            });
-        }
-
-        window.saveMisiOnline = async () => {
-            const nama = document.getElementById('m-nama').value;
-            const durasi = parseInt(document.getElementById('m-durasi').value);
-            if(!nama) return;
-            showLoading(true);
-            await addDoc(collection(db, "misi"), { n: nama, d: durasi, c: selectedCat, done: false, createdAt: Date.now() });
-            closeM('modal-add');
-            showLoading(false);
-        };
-
-        window.saveRewardOnline = async () => {
-            const n = document.getElementById('r-nama').value;
-            const t = parseInt(document.getElementById('r-target').value);
-            showLoading(true);
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const soundWin = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
+    
+    // Login Session
+    let userNow = JSON.parse(sessionStorage.getItem('u_online'));
+    let selectedCat = "Belajar";
+    
+    // Expose fungsi ke window agar tombol HTML bisa manggil
+    window.openM = (id) => document.getElementById(id).classList.add('active');
+    window.closeM = (id) => document.getElementById(id).classList.remove('active');
+    
+    // Fungsi Simpan Reward (Hadiah)
+    window.saveRewardOnline = async () => {
+        const n = document.getElementById('r-nama').value;
+        const t = parseInt(document.getElementById('r-target').value);
+        if(!n || !t) return alert("Isi nama hadiah dan target koin!");
+        
+        showLoading(true);
+        try {
             await setDoc(doc(db, "settings", "reward"), { n, t });
             closeM('modal-reward');
-            showLoading(false);
-        };
-
-        window.toggleM = async (id, status) => {
-            if(!status) soundWin.play();
-            await updateDoc(doc(db, "misi", id), { done: !status });
-        };
-
-        window.delM = async (id) => {
-            if(confirm('Hapus misi?')) await deleteDoc(doc(db, "misi", id));
-        };
-
-        function renderMisi(ms) {
-            const list = document.getElementById('list-misi');
-            let totalD = 0;
-            list.innerHTML = ms.sort((a,b) => b.createdAt - a.createdAt).map(m => {
-                if(m.done) totalD += m.d;
-                return `
-                <div class="activity-item">
-                    <input type="checkbox" class="checkbox" ${m.done ? 'checked' : ''} onchange="toggleM('${m.id}', ${m.done})">
-                    <div style="flex:1">
-                        <div style="font-weight:600; ${m.done ? 'text-decoration:line-through; color:#ccc' : ''}">${m.n}</div>
-                        <div style="font-size:12px; color:#aaa">${m.c} • ${m.d} Menit</div>
-                    </div>
-                    ${userNow.r === 'admin' ? `<button onclick="delM('${m.id}')" style="border:none; background:none; color:var(--a)"><i class="fas fa-trash"></i></button>` : ''}
-                </div>`;
-            }).join('');
-            document.getElementById('coin-val').textContent = Math.floor(totalD / 10);
-            updateSisa(); // Refresh pesan sisa menit
-        }
-
-        function updateSisa(rewardData) {
-            const r = rewardData || { t: document.getElementById('target-val').textContent, n: document.getElementById('reward-display').textContent };
-            const coins = parseInt(document.getElementById('coin-val').textContent);
-            const target = parseInt(r.t);
-            const sisaMenit = (target - coins) * 10;
-            
-            const box = document.getElementById('reward-box');
-            let info = document.getElementById('info-online');
-            if(!info) {
-                info = document.createElement('div');
-                info.id = 'info-online';
-                box.appendChild(info);
-            }
-            
-            if(sisaMenit > 0) {
-                info.style.cssText = "margin-top:10px; padding:10px; background:#FFF9C4; color:#F57F17; border-radius:10px; font-size:12px;";
-                info.innerHTML = userNow.r === 'admin' ? `Syifa kurang ${sisaMenit} menit lagi.` : `Semangat! Kurang ${sisaMenit} menit lagi.`;
-            } else {
-                info.style.cssText = "margin-top:10px; padding:10px; background:#C8E6C9; color:#2E7D32; border-radius:10px; font-size:12px;";
-                info.innerHTML = "Koin cukup! Waktunya hadiah! 🎁";
-            }
-        }
-
-        // UI Helpers
-        window.openM = (id) => document.getElementById(id).classList.add('active');
-        window.closeM = (id) => document.getElementById(id).classList.remove('active');
-        document.getElementById('btn-logout').onclick = () => { sessionStorage.clear(); location.reload(); };
-        document.querySelectorAll('.cat-item').forEach(el => el.onclick = () => {
-            document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('selected'));
-            el.classList.add('selected');
-            selectedCat = el.dataset.cat;
+        } catch (e) { alert("Error simpan hadiah: " + e); }
+        showLoading(false);
+    };
+    
+    // Fungsi Simpan Misi
+    window.saveMisiOnline = async () => {
+        const nama = document.getElementById('m-nama').value;
+        const durasi = parseInt(document.getElementById('m-durasi').value);
+        if(!nama) return alert("Isi nama misi!");
+        
+        showLoading(true);
+        try {
+            await addDoc(collection(db, "misi"), { 
+                n: nama, d: durasi, c: selectedCat, 
+                done: false, createdAt: Date.now() 
+            });
+            closeM('modal-add');
+        } catch (e) { alert("Error simpan misi: " + e); }
+        showLoading(false);
+    };
+    
+    // Jalankan App jika user sudah login
+    if(userNow) {
+        document.getElementById('modal-login').classList.remove('active');
+        document.getElementById('app').style.display = 'block';
+        document.getElementById('hi-user').textContent = `Halo, ${userNow.n}!`;
+        if(userNow.r === 'admin') document.getElementById('btn-gift').style.display = 'block';
+        
+        // Monitoring Reward secara Real-time
+        onSnapshot(doc(db, "settings", "reward"), (docSnap) => {
+            const r = docSnap.exists() ? docSnap.data() : { n: 'Belum diatur Papa', t: 0 };
+            document.getElementById('reward-display').textContent = r.n;
+            document.getElementById('target-val').textContent = r.t;
+            updateSisa(r);
         });
-        function showLoading(s) { document.getElementById('loading').style.display = s ? 'block' : 'none'; }
+    
+        // Monitoring Misi secara Real-time
+        onSnapshot(collection(db, "misi"), (snapshot) => {
+            const ms = [];
+            snapshot.forEach(d => ms.push({ id: d.id, ...d.data() }));
+            renderMisi(ms);
+        });
+    }
+    
+    // Render List & Hitung Koin
+    function renderMisi(ms) {
+        const list = document.getElementById('list-misi');
+        let totalD = 0;
+        list.innerHTML = ms.sort((a,b) => b.createdAt - a.createdAt).map(m => {
+            if(m.done) totalD += m.d;
+            return `
+            <div class="activity-item">
+                <input type="checkbox" class="checkbox" ${m.done ? 'checked' : ''} onchange="toggleM('${m.id}', ${m.done})">
+                <div style="flex:1">
+                    <div style="font-weight:600; ${m.done ? 'text-decoration:line-through; color:#ccc' : ''}">${m.n}</div>
+                    <div style="font-size:12px; color:#aaa">${m.c} • ${m.d} Menit</div>
+                </div>
+                ${userNow.r === 'admin' ? `<button onclick="delM('${m.id}')" style="border:none; background:none; color:var(--a)"><i class="fas fa-trash"></i></button>` : ''}
+            </div>`;
+        }).join('');
+        document.getElementById('coin-val').textContent = Math.floor(totalD / 10);
+        updateSisa(); 
+    }
+    
+    // Logic sisa menit yang Papa minta
+    function updateSisa(rewardData) {
+        const target = parseInt(document.getElementById('target-val').textContent) || 0;
+        const coins = parseInt(document.getElementById('coin-val').textContent) || 0;
+        const nHadiah = document.getElementById('reward-display').textContent;
+        const sisaMenit = (target - coins) * 10;
+        
+        const box = document.getElementById('reward-box');
+        let info = document.getElementById('info-online');
+        if(!info) {
+            info = document.createElement('div');
+            info.id = 'info-online';
+            box.appendChild(info);
+        }
+        
+        if(target === 0) {
+            info.innerHTML = "Papa belum menentukan hadiah.";
+        } else if(sisaMenit > 0) {
+            info.style.cssText = "margin-top:10px; padding:10px; background:#FFF9C4; color:#F57F17; border-radius:10px; font-size:12px; border-left: 4px solid #FBC02D;";
+            info.innerHTML = userNow.r === 'admin' ? `Syifa kurang <b>${sisaMenit} menit</b> lagi.` : `Semangat Syifa! Kurang <b>${sisaMenit} menit</b> lagi untuk <b>${nHadiah}</b>!`;
+        } else {
+            info.style.cssText = "margin-top:10px; padding:10px; background:#C8E6C9; color:#2E7D32; border-radius:10px; font-size:12px; border-left: 4px solid #4CAF50;";
+            info.innerHTML = "HORE! Koin sudah cukup untuk hadiah! 🎁";
+        }
+    }
+    
+    // Helper lainnya
+    window.toggleM = async (id, status) => { if(!status) soundWin.play(); await updateDoc(doc(db, "misi", id), { done: !status }); };
+    window.delM = async (id) => { if(confirm('Hapus misi?')) await deleteDoc(doc(db, "misi", id)); };
+    function showLoading(s) { document.getElementById('loading').style.display = s ? 'block' : 'none'; }
+    document.querySelectorAll('.cat-item').forEach(el => el.onclick = () => {
+        document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('selected'));
+        el.classList.add('selected');
+        selectedCat = el.dataset.cat;
+    });
     </script>
 </body>
 </html>
