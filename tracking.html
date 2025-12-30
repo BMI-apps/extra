@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Syifa v12.8 - History & Claim Fix</title>
+    <title>Quest Syifa v12.9 - Database Stable</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -24,9 +24,8 @@
         .card.done { border-left-color: var(--wait); background: #fffdf5; }
         .card.approved { border-left-color: var(--ok); background: #fafffa; }
         .card.reward { border-left-color: var(--g); }
-        .card.history { opacity: 0.7; border-left-color: #9b59b6; background: #fdfbff; }
+        .card.history { opacity: 0.8; border-left-color: #9b59b6; background: #fdfbff; font-size: 13px; }
         .btn-claim { background: var(--ok); color: white; border: none; padding: 8px 15px; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 11px; }
-        .handle { color: #ccc; cursor: grab; padding-right: 15px; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal.active { display: flex !important; }
         .modal-content { background: white; border-radius: 30px; padding: 25px; width: 90%; max-width: 420px; }
@@ -48,7 +47,7 @@
 
         <div class="progress-container">
             <div style="display:flex; justify-content:space-between; font-size:14px; font-weight:600;">
-                <span id="target-name">Mencari Target...</span><span id="target-percent">0%</span>
+                <span id="target-name">Target</span><span id="target-percent">0%</span>
             </div>
             <div class="progress-bg"><div class="progress-fill" id="progress-bar"></div></div>
             <p id="target-info" style="font-size:11px; color:#888; text-align:center"></p>
@@ -58,7 +57,7 @@
 
         <div class="section-box">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
-                <h3>Misi Aktif ✨</h3>
+                <h3>Misi Hari Ini ✨</h3>
                 <button class="icon-btn" id="btn-add-misi-trigger" style="display:none; background:var(--a); color:white; width:35px; height:35px;"><i class="fas fa-plus"></i></button>
             </div>
             <div id="list-misi"></div>
@@ -66,29 +65,29 @@
 
         <div class="section-box">
             <div style="display:flex; justify-content:space-between; align-items:center; margin: 30px 0 10px;">
-                <h3>Pilihan Hadiah 🎁</h3>
+                <h3>Hadiah Seru 🎁</h3>
                 <button class="icon-btn" id="btn-add-reward-trigger" style="display:none; background:var(--g); color:white; width:35px; height:35px;"><i class="fas fa-plus"></i></button>
             </div>
             <div id="list-hadiah"></div>
         </div>
 
         <div class="section-box" style="margin-top:40px">
-            <h3 style="color:#888"><i class="fas fa-history"></i> History Pencapaian Syifa</h3>
+            <h3 style="color:#888"><i class="fas fa-history"></i> Buku Catatan Syifa</h3>
             <div id="list-history" style="margin-top:15px"></div>
         </div>
     </div>
 
-    <div class="modal active" id="modal-login"><div class="modal-content"><h2>Quest Login</h2><br><form id="form-login"><input type="text" id="user-in" class="form-control" placeholder="Nama"><input type="password" id="pass-in" class="form-control" placeholder="Kode"><button type="submit" class="btn-main" style="background:var(--p)">Masuk</button></form></div></div>
+    <div class="modal active" id="modal-login"><div class="modal-content"><h2>Login Quest</h2><br><form id="form-login"><input type="text" id="user-in" class="form-control" placeholder="Nama"><input type="password" id="pass-in" class="form-control" placeholder="Kode"><button type="submit" class="btn-main" style="background:var(--p)">Masuk</button></form></div></div>
     <div class="modal" id="modal-misi"><div class="modal-content"><h3>Atur Misi</h3><br><input type="hidden" id="m-id"><input type="text" id="m-nama" class="form-control" placeholder="Nama Misi"><input type="number" id="m-durasi" class="form-control" placeholder="Menit"><button id="btn-save-misi" class="btn-main" style="background:var(--p)">Simpan</button><button onclick="closeM('modal-misi')" style="width:100%; background:none; border:none; margin-top:10px; color:#aaa">Batal</button></div></div>
     <div class="modal" id="modal-hadiah"><div class="modal-content"><h3>Atur Hadiah</h3><br><input type="hidden" id="h-id"><input type="text" id="h-nama" class="form-control" placeholder="Nama Hadiah"><input type="number" id="h-target" class="form-control" placeholder="Koin"><button id="btn-save-hadiah" class="btn-main" style="background:var(--s)">Simpan</button><button onclick="closeM('modal-hadiah')" style="width:100%; background:none; border:none; margin-top:10px; color:#aaa">Batal</button></div></div>
-    <div class="modal" id="modal-dash"><div class="modal-content"><h3>Statistik Koin 📊</h3><div style="height:250px; margin-top:20px;"><canvas id="chartWeekly"></canvas></div><button onclick="closeM('modal-dash')" class="btn-main" style="background:#eee; color:#666">Tutup</button></div></div>
     <div class="modal" id="modal-user-list"><div class="modal-content"><h3>Daftar Pengguna</h3><div id="list-user-db" style="margin:15px 0"></div><button onclick="closeM('modal-user-list')" class="btn-main" style="background:#eee; color:#666">Tutup</button></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, updateDoc, doc, deleteDoc, addDoc, query, orderBy, serverTimestamp, getDocs, where, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, updateDoc, doc, deleteDoc, addDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        const firebaseConfig = { apiKey: "AIzaSyAE72y6Rg0_h7kuNR_n1777K1r0hGlwIA0", authDomain: "questsyifa.firebaseapp.com", projectId: "questsyifa", storageBucket: "questsyifa.firebasestorage.app", messagingSenderId: "361840364826", appId: "1:361840364826:web:2f555b73dd074e7dabf0a3" };
+        // Konfigurasi Database - Pastikan ProjectID benar
+        const firebaseConfig = { projectId: "questsyifa", storageBucket: "questsyifa.appspot.com" };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const userNow = JSON.parse(sessionStorage.getItem('u_online'));
@@ -104,71 +103,64 @@
             if(userNow.r === 'admin') {
                 document.querySelectorAll('#nav-user, #nav-dash, #btn-add-misi-trigger, #btn-add-reward-trigger').forEach(el => el.style.display = 'flex');
                 document.getElementById('nav-user').onclick = () => openM('modal-user-list');
-                document.getElementById('nav-dash').onclick = () => renderChart();
                 initSort();
-                fetchUsers();
             }
 
-            // Realtime Sync
-            onSnapshot(query(collection(db, "misi"), orderBy("order", "asc")), (snapM) => {
-                onSnapshot(query(collection(db, "hadiah"), orderBy("order", "asc")), (snapH) => {
-                    renderAll(snapM, snapH);
-                });
+            // Sync Data
+            let dataMisi = [];
+            let dataHadiah = [];
+
+            onSnapshot(query(collection(db, "misi"), orderBy("order", "asc")), (snap) => {
+                dataMisi = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                updateUI(dataMisi, dataHadiah);
+            });
+
+            onSnapshot(query(collection(db, "hadiah"), orderBy("order", "asc")), (snap) => {
+                dataHadiah = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                updateUI(dataMisi, dataHadiah);
             });
         }
 
-        function renderAll(snapM, snapH) {
+        function updateUI(misi, hadiah) {
             let mHtml = ''; let hHtml = ''; let histHtml = '';
             let koinMisi = 0; let koinTerpakai = 0;
 
-            // 1. Hitung Misi & History Misi
-            snapM.forEach(d => {
-                const m = d.data(); const v = Math.floor(m.d/10);
+            misi.forEach(m => {
+                const v = Math.floor(m.d/10);
                 if(m.claimed) {
-                    koinTerpakai += 0; // Koin misi tidak berkurang, tapi hadiah yang mengurangi
-                    histHtml += `<div class="card history"><span>✅ Misi: <b>${m.n}</b></span> <small>+🪙${v}</small></div>`;
+                    histHtml += `<div class="card history"><span>✅ Misi Selesai: <b>${m.n}</b></span> <small>+🪙${v}</small></div>`;
+                    if(m.approved) koinMisi += v;
                 } else {
                     if(m.approved) koinMisi += v;
-                    mHtml += `<div class="card ${m.approved?'approved':(m.done?'done':'')}" data-id="${d.id}">
+                    mHtml += `<div class="card ${m.approved?'approved':(m.done?'done':'')}" data-id="${m.id}">
                         ${userNow.r==='admin'?'<i class="fas fa-bars handle"></i>':''}
-                        <input type="checkbox" style="width:20px;height:20px;margin-right:12px" ${m.done?'checked':''} ${m.approved?'disabled':''} onchange="laporMisi('${d.id}', this.checked)">
-                        <div style="flex:1" onclick="editMisi('${d.id}','${m.n}',${m.d})"><b>${m.n}</b><br><small>${m.d}m • 🪙 ${v}</small></div>
-                        ${userNow.r==='admin' && m.done && !m.approved ? `<button onclick="validMisi('${d.id}')" class="btn-claim" style="background:var(--p)">Valid</button>` : ''}
-                        ${userNow.r==='admin' ? `<button onclick="delD('misi','${d.id}')" style="color:var(--a);border:none;background:none;margin-left:10px"><i class="fas fa-trash"></i></button>` : ''}
+                        <input type="checkbox" style="width:22px;height:22px;margin-right:12px" ${m.done?'checked':''} ${m.approved?'disabled':''} onchange="laporMisi('${m.id}', this.checked)">
+                        <div style="flex:1" onclick="editMisi('${m.id}','${m.n}',${m.d})"><b>${m.n}</b><br><small>${m.d}m • 🪙 ${v}</small></div>
+                        ${userNow.r==='admin' && m.done && !m.approved ? `<button onclick="validMisi('${m.id}')" class="btn-claim" style="background:var(--p)">Valid</button>` : ''}
+                        ${userNow.r==='admin' ? `<button onclick="delD('misi','${m.id}')" style="color:var(--a);border:none;background:none;margin-left:10px"><i class="fas fa-trash"></i></button>` : ''}
                     </div>`;
                 }
             });
 
-            // 2. Hitung Hadiah & History Hadiah
-            let listH = [];
-            snapH.forEach(d => {
-                const h = d.data();
+            hadiah.forEach(h => {
                 if(h.claimed) {
                     koinTerpakai += h.t;
-                    histHtml = `<div class="card history" style="border-left-color:var(--g)"><span>🎁 Hadiah: <b>${h.n}</b></span> <small>-🪙${h.t}</small></div>` + histHtml;
+                    histHtml = `<div class="card history" style="border-left-color:var(--g)"><span>🎁 Hadiah Diklaim: <b>${h.n}</b></span> <small>-🪙${h.t}</small></div>` + histHtml;
                 } else {
-                    listH.push({id: d.id, ...h});
+                    hHtml += `<div class="card reward" data-id="${h.id}">
+                        ${userNow.r==='admin'?'<i class="fas fa-bars handle"></i>':''}
+                        <div style="flex:1" onclick="editHadiah('${h.id}','${h.n}',${h.t})"><b>${h.n}</b><br><small>${h.t} Koin</small></div>
+                        ${(koinMisi - koinTerpakai) >= h.t && userNow.r !== 'admin' ? `<button onclick="klaimH('${h.id}','${h.n}',${h.t})" class="btn-claim">KLAIM</button>` : ''}
+                        ${userNow.r==='admin' ? `<button onclick="delD('hadiah','${h.id}')" style="color:var(--a);border:none;background:none;margin-left:10px"><i class="fas fa-trash"></i></button>` : ''}
+                    </div>`;
                 }
             });
 
             const koinNet = koinMisi - koinTerpakai;
             document.getElementById('coin-val').innerText = koinNet;
 
-            // 3. Render Hadiah Aktif & Cari Target Berikutnya
-            let targetH = null;
-            listH.forEach(h => {
-                if(!targetH && h.t > koinNet) targetH = h;
-                hHtml += `<div class="card reward" data-id="${h.id}">
-                    ${userNow.r==='admin'?'<i class="fas fa-bars handle"></i>':''}
-                    <div style="flex:1" onclick="editHadiah('${h.id}','${h.n}',${h.t})"><b>${h.n}</b><br><small>${h.t} Koin</small></div>
-                    ${koinNet >= h.t && userNow.r !== 'admin' ? `<button onclick="klaimHadiah('${h.id}','${h.n}',${h.t})" class="btn-claim">KLAIM</button>` : ''}
-                    ${userNow.r==='admin' ? `<button onclick="delD('hadiah','${h.id}')" style="color:var(--a);border:none;background:none;margin-left:10px"><i class="fas fa-trash"></i></button>` : ''}
-                </div>`;
-            });
-
-            // Tampilkan Target di Progress Bar
-            if(!targetH && listH.length > 0) targetH = listH[listH.length-1]; // Jika koin sudah lewat semua, target yang paling mahal
-            
+            // Update Progress Bar ke Hadiah Terdekat yang Belum Diklaim
+            const targetH = hadiah.find(h => !h.claimed && h.t > koinNet) || hadiah.find(h => !h.claimed);
             if(targetH) {
                 const p = Math.min(100, Math.floor((koinNet / targetH.t) * 100));
                 document.getElementById('progress-bar').style.width = p+'%';
@@ -177,41 +169,34 @@
                 document.getElementById('target-info').innerText = `${koinNet} / ${targetH.t} koin`;
             }
 
-            document.getElementById('list-misi').innerHTML = mHtml || '<p style="text-align:center;color:#999;font-size:12px">Belum ada misi aktif</p>';
-            document.getElementById('list-hadiah').innerHTML = hHtml || '<p style="text-align:center;color:#999;font-size:12px">Belum ada hadiah tersedia</p>';
-            document.getElementById('list-history').innerHTML = histHtml || '<p style="text-align:center;color:#999;font-size:12px">Belum ada history</p>';
+            document.getElementById('list-misi').innerHTML = mHtml || '<p style="text-align:center;color:#999">Belum ada misi</p>';
+            document.getElementById('list-hadiah').innerHTML = hHtml || '<p style="text-align:center;color:#999">Belum ada hadiah</p>';
+            document.getElementById('list-history').innerHTML = histHtml || '<p style="text-align:center;color:#999">Belum ada catatan</p>';
         }
 
-        window.klaimHadiah = async (id, nama, harga) => {
-            if(confirm(`Klaim ${nama} seharga ${harga} koin?`)) {
-                await updateDoc(doc(db, "hadiah", id), { claimed: true, claimedAt: serverTimestamp() });
-                alert(`Selamat Syifa! ${nama} sudah berhasil diklaim! 🥳`);
-            }
-        };
-
+        // Actions
         window.laporMisi = (id, st) => updateDoc(doc(db, "misi", id), { done: st });
-        window.validMisi = (id) => updateDoc(doc(db, "misi", id), { approved: true, claimed: true }); // Misi yang disetujui otomatis masuk history
+        window.validMisi = (id) => updateDoc(doc(db, "misi", id), { approved: true, claimed: true });
+        window.klaimH = (id, n, t) => confirm(`Klaim ${n}?`) && updateDoc(doc(db, "hadiah", id), { claimed: true });
         window.delD = (c, id) => confirm('Hapus?') && deleteDoc(doc(db, c, id));
 
-        // Form Logic (Tetap sama)
-        window.editMisi = (id,n,d) => { if(userNow.r==='admin') { document.getElementById('m-id').value=id; document.getElementById('m-nama').value=n; document.getElementById('m-durasi').value=d; openM('modal-misi'); } };
-        window.editHadiah = (id,n,t) => { if(userNow.r==='admin') { document.getElementById('h-id').value=id; document.getElementById('h-nama').value=n; document.getElementById('h-target').value=t; openM('modal-hadiah'); } };
-
+        // Form Logic
         document.getElementById('btn-save-misi').onclick = async () => {
             const id = document.getElementById('m-id').value;
-            const data = { n: document.getElementById('m-nama').value, d: parseInt(document.getElementById('m-durasi').value) };
-            id ? await updateDoc(doc(db,"misi",id), data) : await addDoc(collection(db,"misi"), {...data, order:99, done:false, approved:false, claimed:false});
+            const d = { n: document.getElementById('m-nama').value, d: parseInt(document.getElementById('m-durasi').value) };
+            id ? await updateDoc(doc(db,"misi",id), d) : await addDoc(collection(db,"misi"), {...d, order:99, done:false, approved:false, claimed:false});
             closeM('modal-misi');
         };
 
         document.getElementById('btn-save-hadiah').onclick = async () => {
             const id = document.getElementById('h-id').value;
-            const data = { n: document.getElementById('h-nama').value, t: parseInt(document.getElementById('h-target').value) };
-            id ? await updateDoc(doc(db,"hadiah",id), data) : await addDoc(collection(db,"hadiah"), {...data, order:99, claimed:false});
+            const d = { n: document.getElementById('h-nama').value, t: parseInt(document.getElementById('h-target').value) };
+            id ? await updateDoc(doc(db,"hadiah",id), d) : await addDoc(collection(db,"hadiah"), {...d, order:99, claimed:false});
             closeM('modal-hadiah');
         };
 
-        document.getElementById('form-login').onsubmit = async (e) => {
+        // Login
+        document.getElementById('form-login').onsubmit = (e) => {
             e.preventDefault();
             const n = document.getElementById('user-in').value.toLowerCase();
             const p = document.getElementById('pass-in').value;
