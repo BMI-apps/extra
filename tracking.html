@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Syifa v13.2 - Visual History</title>
+    <title>Quest Syifa v13.3 - Stable Filter</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -17,37 +17,37 @@
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .coin-badge { background: white; padding: 10px 18px; border-radius: 50px; border: 2px solid var(--g); font-weight: 600; color: #f39c12; font-size: 22px; box-shadow: 0 4px 0 #eee; }
         .nav-btns { display: flex; gap: 10px; }
-        .icon-btn { width: 45px; height: 45px; border-radius: 12px; border: none; cursor: pointer; background: white; box-shadow: 0 4px 0 #ddd; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #555; }
+        .icon-btn { width: 45px; height: 45px; border-radius: 12px; border: none; cursor: pointer; background: white; box-shadow: 0 4px 0 #ddd; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #555; transition: 0.2s; }
+        .icon-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #ddd; }
         
-        /* PROGRESS */
         .progress-container { background: white; padding: 18px; border-radius: 22px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .progress-bg { background: #eee; height: 18px; border-radius: 10px; overflow: hidden; margin: 12px 0; }
         .progress-fill { background: linear-gradient(90deg, var(--s), var(--p)); width: 0%; height: 100%; transition: 1s; }
 
-        /* CARDS */
         .card { background: white; padding: 15px; border-radius: 20px; margin-bottom: 12px; display: flex; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border-left: 6px solid #ccc; position: relative; }
         .card.done { border-left-color: #f1c40f; background: #fffef0; }
         .card.approved { border-left-color: var(--ok); background: #f8fff9; }
         .card.reward { border-left-color: var(--g); }
         
-        /* HISTORY CONNECTED */
-        .history-item { position: relative; padding-left: 20px; margin-bottom: 10px; }
-        .history-item::before { content: ""; position: absolute; left: 0; top: 0; bottom: -10px; width: 2px; border-left: 2px dotted #ccc; }
-        .history-dot { position: absolute; left: -4px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: var(--p); }
-        .card.history { margin-bottom: 5px; font-size: 13px; opacity: 0.9; }
+        /* TIMELINE HISTORY */
+        .history-item { position: relative; padding-left: 25px; margin-bottom: 8px; }
+        .history-item::before { content: ""; position: absolute; left: 5px; top: 0; bottom: -12px; width: 2px; border-left: 2px dashed #ddd; }
+        .history-item:last-child::before { display: none; }
+        .history-dot { position: absolute; left: 0; top: 8px; width: 12px; height: 12px; border-radius: 50%; background: #ccc; z-index: 2; border: 2px solid white; }
+        .card.history { margin-bottom: 0; font-size: 13px; opacity: 0.85; border-left-width: 4px; padding: 10px 15px; }
 
-        /* CATEGORY CHIPS */
         .cat-chips { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
-        .chip { padding: 8px 12px; border-radius: 10px; background: #eee; cursor: pointer; font-size: 13px; border: 2px solid transparent; }
+        .chip { padding: 8px 12px; border-radius: 10px; background: #eee; cursor: pointer; font-size: 13px; border: 2px solid transparent; transition: 0.2s; }
         .chip.active { background: var(--p); color: white; border-color: var(--p); }
 
-        /* UTILS */
-        .btn-del { color: var(--a); background: none; border: none; font-size: 18px; margin-left: 12px; cursor: pointer; }
+        .btn-del { color: var(--a); background: none; border: none; font-size: 18px; margin-left: 12px; cursor: pointer; padding: 5px; }
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index: 100000; align-items:center; justify-content:center; backdrop-filter: blur(4px); }
         .modal.active { display: flex !important; }
         .modal-content { background: white; border-radius: 25px; padding: 25px; width: 90%; max-width: 400px; max-height: 85vh; overflow-y: auto; }
         .form-control { width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #eee; margin-bottom: 12px; font-size: 15px; outline: none; }
         .btn-main { width: 100%; padding: 15px; border-radius: 15px; border: none; font-weight: 600; color: white; cursor: pointer; font-size: 16px; margin-top: 5px; }
+        .check-box { width: 25px; height: 25px; margin-right: 15px; cursor: pointer; accent-color: var(--p); flex-shrink: 0; }
+        .handle { color: #ddd; cursor: grab; padding: 10px; margin-right: 5px; font-size: 18px; }
     </style>
 </head>
 <body>
@@ -57,7 +57,7 @@
             <div class="coin-badge"><i class="fas fa-coins"></i> <span id="coin-val">0</span></div>
             <div class="nav-btns">
                 <button class="icon-btn" id="nav-user" style="display:none;"><i class="fas fa-users"></i></button>
-                <button class="icon-btn" id="nav-dash" style="display:none;"><i class="fas fa-chart-line"></i></button>
+                <button class="icon-btn" id="nav-dash" style="display:none;"><i class="fas fa-chart-bar"></i></button>
                 <button class="icon-btn" id="nav-logout" style="color:var(--a)"><i class="fas fa-power-off"></i></button>
             </div>
         </header>
@@ -74,7 +74,7 @@
 
         <div class="section">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
-                <h3>Misi ✨</h3>
+                <h3>Misi Aktif ✨</h3>
                 <button onclick="clearFormM(); openM('modal-misi')" id="adm-m" style="display:none; background:var(--p); color:white; padding:8px 15px; border-radius:12px; border:none; font-weight:600">+ Misi</button>
             </div>
             <div id="list-misi"></div>
@@ -82,14 +82,14 @@
 
         <div class="section" style="margin-top:30px">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
-                <h3>Hadiah 🎁</h3>
+                <h3>Pilihan Hadiah 🎁</h3>
                 <button onclick="clearFormH(); openM('modal-hadiah')" id="adm-h" style="display:none; background:var(--g); color:white; padding:8px 15px; border-radius:12px; border:none; font-weight:600">+ Hadiah</button>
             </div>
             <div id="list-hadiah"></div>
         </div>
 
         <div class="section" style="margin-top:40px">
-            <h3 style="color:#888; margin-bottom:15px"><i class="fas fa-link"></i> Timeline Syifa</h3>
+            <h3 style="color:#888; margin-bottom:15px"><i class="fas fa-history"></i> History Selesai</h3>
             <div id="list-history"></div>
         </div>
     </div>
@@ -97,9 +97,7 @@
     <div class="modal" id="modal-dash">
         <div class="modal-content">
             <h3>Statistik 📊</h3>
-            <div style="height: 250px; width: 100%; margin: 20px 0;">
-                <canvas id="chartWeekly"></canvas>
-            </div>
+            <div style="height: 250px; width: 100%; margin: 20px 0;"><canvas id="chartWeekly"></canvas></div>
             <button onclick="closeM('modal-dash')" class="btn-main" style="background:#eee; color:#666">Tutup</button>
         </div>
     </div>
@@ -113,8 +111,8 @@
             <input type="text" id="u-nama" class="form-control" placeholder="Nama">
             <input type="text" id="u-pass" class="form-control" placeholder="Kode">
             <div class="cat-chips" id="role-chips">
-                <div class="chip active" onclick="setRole('user')">User</div>
-                <div class="chip" onclick="setRole('admin')">Admin</div>
+                <div class="chip active" onclick="setSelect('role', 'user', this)">User</div>
+                <div class="chip" onclick="setSelect('role', 'admin', this)">Admin</div>
             </div>
             <input type="hidden" id="u-role" value="user">
             <button id="btn-save-user" class="btn-main" style="background:var(--s)">Simpan User</button>
@@ -127,14 +125,14 @@
             <h3>Atur Misi</h3><br>
             <input type="hidden" id="m-id">
             <input type="text" id="m-nama" class="form-control" placeholder="Nama Misi">
-            <input type="number" id="m-durasi" class="form-control" placeholder="Menit">
+            <input type="number" id="m-durasi" class="form-control" placeholder="Durasi (Koin = Durasi/10)">
             <div class="cat-chips" id="cat-chips">
-                <div class="chip active" onclick="setCat('Ibadah')">🕌 Ibadah</div>
-                <div class="chip" onclick="setCat('Belajar')">📚 Belajar</div>
-                <div class="chip" onclick="setCat('Mandiri')">🏠 Mandiri</div>
-                <div class="chip" onclick="setCat('Bantu')">🤝 Bantu</div>
+                <div class="chip active" onclick="setSelect('cat', '🕌 Ibadah', this)">🕌 Ibadah</div>
+                <div class="chip" onclick="setSelect('cat', '📚 Belajar', this)">📚 Belajar</div>
+                <div class="chip" onclick="setSelect('cat', '🏠 Mandiri', this)">🏠 Mandiri</div>
+                <div class="chip" onclick="setSelect('cat', '🤝 Bantu', this)">🤝 Bantu</div>
             </div>
-            <input type="hidden" id="m-cat" value="Ibadah">
+            <input type="hidden" id="m-cat" value="🕌 Ibadah">
             <button id="btn-save-misi" class="btn-main" style="background:var(--p)">Simpan</button>
             <button onclick="closeM('modal-misi')" style="width:100%; border:none; margin-top:10px; background:none; color:#aaa">Batal</button>
         </div>
@@ -173,19 +171,13 @@
         window.openM = (id) => document.getElementById(id).classList.add('active');
         window.closeM = (id) => document.getElementById(id).classList.remove('active');
 
-        // CHIP SELECTOR
-        window.setCat = (v) => {
-            document.querySelectorAll('#cat-chips .chip').forEach(c => c.classList.remove('active'));
-            event.target.classList.add('active');
-            document.getElementById('m-cat').value = v;
-        }
-        window.setRole = (v) => {
-            document.querySelectorAll('#role-chips .chip').forEach(c => c.classList.remove('active'));
-            event.target.classList.add('active');
-            document.getElementById('u-role').value = v;
-        }
+        window.setSelect = (type, val, el) => {
+            const parent = el.parentElement;
+            parent.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById(type === 'role' ? 'u-role' : 'm-cat').value = val;
+        };
 
-        // LOGIN
         document.getElementById('btn-login-exec').onclick = async () => {
             const u = document.getElementById('login-u').value.toLowerCase().trim();
             const p = document.getElementById('login-p').value.trim();
@@ -221,15 +213,16 @@
             let mHtml = ''; let hHtml = ''; let histHtml = '';
             let kTotal = 0; let kPakai = 0;
 
+            // Logic: Hanya tampilkan misi yang BELUM divalidasi Papa (claimed: false)
             misi.forEach(m => {
                 const v = Math.floor(m.d/10);
                 if(m.claimed) {
-                    histHtml += `<div class="history-item"><div class="history-dot"></div><div class="card history"><b>${m.n}</b> &nbsp; <span style="color:var(--ok)">+🪙${v}</span></div></div>`;
+                    histHtml += `<div class="history-item"><div class="history-dot" style="background:var(--ok)"></div><div class="card history" style="border-left-color:var(--ok)"><b>${m.cat || ''} ${m.n}</b> &nbsp; <span style="color:var(--ok)">+🪙${v}</span></div></div>`;
                     if(m.approved) kTotal += v;
                 } else {
                     if(m.approved) kTotal += v;
                     mHtml += `<div class="card ${m.approved?'approved':(m.done?'done':'')}" data-id="${m.id}">
-                        ${userNow.r==='admin'?'<i class="fas fa-bars handle" style="padding:10px; margin-right:5px"></i>':''}
+                        ${userNow.r==='admin'?'<i class="fas fa-bars handle"></i>':''}
                         <input type="checkbox" class="check-box" ${m.done?'checked':''} ${m.approved?'disabled':''} onchange="action('misi','${m.id}',{done:this.checked})">
                         <div style="flex:1" onclick="editM('${m.id}','${m.n}',${m.d},'${m.cat}')"><b>${m.n}</b><br><small>${m.cat} • 🪙${v}</small></div>
                         ${userNow.r==='admin' && m.done && !m.approved ? `<button onclick="action('misi','${m.id}',{approved:true, claimed:true})" class="icon-btn" style="background:var(--ok);color:white;width:auto;padding:0 10px;font-size:12px">Valid</button>` : ''}
@@ -241,10 +234,10 @@
             hadiah.forEach(h => {
                 if(h.claimed) {
                     kPakai += h.t;
-                    histHtml += `<div class="history-item"><div class="history-dot" style="background:var(--g)"></div><div class="card history" style="border-left-color:var(--g)"><b>Hadiah: ${h.n}</b> &nbsp; <span style="color:var(--a)">-🪙${h.t}</span></div></div>`;
+                    histHtml += `<div class="history-item"><div class="history-dot" style="background:var(--g)"></div><div class="card history" style="border-left-color:var(--g)"><b>🎁 ${h.n}</b> &nbsp; <span style="color:var(--a)">-🪙${h.t}</span></div></div>`;
                 } else {
                     hHtml += `<div class="card reward" data-id="${h.id}">
-                        ${userNow.r==='admin'?'<i class="fas fa-bars handle" style="padding:10px; margin-right:5px"></i>':''}
+                        ${userNow.r==='admin'?'<i class="fas fa-bars handle"></i>':''}
                         <div style="flex:1" onclick="editH('${h.id}','${h.n}',${h.t})"><b>${h.n}</b><br><small>🪙${h.t}</small></div>
                         ${(kTotal-kPakai) >= h.t && userNow.r !== 'admin' ? `<button onclick="action('hadiah','${h.id}',{claimed:true})" class="icon-btn" style="background:var(--ok);color:white;width:auto;padding:0 10px;font-size:12px">Klaim</button>` : ''}
                         ${userNow.r==='admin' ? `<button onclick="del('hadiah','${h.id}')" class="btn-del"><i class="fas fa-trash"></i></button>` : ''}
@@ -254,7 +247,7 @@
 
             const net = kTotal - kPakai;
             document.getElementById('coin-val').innerText = net;
-            document.getElementById('list-misi').innerHTML = mHtml;
+            document.getElementById('list-misi').innerHTML = mHtml || '<p style="color:#aaa; text-align:center; font-size:13px">Semua misi sudah divalidasi!</p>';
             document.getElementById('list-hadiah').innerHTML = hHtml;
             document.getElementById('list-history').innerHTML = histHtml;
 
@@ -268,22 +261,8 @@
             }
         }
 
-        // CHART
-        function renderChart() {
-            openM('modal-dash');
-            const ctx = document.getElementById('chartWeekly').getContext('2d');
-            if(chartObj) chartObj.destroy();
-            chartObj = new Chart(ctx, {
-                type: 'bar',
-                data: { labels: ['Koin Sekarang'], datasets: [{ label: 'Koin Syifa', data: [parseInt(document.getElementById('coin-val').innerText)], backgroundColor: '#6C5CE7' }] },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-        }
-
-        // DATABASE ACTIONS
         window.action = (c, id, data) => updateDoc(doc(db, c, id), data);
         window.del = (c, id) => confirm("Hapus?") && deleteDoc(doc(db, c, id));
-        
         window.clearFormM = () => { document.getElementById('m-id').value=''; document.getElementById('m-nama').value=''; document.getElementById('m-durasi').value=''; };
         window.clearFormH = () => { document.getElementById('h-id').value=''; document.getElementById('h-nama').value=''; document.getElementById('h-target').value=''; };
 
@@ -304,25 +283,31 @@
         window.editM = (id,n,d,c) => { if(userNow.r==='admin'){ document.getElementById('m-id').value=id; document.getElementById('m-nama').value=n; document.getElementById('m-durasi').value=d; document.getElementById('m-cat').value=c; openM('modal-misi'); } };
         window.editH = (id,n,t) => { if(userNow.r==='admin'){ document.getElementById('h-id').value=id; document.getElementById('h-nama').value=n; document.getElementById('h-target').value=t; openM('modal-hadiah'); } };
 
-        // USER MANAGEMENT
+        function renderChart() {
+            openM('modal-dash');
+            const ctx = document.getElementById('chartWeekly').getContext('2d');
+            if(chartObj) chartObj.destroy();
+            chartObj = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: ['Koin Sekarang'], datasets: [{ label: 'Tabungan Koin', data: [parseInt(document.getElementById('coin-val').innerText)], backgroundColor: '#6C5CE7' }] },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
         function syncUsers() {
             onSnapshot(collection(db, "users"), (s) => {
                 let h = '';
                 s.forEach(d => {
                     const u = d.data();
-                    h += `<div class="card" style="padding:10px">
-                        <div style="flex:1" onclick="editUser('${d.id}','${u.n}','${u.p}','${u.r}')"><b>${u.n}</b> (${u.r})</div>
-                        <button onclick="del('users','${d.id}')" class="btn-del"><i class="fas fa-trash"></i></button>
-                    </div>`;
+                    h += `<div class="card" style="padding:10px"><div style="flex:1" onclick="editUser('${d.id}','${u.n}','${u.p}','${u.r}')"><b>${u.n}</b> (${u.r})</div><button onclick="del('users','${d.id}')" class="btn-del"><i class="fas fa-trash"></i></button></div>`;
                 });
                 document.getElementById('db-user-list').innerHTML = h;
             });
         }
         window.editUser = (id, n, p, r) => {
-            document.getElementById('u-id').value = id;
-            document.getElementById('u-nama').value = n;
-            document.getElementById('u-pass').value = p;
-            setRole(r);
+            document.getElementById('u-id').value = id; document.getElementById('u-nama').value = n; document.getElementById('u-pass').value = p;
+            document.getElementById('u-role').value = r;
+            document.querySelectorAll('#role-chips .chip').forEach(c => { if(c.innerText.toLowerCase() === r) c.classList.add('active'); else c.classList.remove('active'); });
         };
         document.getElementById('btn-save-user').onclick = async () => {
             const id = document.getElementById('u-id').value;
