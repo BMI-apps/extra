@@ -1,37 +1,144 @@
-// Tambahkan atau perbarui fungsi-fungsi ini di dalam bagian <script>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Misi & Hadiah</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; }
+        .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .btn { padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-add { background: #28a745; color: white; font-weight: bold; }
+        .btn-edit { background: #ffc107; color: black; margin-left: 5px; }
+        
+        /* Modal Style */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+        .modal-content { background: white; width: 90%; max-width: 400px; margin: 50px auto; padding: 20px; border-radius: 10px; }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 5px; }
+        
+        .cat-list { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 5px; }
+        .cat-item { padding: 8px; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; background: #f9f9f9; }
+        .cat-item.selected { background: #007bff; color: white; border-color: #007bff; }
+    </style>
+</head>
+<body>
 
-// Fungsi untuk mengosongkan form sebelum tambah data baru
-window.resetMisiForm = () => {
-    document.getElementById('m-id').value = "";
-    document.getElementById('m-nama').value = "";
-    document.getElementById('m-durasi').value = "";
-    // Reset kategori ke pilihan pertama
-    document.querySelectorAll('#modal-misi .cat-item').forEach(i => i.classList.remove('selected'));
-    document.querySelector('#modal-misi .cat-item[data-cat="📚 Belajar"]').classList.add('selected');
-    openM('modal-misi');
-};
+    <div class="card">
+        <h2>Daftar Misi</h2>
+        <button class="btn btn-add" onclick="resetMisiForm()">+ Tambah Misi Baru</button>
+        
+        <div id="misi-list" style="margin-top: 15px;">
+            <div class="card">
+                <span>Belajar Matematika (30 Menit)</span>
+                <button class="btn btn-edit" onclick="prepEditMisi('id123', 'Belajar Matematika', '30', '📚 Belajar')">Edit</button>
+            </div>
+        </div>
+    </div>
 
-window.resetHadiahForm = () => {
-    document.getElementById('h-id').value = "";
-    document.getElementById('h-nama').value = "";
-    document.getElementById('h-target').value = "";
-    openM('modal-hadiah');
-};
+    <div id="modal-misi" class="modal">
+        <div class="modal-content">
+            <h3 id="modal-title">Form Misi</h3>
+            <input type="hidden" id="m-id">
+            
+            <div class="form-group">
+                <label>Nama Misi:</label>
+                <input type="text" id="m-nama" placeholder="Contoh: Baca Buku">
+            </div>
+            
+            <div class="form-group">
+                <label>Durasi (Menit):</label>
+                <input type="number" id="m-durasi" placeholder="0">
+            </div>
+            
+            <div class="form-group">
+                <label>Kategori:</label>
+                <div class="cat-list" id="m-cat-list">
+                    <div class="cat-item selected" data-cat="📚 Belajar" onclick="selectCat(this)">📚 Belajar</div>
+                    <div class="cat-item" data-cat="🧹 Kebersihan" onclick="selectCat(this)">🧹 Kebersihan</div>
+                    <div class="cat-item" data-cat="🙏 Ibadah" onclick="selectCat(this)">🙏 Ibadah</div>
+                </div>
+            </div>
+            
+            <div style="text-align: right;">
+                <button class="btn" onclick="closeM()">Batal</button>
+                <button class="btn btn-add" onclick="simpanMisi()">Simpan</button>
+            </div>
+        </div>
+    </div>
 
-// Pastikan tombol "+" memanggil fungsi reset di atas
-document.getElementById('btn-add-misi-trigger').onclick = () => resetMisiForm();
-document.getElementById('btn-add-reward-trigger').onclick = () => resetHadiahForm();
+    <script>
+        // Data sederhana untuk simulasi status user
+        const userNow = { r: 'admin' };
 
-// Fungsi Edit tetap (tidak berubah)
-window.prepEditMisi = (id, n, d, c) => { 
-    if(userNow.r === 'admin'){ 
-        document.getElementById('m-id').value = id; 
-        document.getElementById('m-nama').value = n; 
-        document.getElementById('m-durasi').value = d; 
-        // Pilih kategori yang sesuai dengan data
-        document.querySelectorAll('#modal-misi .cat-item').forEach(i => {
-            i.classList.toggle('selected', i.dataset.cat === c);
-        });
-        openM('modal-misi'); 
-    } 
-};
+        // 1. Fungsi Utama Buka/Tutup Modal
+        function openM(id) {
+            document.getElementById(id).style.display = 'block';
+        }
+
+        function closeM() {
+            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+        }
+
+        // 2. Logika Pilih Kategori (Visual)
+        function selectCat(el) {
+            document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        // 3. MENU TAMBAH: Benar-benar Kosong (Sesuai Permintaan Papa)
+        window.resetMisiForm = () => {
+            document.getElementById('modal-title').innerText = "Tambah Misi Baru";
+            document.getElementById('m-id').value = "";      // ID Kosong (tanda data baru)
+            document.getElementById('m-nama').value = "";    // Nama Kosong
+            document.getElementById('m-durasi').value = "";  // Durasi Kosong
+            
+            // Reset Kategori ke pilihan default pertama
+            document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('selected'));
+            document.querySelector('.cat-item[data-cat="📚 Belajar"]').classList.add('selected');
+            
+            openM('modal-misi');
+        };
+
+        // 4. MENU EDIT: Mengambil data yang sudah ada
+        window.prepEditMisi = (id, nama, durasi, kategori) => {
+            if (userNow.r === 'admin') {
+                document.getElementById('modal-title').innerText = "Edit Misi";
+                document.getElementById('m-id').value = id;           // Isi ID yang mau diedit
+                document.getElementById('m-nama').value = nama;       // Isi Nama lama
+                document.getElementById('m-durasi').value = durasi;   // Isi Durasi lama
+                
+                // Set kategori sesuai data yang diklik
+                document.querySelectorAll('.cat-item').forEach(i => {
+                    if (i.dataset.cat === kategori) i.classList.add('selected');
+                    else i.classList.remove('selected');
+                });
+                
+                openM('modal-misi');
+            } else {
+                alert("Hanya Papa yang bisa edit misi!");
+            }
+        };
+
+        // 5. Fungsi Simpan (Simulasi)
+        function simpanMisi() {
+            const id = document.getElementById('m-id').value;
+            const nama = document.getElementById('m-nama').value;
+            
+            if (!nama) return alert("Nama tidak boleh kosong!");
+            
+            if (id === "") {
+                console.log("Logika: Tambah data ke Database/Firebase");
+            } else {
+                console.log("Logika: Update data dengan ID " + id);
+            }
+            
+            closeM();
+            alert("Data Berhasil Disimpan!");
+        }
+    </script>
+
+</body>
+</html>
