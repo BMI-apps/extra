@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Syifa v13.8 - Full Fix</title>
+    <title>Quest Syifa v13.9 - Duration Fix</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -84,70 +84,15 @@
         </div>
     </div>
 
-    <div class="modal" id="modal-dash">
-        <div class="modal-content">
-            <h3>Statistik Koin 📊</h3>
-            <div style="height: 250px; width: 100%; margin: 20px 0;"><canvas id="chartWeekly"></canvas></div>
-            <button onclick="closeM('modal-dash')" class="btn-main" style="background:#eee; color:#666">Tutup</button>
-        </div>
-    </div>
+    <div class="modal" id="modal-dash"><div class="modal-content"><h3>Statistik Koin 📊</h3><div style="height: 250px;"><canvas id="chartWeekly"></canvas></div><button onclick="closeM('modal-dash')" class="btn-main" style="background:#eee; color:#666">Tutup</button></div></div>
 
-    <div class="modal" id="modal-user-list">
-        <div class="modal-content">
-            <h3>Kelola User</h3>
-            <p style="font-size:11px; color:#999; margin-bottom:10px">Klik nama user untuk edit</p>
-            <div id="db-user-list" style="margin:15px 0"></div>
-            <hr><br>
-            <input type="hidden" id="u-id">
-            <input type="text" id="u-nama" class="form-control" placeholder="Nama">
-            <input type="text" id="u-pass" class="form-control" placeholder="Kode">
-            <div class="cat-chips" id="role-chips">
-                <div class="chip active" onclick="setSelect('role', 'user', this)">User</div>
-                <div class="chip" onclick="setSelect('role', 'admin', this)">Admin</div>
-            </div>
-            <input type="hidden" id="u-role" value="user">
-            <button id="btn-save-user" class="btn-main" style="background:var(--s)">Simpan User</button>
-            <button onclick="closeM('modal-user-list')" style="width:100%; border:none; margin-top:10px; background:none; color:#aaa">Tutup</button>
-        </div>
-    </div>
+    <div class="modal" id="modal-user-list"><div class="modal-content"><h3>Kelola User</h3><p style="font-size:11px; color:#999">Klik nama untuk edit</p><div id="db-user-list" style="margin:15px 0"></div><hr><br><input type="hidden" id="u-id"><input type="text" id="u-nama" class="form-control" placeholder="Nama"><input type="text" id="u-pass" class="form-control" placeholder="Kode"><div class="cat-chips"><div class="chip active" onclick="setSelect('role', 'user', this)">User</div><div class="chip" onclick="setSelect('role', 'admin', this)">Admin</div></div><input type="hidden" id="u-role" value="user"><button id="btn-save-user" class="btn-main" style="background:var(--s)">Simpan User</button><button onclick="closeM('modal-user-list')" style="width:100%; border:none; margin-top:10px; background:none; color:#aaa">Tutup</button></div></div>
 
-    <div class="modal" id="modal-misi">
-        <div class="modal-content">
-            <h3>Atur Misi</h3><br>
-            <input type="hidden" id="m-id">
-            <input type="text" id="m-nama" class="form-control" placeholder="Nama Misi">
-            <input type="number" id="m-durasi" class="form-control" placeholder="Durasi (Koin = Durasi/10)">
-            <div class="cat-chips" id="cat-chips">
-                <div class="chip active" onclick="setSelect('cat', '🕌 Ibadah', this)">🕌 Ibadah</div>
-                <div class="chip" onclick="setSelect('cat', '📚 Belajar', this)">📚 Belajar</div>
-                <div class="chip" onclick="setSelect('cat', '🏠 Mandiri', this)">🏠 Mandiri</div>
-                <div class="chip" onclick="setSelect('cat', '🤝 Bantu', this)">🤝 Bantu</div>
-            </div>
-            <input type="hidden" id="m-cat" value="🕌 Ibadah">
-            <button id="btn-save-misi" class="btn-main" style="background:var(--p)">Simpan</button>
-            <button onclick="closeM('modal-misi')" style="width:100%; border:none; margin-top:10px; background:none; color:#aaa">Batal</button>
-        </div>
-    </div>
+    <div class="modal" id="modal-misi"><div class="modal-content"><h3>Atur Misi</h3><br><input type="hidden" id="m-id"><input type="text" id="m-nama" class="form-control" placeholder="Nama Misi"><input type="number" id="m-durasi" class="form-control" placeholder="Durasi (Menit)"><div class="cat-chips" id="cat-chips"><div class="chip active" onclick="setSelect('cat', '🕌 Ibadah', this)">🕌 Ibadah</div><div class="chip" onclick="setSelect('cat', '📚 Belajar', this)">📚 Belajar</div><div class="chip" onclick="setSelect('cat', '🏠 Mandiri', this)">🏠 Mandiri</div><div class="chip" onclick="setSelect('cat', '🤝 Bantu', this)">🤝 Bantu</div></div><input type="hidden" id="m-cat" value="🕌 Ibadah"><button id="btn-save-misi" class="btn-main" style="background:var(--p)">Simpan</button><button onclick="closeM('modal-misi')" style="width:100%; border:none; margin-top:10px; background:none; color:#aaa">Batal</button></div></div>
 
-    <div class="modal" id="modal-hadiah">
-        <div class="modal-content">
-            <h3>Atur Hadiah</h3><br>
-            <input type="hidden" id="h-id">
-            <input type="text" id="h-nama" class="form-control" placeholder="Nama Hadiah">
-            <input type="number" id="h-target" class="form-control" placeholder="Harga Koin">
-            <button id="btn-save-hadiah" class="btn-main" style="background:var(--g)">Simpan</button>
-            <button onclick="closeM('modal-hadiah')" style="width:100%; border:none; margin-top:10px; background:none; color:#aaa">Batal</button>
-        </div>
-    </div>
+    <div class="modal" id="modal-hadiah"><div class="modal-content"><h3>Atur Hadiah</h3><br><input type="hidden" id="h-id"><input type="text" id="h-nama" class="form-control" placeholder="Nama Hadiah"><input type="number" id="h-target" class="form-control" placeholder="Harga Koin"><button id="btn-save-hadiah" class="btn-main" style="background:var(--g)">Simpan</button><button onclick="closeM('modal-hadiah')" style="width:100%; border:none; margin-top:10px; background:none; color:#aaa">Batal</button></div></div>
 
-    <div class="modal active" id="modal-login">
-        <div class="modal-content">
-            <h2 style="text-align:center">Quest Login</h2><br>
-            <input type="text" id="login-u" class="form-control" placeholder="Nama">
-            <input type="password" id="login-p" class="form-control" placeholder="Kode">
-            <button id="btn-login-exec" class="btn-main" style="background:var(--p)">Masuk</button>
-        </div>
-    </div>
+    <div class="modal active" id="modal-login"><div class="modal-content"><h2 style="text-align:center">Quest Login</h2><br><input type="text" id="login-u" class="form-control" placeholder="Nama"><input type="password" id="login-p" class="form-control" placeholder="Kode"><button id="btn-login-exec" class="btn-main" style="background:var(--p)">Masuk</button></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -174,20 +119,14 @@
             document.getElementById('hi-user').innerText = `Halo, ${userNow.n}!`;
             if(userNow.r === 'admin') {
                 ['nav-user','nav-dash','adm-m','adm-h'].forEach(id => document.getElementById(id).style.display='flex');
-                document.getElementById('nav-user').onclick = () => openM('modal-user-list');
-                document.getElementById('nav-dash').onclick = () => renderChart();
-                syncUsers();
-                initSort();
+                syncUsers(); initSort();
             }
-
             let allM = []; let allH = [];
             onSnapshot(query(collection(db, "misi"), orderBy("order", "asc")), (s) => {
-                allM = s.docs.map(d => ({id:d.id, ...d.data()}));
-                render(allM, allH);
+                allM = s.docs.map(d => ({id:d.id, ...d.data()})); render(allM, allH);
             });
             onSnapshot(query(collection(db, "hadiah"), orderBy("order", "asc")), (s) => {
-                allH = s.docs.map(d => ({id:d.id, ...d.data()}));
-                render(allM, allH);
+                allH = s.docs.map(d => ({id:d.id, ...d.data()})); render(allM, allH);
             });
         }
 
@@ -195,21 +134,33 @@
             let mHtml = ''; let hHtml = ''; let histHtml = '';
             let kTotal = 0; let kPakai = 0;
 
-            misi.forEach(m => { if(m.approved === true) kTotal += Math.floor(m.d/10); });
-            hadiah.forEach(h => { if(h.claimed === true) kPakai += h.t; });
+            misi.forEach(m => { if(m.approved) kTotal += Math.floor(m.d/10); });
+            hadiah.forEach(h => { if(h.claimed) kPakai += h.t; });
             const net = kTotal - kPakai;
 
             misi.forEach(m => {
                 const v = Math.floor(m.d/10);
+                const dur = m.d || 0; // Durasi menit
+                
                 if (m.claimed === true || m.approved === true) {
                     histHtml += `<div class="history-item"><div class="history-dot" style="background:var(--ok)"></div><div class="card history"><b>${m.cat || ''} ${m.n}</b> &nbsp; <span style="color:var(--ok)">+🪙${v}</span></div></div>`;
                 } else {
-                    mHtml += `<div class="card ${m.done ? 'done' : ''}" data-id="${m.id}">${userNow.r === 'admin' ? '<i class="fas fa-bars handle"></i>' : ''}<input type="checkbox" class="check-box" ${m.done ? 'checked' : ''} onchange="action('misi','${m.id}',{done:this.checked})"><div style="flex:1" onclick="editM('${m.id}','${m.n}',${m.d},'${m.cat}')"><b>${m.n}</b><br><small>${m.cat} • 🪙${v}</small></div>${userNow.r === 'admin' && m.done ? `<button onclick="action('misi','${m.id}',{approved:true, claimed:true})" class="icon-btn" style="background:var(--ok);color:white;width:auto;padding:0 10px;font-size:12px">Valid</button>` : ''}${userNow.r === 'admin' ? `<button onclick="del('misi','${m.id}')" class="btn-del"><i class="fas fa-trash"></i></button>` : ''}</div>`;
+                    // PERBAIKAN: Menambahkan keterangan durasi menit di bawah ini
+                    mHtml += `<div class="card ${m.done ? 'done' : ''}" data-id="${m.id}">
+                        ${userNow.r === 'admin' ? '<i class="fas fa-bars handle"></i>' : ''}
+                        <input type="checkbox" class="check-box" ${m.done ? 'checked' : ''} onchange="action('misi','${m.id}',{done:this.checked})">
+                        <div style="flex:1" onclick="editM('${m.id}','${m.n}',${m.d},'${m.cat}')">
+                            <b>${m.n}</b><br>
+                            <small>${m.cat} • 🪙${v} • ${dur} Menit</small>
+                        </div>
+                        ${userNow.r === 'admin' && m.done ? `<button onclick="action('misi','${m.id}',{approved:true, claimed:true})" class="icon-btn" style="background:var(--ok);color:white;width:auto;padding:0 10px;font-size:12px">Valid</button>` : ''}
+                        ${userNow.r === 'admin' ? `<button onclick="del('misi','${m.id}')" class="btn-del"><i class="fas fa-trash"></i></button>` : ''}
+                    </div>`;
                 }
             });
 
             hadiah.forEach(h => {
-                if(h.claimed === true) {
+                if(h.claimed) {
                     histHtml += `<div class="history-item"><div class="history-dot" style="background:var(--g)"></div><div class="card history" style="border-left-color:var(--g)"><b>🎁 ${h.n}</b> &nbsp; <span style="color:var(--a)">-🪙${h.t}</span></div></div>`;
                 } else {
                     hHtml += `<div class="card reward" data-id="${h.id}">${userNow.r==='admin'?'<i class="fas fa-bars handle"></i>':''}<div style="flex:1" onclick="editH('${h.id}','${h.n}',${h.t})"><b>${h.n}</b><br><small>🪙${h.t}</small></div>${net >= h.t && userNow.r !== 'admin' ? `<button onclick="action('hadiah','${h.id}',{claimed:true})" class="icon-btn" style="background:var(--ok);color:white;width:auto;padding:0 10px;font-size:12px">Klaim</button>` : ''}${userNow.r==='admin' ? `<button onclick="del('hadiah','${h.id}')" class="btn-del"><i class="fas fa-trash"></i></button>` : ''}</div>`;
@@ -231,39 +182,6 @@
             }
         }
 
-        // --- MANAJEMEN USER ---
-        function syncUsers() {
-            onSnapshot(collection(db, "users"), (s) => {
-                let h = '';
-                s.forEach(d => {
-                    const u = d.data();
-                    h += `<div class="card" style="padding:10px; cursor:pointer"><div style="flex:1" onclick="window.editUser('${d.id}','${u.n}','${u.p}','${u.r}')"><b>${u.n}</b> <small>(${u.r})</small><br><span style="font-size:11px; color:#aaa">Kode: ${u.p}</span></div><button onclick="del('users','${d.id}')" class="btn-del"><i class="fas fa-trash"></i></button></div>`;
-                });
-                document.getElementById('db-user-list').innerHTML = h;
-            });
-        }
-
-        window.editUser = (id, n, p, r) => {
-            document.getElementById('u-id').value = id;
-            document.getElementById('u-nama').value = n;
-            document.getElementById('u-pass').value = p;
-            document.getElementById('u-role').value = r;
-            document.querySelectorAll('#role-chips .chip').forEach(c => {
-                if(c.innerText.toLowerCase() === r.toLowerCase()) c.classList.add('active');
-                else c.classList.remove('active');
-            });
-        };
-
-        document.getElementById('btn-save-user').onclick = async () => {
-            const id = document.getElementById('u-id').value;
-            const d = { n: document.getElementById('u-nama').value, p: document.getElementById('u-pass').value, r: document.getElementById('u-role').value };
-            if(!d.n || !d.p) return alert("Isi nama dan kode!");
-            id ? await updateDoc(doc(db,"users",id), d) : await addDoc(collection(db,"users"), d);
-            document.getElementById('u-id').value=''; document.getElementById('u-nama').value=''; document.getElementById('u-pass').value='';
-            alert("Berhasil disimpan!");
-        };
-
-        // --- GLOBAL ACTIONS ---
         window.action = (c, id, data) => updateDoc(doc(db, c, id), data);
         window.del = (c, id) => confirm("Hapus?") && deleteDoc(doc(db, c, id));
         window.clearFormM = () => { document.getElementById('m-id').value=''; document.getElementById('m-nama').value=''; document.getElementById('m-durasi').value=''; };
@@ -291,19 +209,41 @@
             q.forEach(d => { if(d.data().n.toLowerCase()===u && d.data().p===p){ sessionStorage.setItem('u_online',JSON.stringify(d.data())); location.reload(); } });
         };
         
-        function renderChart() {
-            openM('modal-dash');
-            const ctx = document.getElementById('chartWeekly').getContext('2d');
-            if(chartObj) chartObj.destroy();
-            chartObj = new Chart(ctx, { type: 'bar', data: { labels: ['Koin Tabungan'], datasets: [{ label: 'Total', data: [parseInt(document.getElementById('coin-val').innerText)], backgroundColor: '#6C5CE7' }] }, options: { responsive: true, maintainAspectRatio: false } });
+        function syncUsers() {
+            onSnapshot(collection(db, "users"), (s) => {
+                let h = '';
+                s.forEach(d => {
+                    const u = d.data();
+                    h += `<div class="card" style="padding:10px; cursor:pointer"><div style="flex:1" onclick="window.editUser('${d.id}','${u.n}','${u.p}','${u.r}')"><b>${u.n}</b> (${u.r})<br><span style="font-size:11px; color:#aaa">Kode: ${u.p}</span></div><button onclick="del('users','${d.id}')" class="btn-del"><i class="fas fa-trash"></i></button></div>`;
+                });
+                document.getElementById('db-user-list').innerHTML = h;
+            });
         }
-        
+        window.editUser = (id, n, p, r) => {
+            document.getElementById('u-id').value = id; document.getElementById('u-nama').value = n; document.getElementById('u-pass').value = p; document.getElementById('u-role').value = r;
+            document.querySelectorAll('#role-chips .chip').forEach(c => { if(c.innerText.toLowerCase() === r.toLowerCase()) c.classList.add('active'); else c.classList.remove('active'); });
+        };
+        document.getElementById('btn-save-user').onclick = async () => {
+            const id = document.getElementById('u-id').value;
+            const d = { n: document.getElementById('u-nama').value, p: document.getElementById('u-pass').value, r: document.getElementById('u-role').value };
+            id ? await updateDoc(doc(db,"users",id), d) : await addDoc(collection(db,"users"), d);
+            document.getElementById('u-id').value=''; document.getElementById('u-nama').value=''; document.getElementById('u-pass').value='';
+            alert("Disimpan!");
+        };
+
         function initSort() {
             new Sortable(document.getElementById('list-misi'), { handle:'.handle', animation:150, onEnd: () => saveO('misi', 'list-misi') });
             new Sortable(document.getElementById('list-hadiah'), { handle:'.handle', animation:150, onEnd: () => saveO('hadiah', 'list-hadiah') });
         }
         async function saveO(c, e) { document.getElementById(e).querySelectorAll('.card').forEach((item, i) => { if(item.dataset.id) updateDoc(doc(db, c, item.dataset.id), { order: i }); }); }
         document.getElementById('nav-logout').onclick = () => { sessionStorage.clear(); location.reload(); };
+        document.getElementById('nav-user').onclick = () => openM('modal-user-list');
+        document.getElementById('nav-dash').onclick = () => {
+            openM('modal-dash');
+            const ctx = document.getElementById('chartWeekly').getContext('2d');
+            if(chartObj) chartObj.destroy();
+            chartObj = new Chart(ctx, { type: 'bar', data: { labels: ['Tabungan'], datasets: [{ label: 'Koin', data: [parseInt(document.getElementById('coin-val').innerText)], backgroundColor: '#6C5CE7' }] }, options: { responsive: true, maintainAspectRatio: false } });
+        };
     </script>
 </body>
 </html>
