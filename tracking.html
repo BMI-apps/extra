@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Syifa v12.5 - Hadiah Fix</title>
+    <title>Quest Syifa v12.6 - Lapor Misi Fix</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -20,12 +20,15 @@
         .progress-container { background: white; padding: 15px; border-radius: 20px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .progress-bg { background: #eee; height: 16px; border-radius: 10px; overflow: hidden; margin: 10px 0; }
         .progress-fill { background: linear-gradient(90deg, var(--s), var(--p)); width: 0%; height: 100%; transition: 1s; border-radius: 10px; }
-        .card { background: white; padding: 18px; border-radius: 22px; margin-bottom: 12px; display: flex; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 6px solid #eee; }
+        .card { background: white; padding: 18px; border-radius: 22px; margin-bottom: 12px; display: flex; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 6px solid #ccc; transition: 0.3s; }
+        .card.done { border-left-color: var(--wait); background: #fffdf5; } /* Kuning: Syifa lapor selesai */
+        .card.approved { border-left-color: var(--ok); background: #fafffa; } /* Hijau: Papa sudah validasi */
         .card.reward { border-left-color: var(--g); }
-        .card.claimed { border-left-color: #9b59b6; opacity: 0.7; }
-        .btn-claim { background: var(--ok); color: white; border: none; padding: 8px 15px; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 11px; }
+        .card.claimed { border-left-color: #9b59b6; opacity: 0.6; }
+        .btn-valid { background: var(--ok); color: white; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 11px; margin-left: 5px; }
         .btn-del { border: none; background: none; color: var(--a); margin-left: 10px; cursor: pointer; font-size: 16px; }
         .handle { color: #ccc; cursor: grab; padding-right: 15px; }
+        .check-box { width: 24px; height: 24px; margin-right: 15px; cursor: pointer; accent-color: var(--p); }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal.active { display: flex !important; }
         .modal-content { background: white; border-radius: 30px; padding: 25px; width: 90%; max-width: 420px; }
@@ -55,7 +58,7 @@
         <h1 id="hi-user" style="margin-bottom:20px; color:var(--p)">Halo!</h1>
 
         <div class="section-box">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin: 20px 0 10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
                 <h3>Misi Aktif ✨</h3>
                 <button class="icon-btn" id="btn-add-misi-trigger" style="display:none; background:var(--a); color:white; width:35px; height:35px;"><i class="fas fa-plus"></i></button>
             </div>
@@ -101,7 +104,7 @@
                 initSort();
             }
 
-            // Realtime Listener Misi
+            // Realtime Misi
             onSnapshot(query(collection(db, "misi"), orderBy("order", "asc")), (snap) => {
                 let mHtml = ''; let hstHtml = ''; let koin = 0;
                 snap.forEach(d => {
@@ -109,9 +112,14 @@
                     if(m.claimed) hstHtml += `<div class="card claimed"><b>🏆 ${m.n}</b></div>`;
                     else {
                         if(m.approved) koin += v;
-                        mHtml += `<div class="card" data-id="${d.id}">
+                        mHtml += `<div class="card ${m.approved?'approved':(m.done?'done':'')}" data-id="${d.id}">
                             ${userNow.r==='admin'?'<i class="fas fa-bars handle"></i>':''}
-                            <div style="flex:1" onclick="editMisi('${d.id}','${m.n}',${m.d})"><b>${m.n}</b><br><small>${m.d}m • 🪙 ${v}</small></div>
+                            <input type="checkbox" class="check-box" ${m.done?'checked':''} ${m.approved?'disabled':''} onchange="laporMisi('${d.id}', this.checked)">
+                            <div style="flex:1" onclick="editMisi('${d.id}','${m.n}',${m.d})">
+                                <b style="${m.done?'text-decoration:line-through;color:#aaa':''}">${m.n}</b><br>
+                                <small>${m.d}m • 🪙 ${v}</small>
+                            </div>
+                            ${userNow.r==='admin' && m.done && !m.approved ? `<button onclick="validMisi('${d.id}')" class="btn-valid">Validasi</button>` : ''}
                             ${userNow.r==='admin' ? `<button onclick="delD('misi','${d.id}')" class="btn-del"><i class="fas fa-trash"></i></button>` : ''}
                         </div>`;
                     }
@@ -122,7 +130,7 @@
                 updateProgress(koin);
             });
 
-            // Realtime Listener Hadiah (FIXED: Refreshing automatically)
+            // Realtime Hadiah
             onSnapshot(query(collection(db, "hadiah"), orderBy("order", "asc")), (snap) => {
                 let hHtml = ''; let maxK = 0; let targetN = '-';
                 snap.forEach(d => {
@@ -140,14 +148,17 @@
             });
         }
 
+        // Logic Misi
+        window.laporMisi = (id, status) => updateDoc(doc(db, "misi", id), { done: status });
+        window.validMisi = (id) => updateDoc(doc(db, "misi", id), { approved: true });
+        window.delD = (c, id) => confirm('Hapus data ini?') && deleteDoc(doc(db, c, id));
+
         function updateProgress(k) {
             const p = window.maxKoin ? Math.min(100, Math.floor((k/window.maxKoin)*100)) : 0;
             document.getElementById('progress-bar').style.width = p+'%';
             document.getElementById('target-percent').innerText = p+'%';
             document.getElementById('target-name').innerText = window.targetNama || 'Target';
         }
-
-        window.delD = (c, id) => confirm('Hapus data ini?') && deleteDoc(doc(db, c, id));
 
         // Form Logic
         document.getElementById('btn-add-misi-trigger').onclick = () => { document.getElementById('m-id').value=""; document.getElementById('m-nama').value=""; document.getElementById('m-durasi').value=""; openM('modal-misi'); };
@@ -159,7 +170,7 @@
         document.getElementById('btn-save-misi').onclick = async () => {
             const id = document.getElementById('m-id').value;
             const data = { n: document.getElementById('m-nama').value, d: parseInt(document.getElementById('m-durasi').value) };
-            id ? await updateDoc(doc(db,"misi",id), data) : await addDoc(collection(db,"misi"), {...data, order:99, approved:false, claimed:false, createdAt: serverTimestamp()});
+            id ? await updateDoc(doc(db,"misi",id), data) : await addDoc(collection(db,"misi"), {...data, order:99, done:false, approved:false, claimed:false, createdAt: serverTimestamp()});
             closeM('modal-misi');
         };
 
@@ -184,8 +195,9 @@
             e.preventDefault();
             const n = document.getElementById('user-in').value.toLowerCase();
             const p = document.getElementById('pass-in').value;
-            if(n==='papa' && p==='papa') { sessionStorage.setItem('u_online', JSON.stringify({n:'Papa', r:'admin'})); location.reload(); }
-            else { alert("Gagal!"); }
+            if(n==='syifa' && p==='123') { sessionStorage.setItem('u_online', JSON.stringify({n:'Syifa', r:'user'})); location.reload(); }
+            else if(n==='papa' && p==='papa') { sessionStorage.setItem('u_online', JSON.stringify({n:'Papa', r:'admin'})); location.reload(); }
+            else { alert("User tidak dikenal!"); }
         };
         document.getElementById('btn-logout-trigger').onclick = () => { sessionStorage.clear(); location.reload(); };
     </script>
