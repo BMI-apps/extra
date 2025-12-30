@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Tracker Online - Dashboard Edition</title>
+    <title>Quest Tracker Online - Admin Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -14,34 +14,35 @@
         .container { max-width: 500px; margin: 0 auto; }
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .coin-badge { background: white; padding: 10px 15px; border-radius: 50px; border: 2px solid var(--g); font-weight: 600; color: #f39c12; box-shadow: 0 4px 0 #eee; font-size: 20px; }
+        .nav-btns { display: flex; gap: 8px; }
         .icon-btn { width: 45px; height: 45px; border-radius: 12px; border: none; cursor: pointer; background: white; box-shadow: 0 4px 0 #ddd; font-size: 18px; display: flex; align-items: center; justify-content: center; }
         
         .section-box { margin-bottom: 25px; }
         h3 { margin-bottom: 15px; color: #333; display: flex; justify-content: space-between; align-items: center; }
         
-        /* Dashboard Styles */
-        .dashboard-card { background: white; padding: 20px; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); margin-bottom: 25px; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .stat-item { background: #f8f9fa; padding: 15px; border-radius: 15px; text-align: center; }
-        .stat-val { display: block; font-size: 22px; font-weight: 600; color: var(--p); }
-        .stat-label { font-size: 12px; color: #888; }
-
         .card { background: white; padding: 18px; border-radius: 22px; margin-bottom: 12px; display: flex; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 6px solid #eee; }
         .card.approved { border-left-color: var(--ok); }
         .card.pending { border-left-color: var(--wait); }
         .card.reward { border-left-color: var(--g); }
         .clickable { cursor: pointer; }
-        
-        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
-        .cat-item { padding: 10px; background: #f1f2f6; border-radius: 12px; text-align: center; cursor: pointer; font-size: 13px; border: 2px solid transparent; }
-        .cat-item.selected { background: var(--p); color: white; }
 
+        /* Dashboard Stats inside Modal */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .stat-item { background: #f8f9fa; padding: 15px; border-radius: 15px; text-align: center; }
+        .stat-val { display: block; font-size: 20px; font-weight: 600; color: var(--p); }
+        .stat-label { font-size: 11px; color: #888; }
+
+        /* Modal Base */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal.active { display: flex; }
-        .modal-content { background: white; border-radius: 35px; padding: 25px; width: 90%; max-width: 420px; max-height: 90vh; overflow-y: auto; }
-        .form-control { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #eee; background: #f9f9f9; font-size: 16px; margin-bottom: 12px; }
-        .btn-main { width: 100%; padding: 15px; border-radius: 15px; border: none; font-weight: 600; cursor: pointer; color: white; margin-top: 5px; }
+        .modal-content { background: white; border-radius: 30px; padding: 25px; width: 90%; max-width: 420px; max-height: 90vh; overflow-y: auto; }
         
+        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+        .cat-item { padding: 10px; background: #f1f2f6; border-radius: 12px; text-align: center; cursor: pointer; font-size: 13px; }
+        .cat-item.selected { background: var(--p); color: white; }
+        
+        .form-control { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #eee; margin-bottom: 12px; font-size: 16px; }
+        .btn-main { width: 100%; padding: 15px; border-radius: 15px; border: none; font-weight: 600; cursor: pointer; color: white; }
         #loading-ui { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); background: var(--p); color: white; padding: 5px 15px; border-radius: 20px; font-size: 12px; display: none; z-index: 2000; }
     </style>
 </head>
@@ -55,7 +56,7 @@
             <form id="form-login">
                 <input type="text" id="user-in" class="form-control" placeholder="Nama (Papa/Mama/Syifa)" required>
                 <input type="password" id="pass-in" class="form-control" placeholder="Kode Rahasia" required>
-                <button type="submit" class="btn-main" style="background:var(--p); box-shadow: 0 6px 0 #4834d4;">Masuk</button>
+                <button type="submit" class="btn-main" style="background:var(--p)">Masuk</button>
             </form>
         </div>
     </div>
@@ -63,23 +64,13 @@
     <div class="container" id="app" style="display:none;">
         <header>
             <div class="coin-badge"><i class="fas fa-coins"></i> <span id="coin-val">0</span></div>
-            <button class="icon-btn" id="btn-logout-trigger" style="color:var(--a)"><i class="fas fa-sign-out-alt"></i></button>
+            <div class="nav-btns">
+                <button class="icon-btn" id="btn-dash-trigger" style="display:none; color:var(--p)"><i class="fas fa-chart-bar"></i></button>
+                <button class="icon-btn" id="btn-logout-trigger" style="color:var(--a)"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
         </header>
 
-        <div class="dashboard-card">
-            <h3 style="font-size: 18px;">Dashboard Minggu Ini 📊</h3>
-            <canvas id="weeklyChart" style="margin-top: 15px;"></canvas>
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <span class="stat-val" id="total-earned">0</span>
-                    <span class="stat-label">Koin Didapat</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-val" id="top-cat">-</span>
-                    <span class="stat-label">Fokus Utama</span>
-                </div>
-            </div>
-        </div>
+        <h1 id="hi-user" style="margin-bottom:20px; color:var(--p)">Halo!</h1>
 
         <div class="section-box">
             <h3>Pilihan Hadiah 🎁 
@@ -98,31 +89,49 @@
         </div>
     </div>
 
+    <div class="modal" id="modal-dash">
+        <div class="modal-content">
+            <h3 style="text-align:center">Statistik Mingguan 📊</h3>
+            <canvas id="weeklyChart" style="margin-top: 20px;"></canvas>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-val" id="total-earned">0</span>
+                    <span class="stat-label">Total Koin</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-val" id="top-cat">-</span>
+                    <span class="stat-label">Fokus</span>
+                </div>
+            </div>
+            <button onclick="closeM('modal-dash')" class="btn-main" style="background:#eee; color:#666; margin-top:20px;">Tutup</button>
+        </div>
+    </div>
+
     <div class="modal" id="modal-misi">
         <div class="modal-content">
-            <h3 id="m-title">Misi</h3><br>
+            <h3 id="m-title">Atur Misi</h3><br>
             <input type="hidden" id="m-id">
             <input type="text" id="m-nama" class="form-control" placeholder="Nama Misi">
             <input type="number" id="m-durasi" class="form-control" placeholder="Durasi (Menit)">
-            <div class="cat-grid" id="cat-selector">
+            <div class="cat-grid">
                 <div class="cat-item selected" data-cat="📚 Belajar">📚 Belajar</div>
                 <div class="cat-item" data-cat="🎮 Main">🎮 Main</div>
                 <div class="cat-item" data-cat="⚽ Olahraga">⚽ Olahraga</div>
                 <div class="cat-item" data-cat="🥗 Sehat">🥗 Sehat</div>
             </div>
             <button id="btn-save-misi" class="btn-main" style="background:var(--p)">Simpan</button>
-            <button onclick="closeM('modal-misi')" style="width:100%; background:none; border:none; margin-top:10px; color:#aaa">Batal</button>
+            <button onclick="closeM('modal-misi')" style="width:100%; border:none; background:none; margin-top:10px; color:#aaa">Batal</button>
         </div>
     </div>
 
     <div class="modal" id="modal-hadiah">
         <div class="modal-content">
-            <h3 id="h-title">Hadiah</h3><br>
+            <h3 id="h-title">Atur Hadiah</h3><br>
             <input type="hidden" id="h-id">
             <input type="text" id="h-nama" class="form-control" placeholder="Nama Hadiah">
             <input type="number" id="h-target" class="form-control" placeholder="Harga (Koin)">
             <button id="btn-save-hadiah" class="btn-main" style="background:var(--s)">Simpan</button>
-            <button onclick="closeM('modal-hadiah')" style="width:100%; background:none; border:none; margin-top:10px; color:#aaa">Batal</button>
+            <button onclick="closeM('modal-hadiah')" style="width:100%; border:none; background:none; margin-top:10px; color:#aaa">Batal</button>
         </div>
     </div>
 
@@ -142,14 +151,13 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const userNow = JSON.parse(sessionStorage.getItem('u_online'));
-        let currentSelectedCat = "📚 Belajar";
-        let myChart = null;
+        let selectedCat = "📚 Belajar";
+        let chart = null;
 
-        const showL = (s) => document.getElementById('loading-ui').style.display = s ? 'block' : 'none';
         const openM = (id) => document.getElementById(id).classList.add('active');
         window.closeM = (id) => document.getElementById(id).classList.remove('active');
 
-        // Login & Logout
+        // Login Logic
         document.getElementById('form-login').onsubmit = (e) => {
             e.preventDefault();
             const u = document.getElementById('user-in').value.toLowerCase();
@@ -157,22 +165,24 @@
             if((u==='papa'&&p==='papa')||(u==='mama'&&p==='mama')||(u==='syifa'&&p==='syifa')){
                 sessionStorage.setItem('u_online', JSON.stringify({n:u, r:(u==='syifa'?'user':'admin')}));
                 location.reload();
-            } else alert("Login Salah");
+            } else alert("Salah!");
         };
         document.getElementById('btn-logout-trigger').onclick = () => { sessionStorage.clear(); location.reload(); };
 
-        document.querySelectorAll('.cat-item').forEach(item => {
-            item.onclick = () => {
+        document.querySelectorAll('.cat-item').forEach(el => {
+            el.onclick = () => {
                 document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('selected'));
-                item.classList.add('selected');
-                currentSelectedCat = item.dataset.cat;
+                el.classList.add('selected');
+                selectedCat = el.dataset.cat;
             };
         });
 
         if(userNow){
             document.getElementById('modal-login').classList.remove('active');
             document.getElementById('app').style.display = 'block';
+            document.getElementById('hi-user').textContent = `Halo, ${userNow.n}!`;
             if(userNow.r === 'admin'){
+                document.getElementById('btn-dash-trigger').style.display = 'flex';
                 document.getElementById('btn-add-reward-trigger').style.display = 'flex';
                 document.getElementById('btn-add-misi-trigger').style.display = 'flex';
             }
@@ -180,97 +190,84 @@
             onSnapshot(collection(db, "misi"), (snap) => {
                 let ms = []; snap.forEach(d => ms.push({id:d.id, ...d.data()}));
                 renderMisi(ms);
-                updateDashboard(ms);
+                updateDashData(ms);
             });
-
             onSnapshot(collection(db, "hadiah"), (snap) => {
                 let hd = []; snap.forEach(d => hd.push({id:d.id, ...d.data()}));
                 renderHadiah(hd);
             });
         }
 
-        function updateDashboard(ms) {
+        function updateDashData(ms) {
             const now = new Date();
-            const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1)));
-            startOfWeek.setHours(0,0,0,0);
-
-            let stats = { "📚 Belajar": 0, "🎮 Main": 0, "⚽ Olahraga": 0, "🥗 Sehat": 0 };
-            let totalEarned = 0;
+            const start = new Date(now.setDate(now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1))).setHours(0,0,0,0);
+            let stats = { "📚 Belajar":0, "🎮 Main":0, "⚽ Olahraga":0, "🥗 Sehat":0 };
+            let total = 0;
 
             ms.forEach(m => {
-                if(m.approved && m.createdAt >= startOfWeek.getTime()){
-                    const koin = Math.floor(m.d/10);
-                    stats[m.c || "📚 Belajar"] += koin;
-                    totalEarned += koin;
+                if(m.approved && m.createdAt >= start){
+                    let k = Math.floor(m.d/10);
+                    stats[m.c || "📚 Belajar"] += k;
+                    total += k;
                 }
             });
 
-            document.getElementById('total-earned').textContent = totalEarned;
-            const topCat = Object.keys(stats).reduce((a, b) => stats[a] > stats[b] ? a : b);
-            document.getElementById('top-cat').textContent = stats[topCat] > 0 ? topCat.split(' ')[1] : '-';
+            document.getElementById('total-earned').textContent = total;
+            const top = Object.keys(stats).reduce((a, b) => stats[a] > stats[b] ? a : b);
+            document.getElementById('top-cat').textContent = stats[top] > 0 ? top.split(' ')[1] : '-';
 
-            const ctx = document.getElementById('weeklyChart').getContext('2d');
-            if(myChart) myChart.destroy();
-            myChart = new Chart(ctx, {
+            if(chart) chart.destroy();
+            chart = new Chart(document.getElementById('weeklyChart'), {
                 type: 'bar',
                 data: {
                     labels: ['Belajar', 'Main', 'Olahraga', 'Sehat'],
                     datasets: [{
-                        label: 'Koin Mingguan',
-                        data: [stats["📚 Belajar"], stats["🎮 Main"], stats["⚽ Olahraga"], stats["🥗 Sehat"]],
+                        label: 'Koin',
+                        data: Object.values(stats),
                         backgroundColor: ['#6C5CE7', '#00CEC9', '#FF7675', '#2ecc71'],
                         borderRadius: 10
                     }]
                 },
-                options: { responsive: true, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } } }
+                options: { plugins: { legend: {display: false} } }
             });
         }
 
+        document.getElementById('btn-dash-trigger').onclick = () => openM('modal-dash');
+
         function renderMisi(ms) {
-            let totalKoin = 0;
-            const list = document.getElementById('list-misi');
-            list.innerHTML = ms.sort((a,b)=>b.createdAt-a.createdAt).map(m => {
-                if(m.approved) totalKoin += Math.floor(m.d/10);
+            let tk = 0;
+            document.getElementById('list-misi').innerHTML = ms.sort((a,b)=>b.createdAt-a.createdAt).map(m => {
+                if(m.approved) tk += Math.floor(m.d/10);
                 return `
-                <div class="card ${m.approved?'approved':(m.done?'pending':'')} ${userNow.r==='admin' ? 'clickable' : ''}">
-                    <input type="checkbox" style="width:25px;height:25px;margin-right:15px;" ${m.done?'checked':''} 
-                        ${userNow.r==='admin'?'disabled':''} onchange="toggleMisi('${m.id}',${m.done})">
-                    <div style="flex:1" onclick="prepareEditMisi('${m.id}', '${m.n}', ${m.d}, '${m.c || '📚 Belajar'}')">
-                        <div style="font-weight:600;">${m.n}</div>
-                        <div style="font-size:12px;color:#aaa;">${m.c || '📚 Belajar'} • ${m.d} Menit</div>
+                <div class="card ${m.approved?'approved':(m.done?'pending':'')} ${userNow.r==='admin'?'clickable':''}">
+                    <input type="checkbox" style="width:25px;height:25px;margin-right:15px" ${m.done?'checked':''} ${userNow.r==='admin'?'disabled':''} onchange="toggleMisi('${m.id}',${m.done})">
+                    <div style="flex:1" onclick="prepMisi('${m.id}','${m.n}',${m.d},'${m.c}')">
+                        <div style="font-weight:600">${m.n}</div>
+                        <div style="font-size:12px;color:#aaa">${m.c || 'Belajar'} • ${m.d}m</div>
                     </div>
-                    ${userNow.r==='admin' && m.done && !m.approved ? `<button onclick="approveMisi('${m.id}')" style="background:var(--ok);color:white;border:none;padding:5px 10px;border-radius:8px;">OK</button>` : ''}
+                    ${userNow.r==='admin' && m.done && !m.approved ? `<button onclick="approveMisi('${m.id}')" style="background:var(--ok);color:white;border:none;padding:5px 10px;border-radius:8px">OK</button>` : ''}
                 </div>`;
             }).join('');
-            document.getElementById('coin-val').textContent = totalKoin;
+            document.getElementById('coin-val').textContent = tk;
         }
 
         function renderHadiah(hd) {
-            const list = document.getElementById('list-hadiah');
-            list.innerHTML = hd.map(h => `
-                <div class="card reward ${userNow.r==='admin' ? 'clickable' : ''}" onclick="prepareEditReward('${h.id}', '${h.n}', ${h.t})">
-                    <div style="flex:1">
-                        <div style="font-weight:600;">${h.n}</div>
-                        <div style="font-size:12px;color:#f39c12;"><i class="fas fa-coins"></i> ${h.t} Koin</div>
-                    </div>
+            document.getElementById('list-hadiah').innerHTML = hd.map(h => `
+                <div class="card reward ${userNow.r==='admin'?'clickable':''}" onclick="prepHadiah('${h.id}','${h.n}',${h.t})">
+                    <div style="flex:1"><b>${h.n}</b></div>
+                    <div style="color:#f39c12"><b>${h.t} <i class="fas fa-coins"></i></b></div>
                 </div>`).join('');
         }
 
-        window.prepareEditMisi = (id, n, d, c) => {
-            if(userNow.r !== 'admin') return;
-            document.getElementById('m-id').value = id;
-            document.getElementById('m-nama').value = n;
-            document.getElementById('m-durasi').value = d;
-            currentSelectedCat = c;
-            openM('modal-misi');
+        window.prepMisi = (id,n,d,c) => { 
+            if(userNow.r!=='admin') return; 
+            document.getElementById('m-id').value=id; document.getElementById('m-nama').value=n; 
+            document.getElementById('m-durasi').value=d; openM('modal-misi'); 
         };
-
-        window.prepareEditReward = (id, n, t) => {
-            if(userNow.r !== 'admin') return;
-            document.getElementById('h-id').value = id;
-            document.getElementById('h-nama').value = n;
-            document.getElementById('h-target').value = t;
-            openM('modal-hadiah');
+        window.prepHadiah = (id,n,t) => { 
+            if(userNow.r!=='admin') return; 
+            document.getElementById('h-id').value=id; document.getElementById('h-nama').value=n; 
+            document.getElementById('h-target').value=t; openM('modal-hadiah'); 
         };
 
         window.toggleMisi = async (id, st) => { await updateDoc(doc(db,"misi",id), {done:!st, approved:false}); };
@@ -278,19 +275,20 @@
 
         document.getElementById('btn-save-misi').onclick = async () => {
             const id = document.getElementById('m-id').value;
-            const data = { n: document.getElementById('m-nama').value, d: parseInt(document.getElementById('m-durasi').value), c: currentSelectedCat };
-            showL(true);
+            const data = { n: document.getElementById('m-nama').value, d: parseInt(document.getElementById('m-durasi').value), c: selectedCat };
             id ? await updateDoc(doc(db,"misi",id), data) : await addDoc(collection(db,"misi"), {...data, done:false, approved:false, createdAt:Date.now()});
-            closeM('modal-misi'); showL(false);
+            closeM('modal-misi');
         };
 
         document.getElementById('btn-save-hadiah').onclick = async () => {
             const id = document.getElementById('h-id').value;
             const data = { n: document.getElementById('h-nama').value, t: parseInt(document.getElementById('h-target').value) };
-            showL(true);
             id ? await updateDoc(doc(db,"hadiah",id), data) : await addDoc(collection(db,"hadiah"), {...data, createdAt:Date.now()});
-            closeM('modal-hadiah'); showL(false);
+            closeM('modal-hadiah');
         };
+
+        document.getElementById('btn-add-misi-trigger').onclick = () => { document.getElementById('m-id').value=""; openM('modal-misi'); };
+        document.getElementById('btn-add-reward-trigger').onclick = () => { document.getElementById('h-id').value=""; openM('modal-hadiah'); };
     </script>
 </body>
 </html>
