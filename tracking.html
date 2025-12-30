@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Syifa - Database Version</title>
+    <title>Quest Tracker Syifa - Fixed Layout</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -13,22 +13,42 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Fredoka', sans-serif; }
         body { background: var(--bg); padding: 20px; }
         .container { max-width: 500px; margin: 0 auto; }
+        
+        /* HEADER */
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .coin-badge { background: white; padding: 10px 15px; border-radius: 50px; border: 2px solid var(--g); font-weight: 600; color: #f39c12; box-shadow: 0 4px 0 #eee; font-size: 20px; }
         .nav-btns { display: flex; gap: 8px; }
-        .icon-btn { width: 45px; height: 45px; border-radius: 12px; border: none; cursor: pointer; background: white; box-shadow: 0 4px 0 #ddd; font-size: 18px; display: flex; align-items: center; justify-content: center; }
-        .card { background: white; padding: 18px; border-radius: 22px; margin-bottom: 12px; display: flex; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 6px solid #eee; }
+        
+        /* TOMBOL UTAMA */
+        .icon-btn { width: 45px; height: 45px; border-radius: 12px; border: none; cursor: pointer; background: white; box-shadow: 0 4px 0 #ddd; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .icon-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #ddd; }
+        
+        /* PERBAIKAN POSISI TOMBOL + */
+        .section-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 15px; 
+        }
+        .section-header h3 { margin-bottom: 0; color: #333; }
+        .btn-plus { width: 35px; height: 35px; border-radius: 10px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; box-shadow: 0 3px 0 rgba(0,0,0,0.1); }
+
+        /* CARDS */
+        .card { background: white; padding: 18px; border-radius: 22px; margin-bottom: 12px; display: flex; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 6px solid #eee; position: relative; }
         .card.approved { border-left-color: var(--ok); }
         .card.pending { border-left-color: var(--wait); }
         .card.reward { border-left-color: var(--g); }
+        
+        /* MODAL & FORM */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal.active { display: flex; }
         .modal-content { background: white; border-radius: 30px; padding: 25px; width: 90%; max-width: 420px; max-height: 90vh; overflow-y: auto; }
-        .form-control { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #eee; margin-bottom: 12px; font-size: 16px; }
-        .btn-main { width: 100%; padding: 15px; border-radius: 15px; border: none; font-weight: 600; cursor: pointer; color: white; }
+        .form-control { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #eee; margin-bottom: 12px; font-size: 16px; outline: none; }
+        .btn-main { width: 100%; padding: 15px; border-radius: 15px; border: none; font-weight: 600; cursor: pointer; color: white; font-size: 16px; }
+        
         .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
-        .cat-item { padding: 10px; background: #f1f2f6; border-radius: 12px; text-align: center; cursor: pointer; font-size: 13px; }
-        .cat-item.selected { background: var(--p); color: white; }
+        .cat-item { padding: 10px; background: #f1f2f6; border-radius: 12px; text-align: center; cursor: pointer; font-size: 13px; border: 2px solid transparent; }
+        .cat-item.selected { background: var(--p); color: white; border-color: rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
@@ -42,36 +62,30 @@
             </div>
         </header>
 
-        <h1 id="hi-user" style="margin-bottom:20px; color:var(--p)">Halo!</h1>
+        <h1 id="hi-user" style="margin-bottom:25px; color:var(--p)">Halo!</h1>
 
-        <div class="section-box">
-            <h3>Misi Syifa ✨ 
-                <button class="icon-btn" id="btn-add-misi-trigger" style="display:none; width:35px; height:35px; background:var(--a); color:white;"><i class="fas fa-plus"></i></button>
-            </h3>
+        <div class="section-box" style="margin-bottom: 30px;">
+            <div class="section-header">
+                <h3>Misi Syifa ✨</h3>
+                <button class="btn-plus" id="btn-add-misi-trigger" style="display:none; background:var(--a);"><i class="fas fa-plus"></i></button>
+            </div>
             <div id="list-misi"></div>
         </div>
 
         <hr style="margin-bottom:25px; border:0; border-top: 1px solid #ddd;">
 
         <div class="section-box">
-            <h3>Pilihan Hadiah 🎁 
-                <button class="icon-btn" id="btn-add-reward-trigger" style="display:none; width:35px; height:35px; background:var(--g); color:white;"><i class="fas fa-plus"></i></button>
-            </h3>
+            <div class="section-header">
+                <h3>Pilihan Hadiah 🎁</h3>
+                <button class="btn-plus" id="btn-add-reward-trigger" style="display:none; background:var(--g);"><i class="fas fa-plus"></i></button>
+            </div>
             <div id="list-hadiah"></div>
-        </div>
-    </div>
-
-    <div class="modal" id="modal-dash">
-        <div class="modal-content">
-            <h3 style="text-align:center">Statistik Quest 📊</h3>
-            <div style="margin:20px 0;"><canvas id="weeklyChart"></canvas></div>
-            <button onclick="closeM('modal-dash')" class="btn-main" style="background:#eee; color:#666;">Tutup</button>
         </div>
     </div>
 
     <div class="modal" id="modal-misi">
         <div class="modal-content">
-            <h3 id="m-title-text">Tambah Misi</h3><br>
+            <h3 id="m-title-text" style="text-align:center">Tambah Misi</h3><br>
             <input type="hidden" id="m-id">
             <input type="text" id="m-nama" class="form-control" placeholder="Nama Misi">
             <input type="number" id="m-durasi" class="form-control" placeholder="Durasi (Menit)">
@@ -81,19 +95,27 @@
                 <div class="cat-item" data-cat="⚽ Olahraga">⚽ Olahraga</div>
                 <div class="cat-item" data-cat="🥗 Sehat">🥗 Sehat</div>
             </div>
-            <button id="btn-save-misi" class="btn-main" style="background:var(--p)">Simpan</button>
-            <button onclick="closeM('modal-misi')" style="width:100%; border:none; background:none; margin-top:10px; color:#aaa">Batal</button>
+            <button id="btn-save-misi" class="btn-main" style="background:var(--p)">Simpan Misi</button>
+            <button onclick="closeM('modal-misi')" style="width:100%; border:none; background:none; margin-top:10px; color:#aaa; cursor:pointer">Batal</button>
         </div>
     </div>
 
     <div class="modal" id="modal-hadiah">
         <div class="modal-content">
-            <h3 id="h-title-text">Tambah Hadiah</h3><br>
+            <h3 id="h-title-text" style="text-align:center">Tambah Hadiah</h3><br>
             <input type="hidden" id="h-id">
             <input type="text" id="h-nama" class="form-control" placeholder="Nama Hadiah">
-            <input type="number" id="h-target" class="form-control" placeholder="Koin">
-            <button id="btn-save-hadiah" class="btn-main" style="background:var(--s)">Simpan</button>
-            <button onclick="closeM('modal-hadiah')" style="width:100%; border:none; background:none; margin-top:10px; color:#aaa">Batal</button>
+            <input type="number" id="h-target" class="form-control" placeholder="Jumlah Koin">
+            <button id="btn-save-hadiah" class="btn-main" style="background:var(--s)">Simpan Hadiah</button>
+            <button onclick="closeM('modal-hadiah')" style="width:100%; border:none; background:none; margin-top:10px; color:#aaa; cursor:pointer">Batal</button>
+        </div>
+    </div>
+
+    <div class="modal" id="modal-dash">
+        <div class="modal-content">
+            <h3 style="text-align:center">Statistik Quest 📊</h3>
+            <div style="margin:20px 0;"><canvas id="weeklyChart"></canvas></div>
+            <button onclick="closeM('modal-dash')" class="btn-main" style="background:#eee; color:#666;">Tutup</button>
         </div>
     </div>
 
@@ -139,6 +161,7 @@
                 document.getElementById('btn-add-misi-trigger').style.display = 'flex';
                 document.getElementById('btn-add-reward-trigger').style.display = 'flex';
                 new Sortable(document.getElementById('list-misi'), { animation: 150, onEnd: () => saveOrder('misi', 'list-misi') });
+                new Sortable(document.getElementById('list-hadiah'), { animation: 150, onEnd: () => saveOrder('hadiah', 'list-hadiah') });
             }
 
             onSnapshot(collection(db, "misi"), (snap) => {
@@ -167,14 +190,14 @@
                 const isPending = m.done && !m.approved;
                 return `
                 <div class="card ${m.approved?'approved':(isPending?'pending':'')}" data-id="${m.id}">
-                    <input type="checkbox" style="width:22px;height:22px;margin-right:12px" ${m.done?'checked':''} 
+                    <input type="checkbox" style="width:22px;height:22px;margin-right:12px;cursor:pointer" ${m.done?'checked':''} 
                         ${userNow.r==='admin'?'disabled':''} onchange="toggleMisi('${m.id}',${m.done})">
-                    <div style="flex:1" onclick="prepEditMisi('${m.id}','${m.n}',${m.d},'${m.c}')">
+                    <div style="flex:1; cursor:pointer" onclick="prepEditMisi('${m.id}','${m.n}',${m.d},'${m.c}')">
                         <div style="font-weight:600">${m.n}</div>
                         <div style="font-size:12px;color:#888">${m.c || 'Misi'} • <b>${m.d} Menit</b> • <span style="color:#f39c12">🪙 ${koin} Koin</span></div>
                     </div>
-                    ${userNow.r==='admin' && isPending ? `<button onclick="approveMisi('${m.id}')" style="background:var(--ok);color:white;border:none;padding:6px 10px;border-radius:8px;margin-right:8px;font-size:12px">Validasi</button>` : ''}
-                    ${userNow.r==='admin' ? `<button onclick="delDoc('misi','${m.id}')" style="color:var(--a);border:none;background:none;padding:5px"><i class="fas fa-trash"></i></button>` : ''}
+                    ${userNow.r==='admin' && isPending ? `<button onclick="approveMisi('${m.id}')" style="background:var(--ok);color:white;border:none;padding:6px 10px;border-radius:8px;margin-right:8px;font-size:12px;cursor:pointer">Validasi</button>` : ''}
+                    ${userNow.r==='admin' ? `<button onclick="delDoc('misi','${m.id}')" style="color:var(--a);border:none;background:none;padding:5px;cursor:pointer"><i class="fas fa-trash"></i></button>` : ''}
                 </div>`;
             }).join('');
             document.getElementById('coin-val').textContent = tk;
@@ -183,15 +206,14 @@
         function renderHadiah(hd) {
             document.getElementById('list-hadiah').innerHTML = hd.map(h => `
                 <div class="card reward" data-id="${h.id}">
-                    <div style="flex:1" onclick="prepEditHadiah('${h.id}','${h.n}',${h.t})">
+                    <div style="flex:1; cursor:pointer" onclick="prepEditHadiah('${h.id}','${h.n}',${h.t})">
                         <div style="font-weight:600">${h.n}</div>
                         <div style="font-size:12px;color:#f39c12">Harga: ${h.t} Koin</div>
                     </div>
-                    ${userNow.r==='admin' ? `<button onclick="delDoc('hadiah','${h.id}')" style="color:var(--a);border:none;background:none;padding:5px"><i class="fas fa-trash"></i></button>` : ''}
+                    ${userNow.r==='admin' ? `<button onclick="delDoc('hadiah','${h.id}')" style="color:var(--a);border:none;background:none;padding:5px;cursor:pointer"><i class="fas fa-trash"></i></button>` : ''}
                 </div>`).join('');
         }
 
-        // RESET DAN PREPARE FORM (LOGIKA YANG PAPA MINTA)
         window.resetMisiForm = () => {
             document.getElementById('m-id').value = "";
             document.getElementById('m-nama').value = "";
@@ -250,8 +272,7 @@
 
         document.getElementById('btn-save-misi').onclick = async () => {
             const id = document.getElementById('m-id').value;
-            const cat = document.querySelector('.cat-item.selected').dataset.cat;
-            const data = { n: document.getElementById('m-nama').value, d: parseInt(document.getElementById('m-durasi').value), c: cat };
+            const data = { n: document.getElementById('m-nama').value, d: parseInt(document.getElementById('m-durasi').value), c: document.querySelector('.cat-item.selected').dataset.cat };
             id ? await updateDoc(doc(db,"misi",id), data) : await addDoc(collection(db,"misi"), {...data, done:false, approved:false, createdAt:Date.now(), order:999});
             closeM('modal-misi');
         };
