@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Syifa v12.1 - Full Fix</title>
+    <title>Quest Syifa v12.2 - Form Reset Fix</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -53,7 +53,7 @@
         <div class="progress-container">
             <div class="progress-label"><span id="target-name">Target</span><span id="target-percent">0%</span></div>
             <div class="progress-bg"><div class="progress-fill" id="progress-bar"></div></div>
-            <div style="font-size: 11px; color: #888; margin-top: 8px; text-align: center;" id="target-desc">Mulai kumpulkan koin!</div>
+            <div style="font-size: 11px; color: #888; margin-top: 8px; text-align: center;" id="target-desc">Pilih hadiah impianmu!</div>
         </div>
 
         <h1 id="hi-user" style="margin-bottom:25px; color:var(--p)">Halo!</h1>
@@ -64,12 +64,12 @@
         </div>
 
         <div class="section-box">
-            <div class="section-header"><h3>Pilihan Hadiah 🎁</h3><button class="btn-plus" id="btn-add-reward-trigger" style="display:none; background:var(--g);"><i class="fas fa-plus"></i></button></div>
+            <div class="section-header"><h3>Daftar Hadiah 🎁</h3><button class="btn-plus" id="btn-add-reward-trigger" style="display:none; background:var(--g);"><i class="fas fa-plus"></i></button></div>
             <div id="list-hadiah"></div>
         </div>
 
         <div class="section-box" style="margin-top:40px">
-            <div class="section-header"><h3>History Klaim Syifa 🏆</h3></div>
+            <div class="section-header"><h3>Hall of Fame Syifa 🏆</h3></div>
             <div id="list-history"></div>
         </div>
     </div>
@@ -83,7 +83,7 @@
     <div class="modal" id="modal-misi"><div class="modal-content"><h3 id="m-title-text">Misi</h3><br>
         <input type="hidden" id="m-id">
         <input type="text" id="m-nama" class="form-control" placeholder="Nama Misi">
-        <input type="number" id="m-durasi" class="form-control" placeholder="Menit">
+        <input type="number" id="m-durasi" class="form-control" placeholder="Durasi (Menit)">
         <div class="cat-grid" id="cat-misi-list">
             <div class="cat-item selected" data-cat="📚 Belajar">📚 Belajar</div>
             <div class="cat-item" data-cat="🎮 Main">🎮 Main</div>
@@ -97,7 +97,7 @@
     <div class="modal" id="modal-hadiah"><div class="modal-content"><h3 id="h-title-text">Hadiah</h3><br>
         <input type="hidden" id="h-id">
         <input type="text" id="h-nama" class="form-control" placeholder="Nama Hadiah">
-        <input type="number" id="h-target" class="form-control" placeholder="Koin">
+        <input type="number" id="h-target" class="form-control" placeholder="Target Koin">
         <button id="btn-save-hadiah" class="btn-main" style="background:var(--s)">Simpan</button>
         <button onclick="closeM('modal-hadiah')" style="width:100%; border:none; background:none; margin-top:10px; color:#aaa">Batal</button>
     </div></div>
@@ -121,35 +121,30 @@
             document.getElementById('hi-user').textContent = `Halo, ${userNow.n}!`;
             if(userNow.r === 'admin') document.querySelectorAll('#btn-user-trigger, #btn-dash-trigger, #btn-add-misi-trigger, #btn-add-reward-trigger, #btn-sweep-trigger').forEach(el => el.style.display = 'flex');
 
-            // Listen Misi
             onSnapshot(query(collection(db, "misi"), orderBy("createdAt", "desc")), (snap) => {
                 let actHtml = ''; let histHtml = ''; let koin = 0;
                 let stats = { "📚 Belajar": 0, "🎮 Main": 0, "⚽ Olahraga": 0, "🥗 Sehat": 0 };
-                const now = new Date().getTime();
-
                 snap.docs.forEach(d => {
                     const m = d.data(); const val = Math.floor(m.d/10);
                     if(m.claimed) {
                         histHtml += `<div class="card claimed"><div style="flex:1"><b>🏆 ${m.n}</b><br><small>${m.c || ''}</small></div><div style="font-weight:600; color:var(--p)">+${val}</div></div>`;
                     } else if(!m.archived) {
                         if(m.approved) { koin += val; stats[m.c || "📚 Belajar"] += val; }
-                        const cA = m.createdAt?.seconds ? m.createdAt.seconds * 1000 : now;
-                        const isEx = (now - cA > 86400000) && !m.done;
-                        actHtml += `<div class="card ${m.approved?'approved':(m.done?'pending':(isEx?'expired':''))}">
-                            <input type="checkbox" style="width:20px;height:20px;margin-right:12px" ${m.done?'checked':''} ${(userNow.r==='admin'||isEx)?'disabled':''} onchange="toggleMisi('${d.id}',${m.done})">
-                            <div style="flex:1" onclick="prepEditMisi('${d.id}','${m.n}',${m.d},'${m.c}')"><b>${m.n}${isEx?' ⌛':''}</b><br><small>${m.c} • ${m.d}m • 🪙 ${val}</small></div>
+                        actHtml += `<div class="card ${m.approved?'approved':(m.done?'pending':'')}">
+                            <input type="checkbox" style="width:20px;height:20px;margin-right:12px" ${m.done?'checked':''} ${userNow.r==='admin'?'disabled':''} onchange="toggleMisi('${d.id}',${m.done})">
+                            <div style="flex:1" onclick="prepEditMisi('${d.id}','${m.n}',${m.d},'${m.c}')"><b>${m.n}</b><br><small>${m.c} • ${m.d}m • 🪙 ${val}</small></div>
                             ${userNow.r==='admin'&&m.done&&!m.approved ? `<button onclick="approveMisi('${d.id}')" style="background:var(--ok);color:white;border:none;padding:5px 10px;border-radius:8px;font-size:10px">Validasi</button>` : ''}
+                            ${userNow.r==='admin' ? `<button onclick="delDoc('misi','${d.id}')" style="border:none;background:none;color:var(--a);margin-left:8px"><i class="fas fa-trash"></i></button>` : ''}
                         </div>`;
                     }
                 });
-                document.getElementById('list-misi').innerHTML = actHtml || '<p style="text-align:center;color:#999">Kosong</p>';
-                document.getElementById('list-history').innerHTML = histHtml || '<p style="text-align:center;color:#999">Belum ada klaim</p>';
+                document.getElementById('list-misi').innerHTML = actHtml || '<p style="text-align:center;color:#999">Belum ada misi</p>';
+                document.getElementById('list-history').innerHTML = histHtml || '<p style="text-align:center;color:#999">Belum ada koin terpakai</p>';
                 document.getElementById('coin-val').innerText = koin;
                 window.globalStats = stats;
                 refreshHadiah(koin);
             });
 
-            // Listen User
             onSnapshot(collection(db, "users"), (snap) => {
                 document.getElementById('list-user-db').innerHTML = snap.docs.map(d => `<div class="card" style="padding:10px"><b>${d.data().n}</b> (${d.data().r})</div>`).join('');
             });
@@ -174,40 +169,58 @@
             document.getElementById('target-name').innerText = nameT || 'Hadiah';
         }
 
-        // ACTIONS
-        window.toggleMisi = (id, st) => updateDoc(doc(db,"misi",id), {done:!st});
-        window.approveMisi = (id) => updateDoc(doc(db,"misi",id), {approved:true});
-        window.delDoc = (c, id) => confirm('Hapus?') && deleteDoc(doc(db,c,id));
+        // --- FIX: RESET FORM SAAT TAMBAH ---
+        document.getElementById('btn-add-misi-trigger').onclick = () => {
+            document.getElementById('m-title-text').innerText = "Tambah Misi Baru";
+            document.getElementById('m-id').value = "";
+            document.getElementById('m-nama').value = "";
+            document.getElementById('m-durasi').value = "";
+            document.querySelectorAll('.cat-item').forEach(i => i.classList.toggle('selected', i.dataset.cat === "📚 Belajar"));
+            openM('modal-misi');
+        };
 
+        document.getElementById('btn-add-reward-trigger').onclick = () => {
+            document.getElementById('h-title-text').innerText = "Tambah Hadiah Baru";
+            document.getElementById('h-id').value = "";
+            document.getElementById('h-nama').value = "";
+            document.getElementById('h-target').value = "";
+            openM('modal-hadiah');
+        };
+
+        // --- PREP EDIT (MENGISI DATA) ---
         window.prepEditMisi = (id,n,d,c) => {
             if(userNow.r!=='admin') return;
+            document.getElementById('m-title-text').innerText = "Edit Misi";
             document.getElementById('m-id').value = id;
             document.getElementById('m-nama').value = n;
             document.getElementById('m-durasi').value = d;
-            document.querySelectorAll('#cat-misi-list .cat-item').forEach(i => i.classList.toggle('selected', i.dataset.cat === c));
+            document.querySelectorAll('.cat-item').forEach(i => i.classList.toggle('selected', i.dataset.cat === c));
             openM('modal-misi');
         };
 
         window.prepEditHadiah = (id,n,t) => {
             if(userNow.r!=='admin') return;
+            document.getElementById('h-title-text').innerText = "Edit Hadiah";
             document.getElementById('h-id').value = id;
             document.getElementById('h-nama').value = n;
             document.getElementById('h-target').value = t;
             openM('modal-hadiah');
         };
 
+        // ACTIONS
+        window.toggleMisi = (id, st) => updateDoc(doc(db,"misi",id), {done:!st});
+        window.approveMisi = (id) => { new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3').play(); updateDoc(doc(db,"misi",id), {approved:true}); };
+        window.delDoc = (c, id) => confirm('Hapus permanen?') && deleteDoc(doc(db,c,id));
+
         window.claimHadiah = async (nama, harga) => {
             if(!confirm(`Tukar koin untuk ${nama}?`)) return;
             const snap = await getDocs(query(collection(db,"misi"), where("approved","==",true), where("claimed","==",false)));
             let sisa = harga;
             for(let d of snap.docs) { if(sisa<=0) break; await updateDoc(doc(db,"misi",d.id), {claimed:true}); sisa -= Math.floor(d.data().d/10); }
-            alert("Berhasil!");
+            new Audio('https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3').play();
+            alert("Klaim Berhasil! Lapor Papa ya.");
         };
 
-        document.getElementById('btn-add-misi-trigger').onclick = () => { document.getElementById('m-id').value=""; openM('modal-misi'); };
-        document.getElementById('btn-add-reward-trigger').onclick = () => { document.getElementById('h-id').value=""; openM('modal-hadiah'); };
-        document.getElementById('btn-user-trigger').onclick = () => openM('modal-user-list');
-        
         document.getElementById('btn-save-misi').onclick = async () => {
             const id = document.getElementById('m-id').value;
             const d = { n: document.getElementById('m-nama').value, d: parseInt(document.getElementById('m-durasi').value), c: document.querySelector('.cat-item.selected').dataset.cat };
@@ -227,6 +240,7 @@
             el.classList.add('selected');
         });
 
+        document.getElementById('btn-user-trigger').onclick = () => openM('modal-user-list');
         document.getElementById('btn-dash-trigger').onclick = () => {
             openM('modal-dash');
             setTimeout(() => {
@@ -242,9 +256,8 @@
             const snap = await getDocs(query(collection(db, "users"), where("n", "==", n), where("p", "==", p)));
             if(!snap.empty) { sessionStorage.setItem('u_online', JSON.stringify(snap.docs[0].data())); location.reload(); }
             else if(n==='papa' && p==='papa') { sessionStorage.setItem('u_online', JSON.stringify({n:'papa', r:'admin'})); location.reload(); }
-            else alert("Salah!");
+            else alert("Gagal!");
         };
-
         document.getElementById('btn-logout-trigger').onclick = () => { sessionStorage.clear(); location.reload(); };
     </script>
 </body>
