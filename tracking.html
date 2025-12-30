@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Tracker - Fixed Edition</title>
+    <title>Quest Tracker - Full Function</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -19,7 +19,7 @@
         .icon-btn { width: 45px; height: 45px; border-radius: 12px; border: none; cursor: pointer; background: white; box-shadow: 0 4px 0 #ddd; font-size: 18px; display: flex; align-items: center; justify-content: center; }
         .section-box { margin-bottom: 25px; }
         h3 { margin-bottom: 15px; color: #333; display: flex; justify-content: space-between; align-items: center; }
-        .card { background: white; padding: 18px; border-radius: 22px; margin-bottom: 12px; display: flex; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 6px solid #eee; }
+        .card { background: white; padding: 18px; border-radius: 22px; margin-bottom: 12px; display: flex; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 6px solid #eee; transition: 0.2s; }
         .card.approved { border-left-color: var(--ok); }
         .card.pending { border-left-color: var(--wait); }
         .card.reward { border-left-color: var(--g); }
@@ -29,18 +29,21 @@
         .modal-content { background: white; border-radius: 30px; padding: 25px; width: 90%; max-width: 420px; max-height: 90vh; overflow-y: auto; }
         .form-control { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #eee; margin-bottom: 12px; font-size: 16px; }
         .btn-main { width: 100%; padding: 15px; border-radius: 15px; border: none; font-weight: 600; cursor: pointer; color: white; }
+        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+        .cat-item { padding: 10px; background: #f1f2f6; border-radius: 12px; text-align: center; cursor: pointer; font-size: 13px; }
+        .cat-item.selected { background: var(--p); color: white; }
         #loading-ui { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); background: var(--p); color: white; padding: 5px 15px; border-radius: 20px; font-size: 12px; display: none; z-index: 2000; }
     </style>
 </head>
 <body>
-    <div id="loading-ui">Sinkronisasi...</div>
+    <div id="loading-ui">Menyimpan...</div>
 
     <div class="modal active" id="modal-login">
         <div class="modal-content">
             <h2 style="text-align:center; margin-bottom:20px;">Quest Login 🚀</h2>
             <form id="form-login">
-                <input type="text" id="user-in" class="form-control" placeholder="Nama" required>
-                <input type="password" id="pass-in" class="form-control" placeholder="Kode" required>
+                <input type="text" id="user-in" class="form-control" placeholder="Nama (Papa/Mama/Syifa)" required>
+                <input type="password" id="pass-in" class="form-control" placeholder="Kode Rahasia" required>
                 <button type="submit" class="btn-main" style="background:var(--p)">Masuk</button>
             </form>
         </div>
@@ -74,6 +77,34 @@
         </div>
     </div>
 
+    <div class="modal" id="modal-misi">
+        <div class="modal-content">
+            <h3 id="m-title">Atur Misi</h3><br>
+            <input type="hidden" id="m-id">
+            <input type="text" id="m-nama" class="form-control" placeholder="Nama Misi">
+            <input type="number" id="m-durasi" class="form-control" placeholder="Durasi (Menit)">
+            <div class="cat-grid">
+                <div class="cat-item selected" data-cat="📚 Belajar">📚 Belajar</div>
+                <div class="cat-item" data-cat="🎮 Main">🎮 Main</div>
+                <div class="cat-item" data-cat="⚽ Olahraga">⚽ Olahraga</div>
+                <div class="cat-item" data-cat="🥗 Sehat">🥗 Sehat</div>
+            </div>
+            <button id="btn-save-misi" class="btn-main" style="background:var(--p)">Simpan</button>
+            <button onclick="closeM('modal-misi')" style="width:100%; border:none; background:none; margin-top:10px; color:#aaa">Batal</button>
+        </div>
+    </div>
+
+    <div class="modal" id="modal-hadiah">
+        <div class="modal-content">
+            <h3 id="h-title">Atur Hadiah</h3><br>
+            <input type="hidden" id="h-id">
+            <input type="text" id="h-nama" class="form-control" placeholder="Nama Hadiah">
+            <input type="number" id="h-target" class="form-control" placeholder="Harga (Koin)">
+            <button id="btn-save-hadiah" class="btn-main" style="background:var(--s)">Simpan</button>
+            <button onclick="closeM('modal-hadiah')" style="width:100%; border:none; background:none; margin-top:10px; color:#aaa">Batal</button>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, onSnapshot, updateDoc, doc, deleteDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -82,21 +113,37 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const userNow = JSON.parse(sessionStorage.getItem('u_online'));
+        let selectedCat = "📚 Belajar";
+
+        const openM = (id) => document.getElementById(id).classList.add('active');
+        window.closeM = (id) => document.getElementById(id).classList.remove('active');
+
+        // Kategori Selector
+        document.querySelectorAll('.cat-item').forEach(el => {
+            el.onclick = () => {
+                document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('selected'));
+                el.classList.add('selected');
+                selectedCat = el.dataset.cat;
+            };
+        });
 
         if(userNow){
             document.getElementById('modal-login').classList.remove('active');
             document.getElementById('app').style.display = 'block';
+            document.getElementById('hi-user').textContent = `Halo, ${userNow.n.charAt(0).toUpperCase() + userNow.n.slice(1)}!`;
+
             if(userNow.r === 'admin') {
                 document.body.classList.add('admin-mode');
                 document.getElementById('btn-dash-trigger').style.display = 'flex';
                 document.getElementById('btn-add-misi-trigger').style.display = 'flex';
                 document.getElementById('btn-add-reward-trigger').style.display = 'flex';
+                
+                new Sortable(document.getElementById('list-misi'), { animation: 150, onEnd: () => saveOrder('misi', 'list-misi') });
+                new Sortable(document.getElementById('list-hadiah'), { animation: 150, onEnd: () => saveOrder('hadiah', 'list-hadiah') });
             }
 
-            // AMBIL DATA TANPA ORDERBY DULU AGAR TIDAK HILANG
             onSnapshot(collection(db, "misi"), (snap) => {
                 let ms = []; snap.forEach(d => ms.push({id:d.id, ...d.data()}));
-                // Urutkan di sisi klien (Javascript) agar aman
                 ms.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
                 renderMisi(ms);
             });
@@ -106,11 +153,6 @@
                 hd.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
                 renderHadiah(hd);
             });
-
-            if(userNow.r === 'admin'){
-                new Sortable(document.getElementById('list-misi'), { animation: 150, onEnd: () => saveOrder('misi', 'list-misi') });
-                new Sortable(document.getElementById('list-hadiah'), { animation: 150, onEnd: () => saveOrder('hadiah', 'list-hadiah') });
-            }
         }
 
         async function saveOrder(col, elId) {
@@ -124,9 +166,17 @@
             let tk = 0;
             document.getElementById('list-misi').innerHTML = ms.map(m => {
                 if(m.approved) tk += Math.floor(m.d/10);
-                return `<div class="card ${m.approved?'approved':(m.done?'pending':'')}" data-id="${m.id}">
-                    <div style="flex:1"><b>${m.n}</b><br><small>${m.c || 'Misi'} • ${m.d}m</small></div>
-                    ${userNow.r==='admin' ? `<button onclick="delDoc('misi','${m.id}')" style="color:var(--a);border:none;background:none;padding:10px"><i class="fas fa-trash"></i></button>` : ''}
+                const isPending = m.done && !m.approved;
+                return `
+                <div class="card ${m.approved?'approved':(isPending?'pending':'')}" data-id="${m.id}">
+                    <input type="checkbox" style="width:22px;height:22px;margin-right:12px" ${m.done?'checked':''} 
+                        ${userNow.r==='admin'?'disabled':''} onchange="toggleMisi('${m.id}',${m.done})">
+                    <div style="flex:1" onclick="prepMisi('${m.id}','${m.n}',${m.d},'${m.c}')">
+                        <div style="font-weight:600">${m.n}</div>
+                        <div style="font-size:12px;color:#aaa">${m.c || '📚 Belajar'} • ${m.d}m</div>
+                    </div>
+                    ${userNow.r==='admin' && isPending ? `<button onclick="approveMisi('${m.id}')" style="background:var(--ok);color:white;border:none;padding:6px 10px;border-radius:8px;margin-right:8px;font-size:12px">Validasi</button>` : ''}
+                    ${userNow.r==='admin' ? `<button onclick="delDoc('misi','${m.id}')" style="color:var(--a);border:none;background:none;padding:5px"><i class="fas fa-trash"></i></button>` : ''}
                 </div>`;
             }).join('');
             document.getElementById('coin-val').textContent = tk;
@@ -135,12 +185,49 @@
         function renderHadiah(hd) {
             document.getElementById('list-hadiah').innerHTML = hd.map(h => `
                 <div class="card reward" data-id="${h.id}">
-                    <div style="flex:1"><b>${h.n}</b><br><small>${h.t} Koin</small></div>
-                    ${userNow.r==='admin' ? `<button onclick="delDoc('hadiah','${h.id}')" style="color:var(--a);border:none;background:none;padding:10px"><i class="fas fa-trash"></i></button>` : ''}
+                    <div style="flex:1" onclick="prepHadiah('${h.id}','${h.n}',${h.t})">
+                        <div style="font-weight:600">${h.n}</div>
+                        <div style="font-size:12px;color:#f39c12">${h.t} Koin</div>
+                    </div>
+                    ${userNow.r==='admin' ? `<button onclick="delDoc('hadiah','${h.id}')" style="color:var(--a);border:none;background:none;padding:5px"><i class="fas fa-trash"></i></button>` : ''}
                 </div>`).join('');
         }
 
+        // Logic Functions
+        window.toggleMisi = async (id, st) => { await updateDoc(doc(db,"misi",id), {done:!st, approved:false}); };
+        window.approveMisi = async (id) => { await updateDoc(doc(db,"misi",id), {approved:true}); };
         window.delDoc = async (col, id) => { if(confirm('Hapus?')) await deleteDoc(doc(db, col, id)); };
+        
+        window.prepMisi = (id,n,d,c) => { 
+            if(userNow.r!=='admin') return; 
+            document.getElementById('m-id').value=id; 
+            document.getElementById('m-nama').value=n; 
+            document.getElementById('m-durasi').value=d; 
+            openM('modal-misi'); 
+        };
+        
+        window.prepHadiah = (id,n,t) => { 
+            if(userNow.r!=='admin') return; 
+            document.getElementById('h-id').value=id; 
+            document.getElementById('h-nama').value=n; 
+            document.getElementById('h-target').value=t; 
+            openM('modal-hadiah'); 
+        };
+
+        document.getElementById('btn-save-misi').onclick = async () => {
+            const id = document.getElementById('m-id').value;
+            const data = { n: document.getElementById('m-nama').value, d: parseInt(document.getElementById('m-durasi').value), c: selectedCat };
+            id ? await updateDoc(doc(db,"misi",id), data) : await addDoc(collection(db,"misi"), {...data, done:false, approved:false, createdAt:Date.now()});
+            closeM('modal-misi');
+        };
+
+        document.getElementById('btn-save-hadiah').onclick = async () => {
+            const id = document.getElementById('h-id').value;
+            const data = { n: document.getElementById('h-nama').value, t: parseInt(document.getElementById('h-target').value) };
+            id ? await updateDoc(doc(db,"hadiah",id), data) : await addDoc(collection(db,"hadiah"), {...data, createdAt:Date.now()});
+            closeM('modal-hadiah');
+        };
+
         document.getElementById('form-login').onsubmit = (e) => {
             e.preventDefault();
             const u = document.getElementById('user-in').value.toLowerCase();
@@ -148,9 +235,11 @@
             if((u==='papa'&&p==='papa')||(u==='mama'&&p==='mama')||(u==='syifa'&&p==='syifa')){
                 sessionStorage.setItem('u_online', JSON.stringify({n:u, r:(u==='syifa'?'user':'admin')}));
                 location.reload();
-            } else alert("Salah!");
+            } else alert("Username/Password Salah!");
         };
         document.getElementById('btn-logout-trigger').onclick = () => { sessionStorage.clear(); location.reload(); };
+        document.getElementById('btn-add-misi-trigger').onclick = () => { document.getElementById('m-id').value=""; openM('modal-misi'); };
+        document.getElementById('btn-add-reward-trigger').onclick = () => { document.getElementById('h-id').value=""; openM('modal-hadiah'); };
     </script>
 </body>
 </html>
