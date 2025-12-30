@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Tracker - Drag & Drop Edition</title>
+    <title>Quest Tracker - Fixed Edition</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    
     <style>
         :root { --p: #6C5CE7; --s: #00CEC9; --a: #FF7675; --g: #FFD700; --bg: #F0F2F5; --ok: #2ecc71; --wait: #f1c40f; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Fredoka', sans-serif; }
@@ -18,36 +17,23 @@
         .coin-badge { background: white; padding: 10px 15px; border-radius: 50px; border: 2px solid var(--g); font-weight: 600; color: #f39c12; box-shadow: 0 4px 0 #eee; font-size: 20px; }
         .nav-btns { display: flex; gap: 8px; }
         .icon-btn { width: 45px; height: 45px; border-radius: 12px; border: none; cursor: pointer; background: white; box-shadow: 0 4px 0 #ddd; font-size: 18px; display: flex; align-items: center; justify-content: center; }
-        
         .section-box { margin-bottom: 25px; }
         h3 { margin-bottom: 15px; color: #333; display: flex; justify-content: space-between; align-items: center; }
-        
-        .card { background: white; padding: 18px; border-radius: 22px; margin-bottom: 12px; display: flex; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 6px solid #eee; cursor: default; }
+        .card { background: white; padding: 18px; border-radius: 22px; margin-bottom: 12px; display: flex; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 6px solid #eee; }
         .card.approved { border-left-color: var(--ok); }
         .card.pending { border-left-color: var(--wait); }
         .card.reward { border-left-color: var(--g); }
-        
-        /* Gaya Khusus Dragging untuk Admin */
         .admin-mode .card { cursor: grab; }
-        .admin-mode .card:active { cursor: grabbing; }
-        .sortable-ghost { opacity: 0.4; background: #e0dcfc !important; }
-
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal.active { display: flex; }
         .modal-content { background: white; border-radius: 30px; padding: 25px; width: 90%; max-width: 420px; max-height: 90vh; overflow-y: auto; }
-        
-        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
-        .cat-item { padding: 10px; background: #f1f2f6; border-radius: 12px; text-align: center; cursor: pointer; font-size: 13px; }
-        .cat-item.selected { background: var(--p); color: white; }
-        
         .form-control { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #eee; margin-bottom: 12px; font-size: 16px; }
         .btn-main { width: 100%; padding: 15px; border-radius: 15px; border: none; font-weight: 600; cursor: pointer; color: white; }
         #loading-ui { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); background: var(--p); color: white; padding: 5px 15px; border-radius: 20px; font-size: 12px; display: none; z-index: 2000; }
     </style>
 </head>
 <body>
-
-    <div id="loading-ui">Menyimpan urutan...</div>
+    <div id="loading-ui">Sinkronisasi...</div>
 
     <div class="modal active" id="modal-login">
         <div class="modal-content">
@@ -88,33 +74,14 @@
         </div>
     </div>
 
-    <div class="modal" id="modal-dash"> <div class="modal-content"><h3 style="text-align:center">Statistik 📊</h3><canvas id="weeklyChart"></canvas><button onclick="closeM('modal-dash')" class="btn-main" style="background:#eee; color:#666; margin-top:20px;">Tutup</button></div></div>
-    <div class="modal" id="modal-misi"> <div class="modal-content"><h3>Atur Misi</h3><br><input type="hidden" id="m-id"><input type="text" id="m-nama" class="form-control" placeholder="Nama"><input type="number" id="m-durasi" class="form-control" placeholder="Menit"><div class="cat-grid"><div class="cat-item selected" data-cat="📚 Belajar">📚 Belajar</div><div class="cat-item" data-cat="🎮 Main">🎮 Main</div></div><button id="btn-save-misi" class="btn-main" style="background:var(--p)">Simpan</button><button onclick="closeM('modal-misi')" style="width:100%; border:none; background:none; margin-top:10px; color:#aaa">Batal</button></div></div>
-    <div class="modal" id="modal-hadiah"> <div class="modal-content"><h3>Atur Hadiah</h3><br><input type="hidden" id="h-id"><input type="text" id="h-nama" class="form-control" placeholder="Nama Hadiah"><input type="number" id="h-target" class="form-control" placeholder="Koin"><button id="btn-save-hadiah" class="btn-main" style="background:var(--s)">Simpan</button><button onclick="closeM('modal-hadiah')" style="width:100%; border:none; background:none; margin-top:10px; color:#aaa">Batal</button></div></div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, updateDoc, doc, deleteDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyAE72y6Rg0_h7kuNR_n1777K1r0hGlwIA0", authDomain: "questsyifa.firebaseapp.com", projectId: "questsyifa", storageBucket: "questsyifa.firebasestorage.app", messagingSenderId: "361840364826", appId: "1:361840364826:web:2f555b73dd074e7dabf0a3" };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const userNow = JSON.parse(sessionStorage.getItem('u_online'));
-
-        const showL = (s) => document.getElementById('loading-ui').style.display = s ? 'block' : 'none';
-        const openM = (id) => document.getElementById(id).classList.add('active');
-        window.closeM = (id) => document.getElementById(id).classList.remove('active');
-
-        // LOGIN
-        document.getElementById('form-login').onsubmit = (e) => {
-            e.preventDefault();
-            const u = document.getElementById('user-in').value.toLowerCase();
-            const p = document.getElementById('pass-in').value;
-            if((u==='papa'&&p==='papa')||(u==='mama'&&p==='mama')||(u==='syifa'&&p==='syifa')){
-                sessionStorage.setItem('u_online', JSON.stringify({n:u, r:(u==='syifa'?'user':'admin')}));
-                location.reload();
-            } else alert("Salah!");
-        };
 
         if(userNow){
             document.getElementById('modal-login').classList.remove('active');
@@ -126,60 +93,63 @@
                 document.getElementById('btn-add-reward-trigger').style.display = 'flex';
             }
 
-            // Load Data with OrderBy "order"
-            onSnapshot(query(collection(db, "misi"), orderBy("order", "asc")), (snap) => {
+            // AMBIL DATA TANPA ORDERBY DULU AGAR TIDAK HILANG
+            onSnapshot(collection(db, "misi"), (snap) => {
                 let ms = []; snap.forEach(d => ms.push({id:d.id, ...d.data()}));
+                // Urutkan di sisi klien (Javascript) agar aman
+                ms.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
                 renderMisi(ms);
             });
-            onSnapshot(query(collection(db, "hadiah"), orderBy("order", "asc")), (snap) => {
+
+            onSnapshot(collection(db, "hadiah"), (snap) => {
                 let hd = []; snap.forEach(d => hd.push({id:d.id, ...d.data()}));
+                hd.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
                 renderHadiah(hd);
             });
 
-            // Initialize Drag & Drop for Admin
             if(userNow.r === 'admin'){
-                new Sortable(document.getElementById('list-misi'), {
-                    animation: 150, ghostClass: 'sortable-ghost',
-                    onEnd: () => saveOrder('misi', 'list-misi')
-                });
-                new Sortable(document.getElementById('list-hadiah'), {
-                    animation: 150, ghostClass: 'sortable-ghost',
-                    onEnd: () => saveOrder('hadiah', 'list-hadiah')
-                });
+                new Sortable(document.getElementById('list-misi'), { animation: 150, onEnd: () => saveOrder('misi', 'list-misi') });
+                new Sortable(document.getElementById('list-hadiah'), { animation: 150, onEnd: () => saveOrder('hadiah', 'list-hadiah') });
             }
         }
 
-        async function saveOrder(colName, elementId) {
-            showL(true);
-            const items = document.getElementById(elementId).querySelectorAll('.card');
-            const promises = Array.from(items).map((item, index) => {
-                return updateDoc(doc(db, colName, item.dataset.id), { order: index });
-            });
-            await Promise.all(promises);
-            showL(false);
+        async function saveOrder(col, elId) {
+            const items = document.getElementById(elId).querySelectorAll('.card');
+            for(let i=0; i<items.length; i++) {
+                await updateDoc(doc(db, col, items[i].dataset.id), { order: i });
+            }
         }
 
         function renderMisi(ms) {
-            document.getElementById('list-misi').innerHTML = ms.map(m => `
-                <div class="card ${m.approved?'approved':(m.done?'pending':'')}" data-id="${m.id}">
-                    <div style="flex:1" onclick="prepMisi('${m.id}','${m.n}',${m.d},'${m.c}')">
-                        <div style="font-weight:600">${m.n}</div>
-                        <div style="font-size:12px;color:#aaa">${m.c || 'Misi'} • ${m.d} Menit</div>
-                    </div>
-                    ${userNow.r==='admin' ? `<button onclick="delDoc('misi','${m.id}')" style="color:var(--a);border:none;background:none;"><i class="fas fa-trash"></i></button>` : ''}
-                </div>`).join('');
+            let tk = 0;
+            document.getElementById('list-misi').innerHTML = ms.map(m => {
+                if(m.approved) tk += Math.floor(m.d/10);
+                return `<div class="card ${m.approved?'approved':(m.done?'pending':'')}" data-id="${m.id}">
+                    <div style="flex:1"><b>${m.n}</b><br><small>${m.c || 'Misi'} • ${m.d}m</small></div>
+                    ${userNow.r==='admin' ? `<button onclick="delDoc('misi','${m.id}')" style="color:var(--a);border:none;background:none;padding:10px"><i class="fas fa-trash"></i></button>` : ''}
+                </div>`;
+            }).join('');
+            document.getElementById('coin-val').textContent = tk;
         }
 
         function renderHadiah(hd) {
             document.getElementById('list-hadiah').innerHTML = hd.map(h => `
                 <div class="card reward" data-id="${h.id}">
-                    <div style="flex:1" onclick="prepHadiah('${h.id}','${h.n}',${h.t})"><b>${h.n}</b><br><small>${h.t} Koin</small></div>
-                    ${userNow.r==='admin' ? `<button onclick="delDoc('hadiah','${h.id}')" style="color:var(--a);border:none;background:none;"><i class="fas fa-trash"></i></button>` : ''}
+                    <div style="flex:1"><b>${h.n}</b><br><small>${h.t} Koin</small></div>
+                    ${userNow.r==='admin' ? `<button onclick="delDoc('hadiah','${h.id}')" style="color:var(--a);border:none;background:none;padding:10px"><i class="fas fa-trash"></i></button>` : ''}
                 </div>`).join('');
         }
 
-        // Fungsi bantu lainnya (delete, save, dll) tetap sama...
         window.delDoc = async (col, id) => { if(confirm('Hapus?')) await deleteDoc(doc(db, col, id)); };
+        document.getElementById('form-login').onsubmit = (e) => {
+            e.preventDefault();
+            const u = document.getElementById('user-in').value.toLowerCase();
+            const p = document.getElementById('pass-in').value;
+            if((u==='papa'&&p==='papa')||(u==='mama'&&p==='mama')||(u==='syifa'&&p==='syifa')){
+                sessionStorage.setItem('u_online', JSON.stringify({n:u, r:(u==='syifa'?'user':'admin')}));
+                location.reload();
+            } else alert("Salah!");
+        };
         document.getElementById('btn-logout-trigger').onclick = () => { sessionStorage.clear(); location.reload(); };
     </script>
 </body>
