@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Syifa v13.4 - Clean Filter</title>
+    <title>Quest Syifa v13.5 - Final Fix</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -95,7 +95,7 @@
 
     <div class="modal" id="modal-dash">
         <div class="modal-content">
-            <h3>Statistik Koin 📊</h3>
+            <h3>Statistik 📊</h3>
             <div style="height: 250px; width: 100%; margin: 20px 0;"><canvas id="chartWeekly"></canvas></div>
             <button onclick="closeM('modal-dash')" class="btn-main" style="background:#eee; color:#666">Tutup</button>
         </div>
@@ -124,7 +124,7 @@
             <h3>Atur Misi</h3><br>
             <input type="hidden" id="m-id">
             <input type="text" id="m-nama" class="form-control" placeholder="Nama Misi">
-            <input type="number" id="m-durasi" class="form-control" placeholder="Durasi (Koin = Durasi/10)">
+            <input type="number" id="m-durasi" class="form-control" placeholder="Menit (10 mnt = 1 koin)">
             <div class="cat-chips" id="cat-chips">
                 <div class="chip active" onclick="setSelect('cat', '🕌 Ibadah', this)">🕌 Ibadah</div>
                 <div class="chip" onclick="setSelect('cat', '📚 Belajar', this)">📚 Belajar</div>
@@ -214,7 +214,6 @@
 
             misi.forEach(m => {
                 const v = Math.floor(m.d/10);
-                // FILTER UTAMA: Jika claimed true, masuk history, JANGAN masuk mHtml
                 if(m.claimed === true) {
                     histHtml += `<div class="history-item"><div class="history-dot" style="background:var(--ok)"></div><div class="card history" style="border-left-color:var(--ok)"><b>${m.cat || ''} ${m.n}</b> &nbsp; <span style="color:var(--ok)">+🪙${v}</span></div></div>`;
                     if(m.approved) kTotal += v;
@@ -231,7 +230,7 @@
             });
 
             hadiah.forEach(h => {
-                if(h.claimed) {
+                if(h.claimed === true) {
                     kPakai += h.t;
                     histHtml += `<div class="history-item"><div class="history-dot" style="background:var(--g)"></div><div class="card history" style="border-left-color:var(--g)"><b>🎁 ${h.n}</b> &nbsp; <span style="color:var(--a)">-🪙${h.t}</span></div></div>`;
                 } else {
