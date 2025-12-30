@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Syifa v12.7 - Nav Fix</title>
+    <title>Quest Syifa v12.8 - History & Claim Fix</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -11,12 +11,12 @@
     <style>
         :root { --p: #6C5CE7; --s: #00CEC9; --a: #FF7675; --g: #FFD700; --bg: #F0F2F5; --ok: #2ecc71; --wait: #f1c40f; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Fredoka', sans-serif; }
-        body { background: var(--bg); padding: 20px; padding-bottom: 60px; }
+        body { background: var(--bg); padding: 20px; padding-bottom: 80px; }
         .container { max-width: 500px; margin: 0 auto; }
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .coin-badge { background: white; padding: 10px 15px; border-radius: 50px; border: 2px solid var(--g); font-weight: 600; color: #f39c12; box-shadow: 0 4px 0 #eee; font-size: 20px; }
         .nav-btns { display: flex; gap: 8px; }
-        .icon-btn { width: 45px; height: 45px; border-radius: 12px; border: none; cursor: pointer; background: white; box-shadow: 0 4px 0 #ddd; font-size: 18px; display: flex; align-items: center; justify-content: center; position: relative; }
+        .icon-btn { width: 45px; height: 45px; border-radius: 12px; border: none; cursor: pointer; background: white; box-shadow: 0 4px 0 #ddd; font-size: 18px; display: flex; align-items: center; justify-content: center; }
         .progress-container { background: white; padding: 15px; border-radius: 20px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .progress-bg { background: #eee; height: 16px; border-radius: 10px; overflow: hidden; margin: 10px 0; }
         .progress-fill { background: linear-gradient(90deg, var(--s), var(--p)); width: 0%; height: 100%; transition: 1s; border-radius: 10px; }
@@ -24,12 +24,13 @@
         .card.done { border-left-color: var(--wait); background: #fffdf5; }
         .card.approved { border-left-color: var(--ok); background: #fafffa; }
         .card.reward { border-left-color: var(--g); }
+        .card.history { opacity: 0.7; border-left-color: #9b59b6; background: #fdfbff; }
+        .btn-claim { background: var(--ok); color: white; border: none; padding: 8px 15px; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 11px; }
         .handle { color: #ccc; cursor: grab; padding-right: 15px; }
-        .check-box { width: 24px; height: 24px; margin-right: 15px; cursor: pointer; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal.active { display: flex !important; }
-        .modal-content { background: white; border-radius: 30px; padding: 25px; width: 90%; max-width: 420px; position: relative; }
-        .form-control { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #eee; margin-bottom: 12px; font-size: 16px; }
+        .modal-content { background: white; border-radius: 30px; padding: 25px; width: 90%; max-width: 420px; }
+        .form-control { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #eee; margin-bottom: 12px; font-size: 16px; outline: none; }
         .btn-main { width: 100%; padding: 15px; border-radius: 15px; border: none; font-weight: 600; cursor: pointer; color: white; margin-top: 10px; }
     </style>
 </head>
@@ -47,9 +48,10 @@
 
         <div class="progress-container">
             <div style="display:flex; justify-content:space-between; font-size:14px; font-weight:600;">
-                <span id="target-name">Target</span><span id="target-percent">0%</span>
+                <span id="target-name">Mencari Target...</span><span id="target-percent">0%</span>
             </div>
             <div class="progress-bg"><div class="progress-fill" id="progress-bar"></div></div>
+            <p id="target-info" style="font-size:11px; color:#888; text-align:center"></p>
         </div>
 
         <h1 id="hi-user" style="margin-bottom:20px; color:var(--p)">Halo!</h1>
@@ -69,47 +71,27 @@
             </div>
             <div id="list-hadiah"></div>
         </div>
-    </div>
 
-    <div class="modal" id="modal-dash">
-        <div class="modal-content">
-            <h3>Statistik Koin 📊</h3>
-            <div style="height:250px; margin-top:20px;"><canvas id="chartWeekly"></canvas></div>
-            <button onclick="closeM('modal-dash')" class="btn-main" style="background:#eee; color:#666">Tutup</button>
+        <div class="section-box" style="margin-top:40px">
+            <h3 style="color:#888"><i class="fas fa-history"></i> History Pencapaian Syifa</h3>
+            <div id="list-history" style="margin-top:15px"></div>
         </div>
     </div>
 
-    <div class="modal" id="modal-user-list">
-        <div class="modal-content">
-            <h3>Daftar Pengguna</h3>
-            <div id="list-user-db" style="margin:15px 0"></div>
-            <button onclick="closeM('modal-user-list')" class="btn-main" style="background:#eee; color:#666">Tutup</button>
-        </div>
-    </div>
-
-    <div class="modal active" id="modal-login">
-        <div class="modal-content">
-            <h2>Quest Login</h2><br>
-            <form id="form-login">
-                <input type="text" id="user-in" class="form-control" placeholder="Nama">
-                <input type="password" id="pass-in" class="form-control" placeholder="Kode">
-                <button type="submit" class="btn-main" style="background:var(--p)">Masuk</button>
-            </form>
-        </div>
-    </div>
-
+    <div class="modal active" id="modal-login"><div class="modal-content"><h2>Quest Login</h2><br><form id="form-login"><input type="text" id="user-in" class="form-control" placeholder="Nama"><input type="password" id="pass-in" class="form-control" placeholder="Kode"><button type="submit" class="btn-main" style="background:var(--p)">Masuk</button></form></div></div>
     <div class="modal" id="modal-misi"><div class="modal-content"><h3>Atur Misi</h3><br><input type="hidden" id="m-id"><input type="text" id="m-nama" class="form-control" placeholder="Nama Misi"><input type="number" id="m-durasi" class="form-control" placeholder="Menit"><button id="btn-save-misi" class="btn-main" style="background:var(--p)">Simpan</button><button onclick="closeM('modal-misi')" style="width:100%; background:none; border:none; margin-top:10px; color:#aaa">Batal</button></div></div>
     <div class="modal" id="modal-hadiah"><div class="modal-content"><h3>Atur Hadiah</h3><br><input type="hidden" id="h-id"><input type="text" id="h-nama" class="form-control" placeholder="Nama Hadiah"><input type="number" id="h-target" class="form-control" placeholder="Koin"><button id="btn-save-hadiah" class="btn-main" style="background:var(--s)">Simpan</button><button onclick="closeM('modal-hadiah')" style="width:100%; background:none; border:none; margin-top:10px; color:#aaa">Batal</button></div></div>
+    <div class="modal" id="modal-dash"><div class="modal-content"><h3>Statistik Koin 📊</h3><div style="height:250px; margin-top:20px;"><canvas id="chartWeekly"></canvas></div><button onclick="closeM('modal-dash')" class="btn-main" style="background:#eee; color:#666">Tutup</button></div></div>
+    <div class="modal" id="modal-user-list"><div class="modal-content"><h3>Daftar Pengguna</h3><div id="list-user-db" style="margin:15px 0"></div><button onclick="closeM('modal-user-list')" class="btn-main" style="background:#eee; color:#666">Tutup</button></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, updateDoc, doc, deleteDoc, addDoc, query, orderBy, serverTimestamp, getDocs, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, updateDoc, doc, deleteDoc, addDoc, query, orderBy, serverTimestamp, getDocs, where, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyAE72y6Rg0_h7kuNR_n1777K1r0hGlwIA0", authDomain: "questsyifa.firebaseapp.com", projectId: "questsyifa", storageBucket: "questsyifa.firebasestorage.app", messagingSenderId: "361840364826", appId: "1:361840364826:web:2f555b73dd074e7dabf0a3" };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const userNow = JSON.parse(sessionStorage.getItem('u_online'));
-        let chartObj = null;
 
         window.closeM = (id) => document.getElementById(id).classList.remove('active');
         window.openM = (id) => document.getElementById(id).classList.add('active');
@@ -120,122 +102,114 @@
             document.getElementById('hi-user').textContent = `Halo, ${userNow.n}!`;
             
             if(userNow.r === 'admin') {
-                // Tampilkan & Ikat fungsi navigasi
-                const navU = document.getElementById('nav-user');
-                const navD = document.getElementById('nav-dash');
-                const btnAM = document.getElementById('btn-add-misi-trigger');
-                const btnAH = document.getElementById('btn-add-reward-trigger');
-
-                [navU, navD, btnAM, btnAH].forEach(el => el.style.display = 'flex');
-
-                navU.onclick = () => openM('modal-user-list');
-                navD.onclick = () => renderChart();
-                
+                document.querySelectorAll('#nav-user, #nav-dash, #btn-add-misi-trigger, #btn-add-reward-trigger').forEach(el => el.style.display = 'flex');
+                document.getElementById('nav-user').onclick = () => openM('modal-user-list');
+                document.getElementById('nav-dash').onclick = () => renderChart();
                 initSort();
                 fetchUsers();
             }
 
-            // Misi Listener
-            onSnapshot(query(collection(db, "misi"), orderBy("order", "asc")), (snap) => {
-                let mHtml = ''; let koin = 0;
-                snap.forEach(d => {
-                    const m = d.data(); const v = Math.floor(m.d/10);
-                    if(!m.claimed) {
-                        if(m.approved) koin += v;
-                        mHtml += `<div class="card ${m.approved?'approved':(m.done?'done':'')}" data-id="${d.id}">
-                            ${userNow.r==='admin'?'<i class="fas fa-bars handle"></i>':''}
-                            <input type="checkbox" class="check-box" ${m.done?'checked':''} ${m.approved?'disabled':''} onchange="laporMisi('${d.id}', this.checked)">
-                            <div style="flex:1" onclick="editMisi('${d.id}','${m.n}',${m.d})">
-                                <b style="${m.done?'text-decoration:line-through;color:#aaa':''}">${m.n}</b><br>
-                                <small>${m.d}m • 🪙 ${v}</small>
-                            </div>
-                            ${userNow.r==='admin' && m.done && !m.approved ? `<button onclick="validMisi('${d.id}')" style="background:var(--ok);color:white;border:none;padding:5px 10px;border-radius:8px;font-size:10px">Validasi</button>` : ''}
-                            ${userNow.r==='admin' ? `<button onclick="delD('misi','${d.id}')" style="color:var(--a);border:none;background:none;margin-left:10px"><i class="fas fa-trash"></i></button>` : ''}
-                        </div>`;
-                    }
+            // Realtime Sync
+            onSnapshot(query(collection(db, "misi"), orderBy("order", "asc")), (snapM) => {
+                onSnapshot(query(collection(db, "hadiah"), orderBy("order", "asc")), (snapH) => {
+                    renderAll(snapM, snapH);
                 });
-                document.getElementById('list-misi').innerHTML = mHtml;
-                document.getElementById('coin-val').innerText = koin;
-                updateProgress(koin);
             });
+        }
 
-            // Hadiah Listener
-            onSnapshot(query(collection(db, "hadiah"), orderBy("order", "asc")), (snap) => {
-                let hHtml = ''; let maxK = 0; let targetN = '-';
-                snap.forEach(d => {
-                    const h = d.data();
-                    if(h.t > maxK) { maxK = h.t; targetN = h.n; }
-                    hHtml += `<div class="card reward" data-id="${d.id}">
+        function renderAll(snapM, snapH) {
+            let mHtml = ''; let hHtml = ''; let histHtml = '';
+            let koinMisi = 0; let koinTerpakai = 0;
+
+            // 1. Hitung Misi & History Misi
+            snapM.forEach(d => {
+                const m = d.data(); const v = Math.floor(m.d/10);
+                if(m.claimed) {
+                    koinTerpakai += 0; // Koin misi tidak berkurang, tapi hadiah yang mengurangi
+                    histHtml += `<div class="card history"><span>✅ Misi: <b>${m.n}</b></span> <small>+🪙${v}</small></div>`;
+                } else {
+                    if(m.approved) koinMisi += v;
+                    mHtml += `<div class="card ${m.approved?'approved':(m.done?'done':'')}" data-id="${d.id}">
                         ${userNow.r==='admin'?'<i class="fas fa-bars handle"></i>':''}
-                        <div style="flex:1" onclick="editHadiah('${d.id}','${h.n}',${h.t})"><b>${h.n}</b><br><small>${h.t} Koin</small></div>
-                        ${userNow.r==='admin' ? `<button onclick="delD('hadiah','${d.id}')" style="color:var(--a);border:none;background:none;margin-left:10px"><i class="fas fa-trash"></i></button>` : ''}
+                        <input type="checkbox" style="width:20px;height:20px;margin-right:12px" ${m.done?'checked':''} ${m.approved?'disabled':''} onchange="laporMisi('${d.id}', this.checked)">
+                        <div style="flex:1" onclick="editMisi('${d.id}','${m.n}',${m.d})"><b>${m.n}</b><br><small>${m.d}m • 🪙 ${v}</small></div>
+                        ${userNow.r==='admin' && m.done && !m.approved ? `<button onclick="validMisi('${d.id}')" class="btn-claim" style="background:var(--p)">Valid</button>` : ''}
+                        ${userNow.r==='admin' ? `<button onclick="delD('misi','${d.id}')" style="color:var(--a);border:none;background:none;margin-left:10px"><i class="fas fa-trash"></i></button>` : ''}
                     </div>`;
-                });
-                document.getElementById('list-hadiah').innerHTML = hHtml;
-                window.maxKoin = maxK; window.targetNama = targetN;
-                updateProgress(parseInt(document.getElementById('coin-val').innerText));
+                }
             });
+
+            // 2. Hitung Hadiah & History Hadiah
+            let listH = [];
+            snapH.forEach(d => {
+                const h = d.data();
+                if(h.claimed) {
+                    koinTerpakai += h.t;
+                    histHtml = `<div class="card history" style="border-left-color:var(--g)"><span>🎁 Hadiah: <b>${h.n}</b></span> <small>-🪙${h.t}</small></div>` + histHtml;
+                } else {
+                    listH.push({id: d.id, ...h});
+                }
+            });
+
+            const koinNet = koinMisi - koinTerpakai;
+            document.getElementById('coin-val').innerText = koinNet;
+
+            // 3. Render Hadiah Aktif & Cari Target Berikutnya
+            let targetH = null;
+            listH.forEach(h => {
+                if(!targetH && h.t > koinNet) targetH = h;
+                hHtml += `<div class="card reward" data-id="${h.id}">
+                    ${userNow.r==='admin'?'<i class="fas fa-bars handle"></i>':''}
+                    <div style="flex:1" onclick="editHadiah('${h.id}','${h.n}',${h.t})"><b>${h.n}</b><br><small>${h.t} Koin</small></div>
+                    ${koinNet >= h.t && userNow.r !== 'admin' ? `<button onclick="klaimHadiah('${h.id}','${h.n}',${h.t})" class="btn-claim">KLAIM</button>` : ''}
+                    ${userNow.r==='admin' ? `<button onclick="delD('hadiah','${h.id}')" style="color:var(--a);border:none;background:none;margin-left:10px"><i class="fas fa-trash"></i></button>` : ''}
+                </div>`;
+            });
+
+            // Tampilkan Target di Progress Bar
+            if(!targetH && listH.length > 0) targetH = listH[listH.length-1]; // Jika koin sudah lewat semua, target yang paling mahal
+            
+            if(targetH) {
+                const p = Math.min(100, Math.floor((koinNet / targetH.t) * 100));
+                document.getElementById('progress-bar').style.width = p+'%';
+                document.getElementById('target-percent').innerText = p+'%';
+                document.getElementById('target-name').innerText = `Target: ${targetH.n}`;
+                document.getElementById('target-info').innerText = `${koinNet} / ${targetH.t} koin`;
+            }
+
+            document.getElementById('list-misi').innerHTML = mHtml || '<p style="text-align:center;color:#999;font-size:12px">Belum ada misi aktif</p>';
+            document.getElementById('list-hadiah').innerHTML = hHtml || '<p style="text-align:center;color:#999;font-size:12px">Belum ada hadiah tersedia</p>';
+            document.getElementById('list-history').innerHTML = histHtml || '<p style="text-align:center;color:#999;font-size:12px">Belum ada history</p>';
         }
 
-        async function fetchUsers() {
-            const snap = await getDocs(collection(db, "users"));
-            document.getElementById('list-user-db').innerHTML = snap.docs.map(d => `<div class="card" style="padding:10px"><b>${d.data().n}</b> (${d.data().r})</div>`).join('');
-        }
+        window.klaimHadiah = async (id, nama, harga) => {
+            if(confirm(`Klaim ${nama} seharga ${harga} koin?`)) {
+                await updateDoc(doc(db, "hadiah", id), { claimed: true, claimedAt: serverTimestamp() });
+                alert(`Selamat Syifa! ${nama} sudah berhasil diklaim! 🥳`);
+            }
+        };
 
-        function renderChart() {
-            openM('modal-dash');
-            setTimeout(() => {
-                const ctx = document.getElementById('chartWeekly').getContext('2d');
-                if(chartObj) chartObj.destroy();
-                chartObj = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: { labels: ['Koin Syifa', 'Sisa Target'], datasets: [{ data: [parseInt(document.getElementById('coin-val').innerText), Math.max(0, window.maxKoin - parseInt(document.getElementById('coin-val').innerText))], backgroundColor: [ '#6C5CE7', '#eee'] }] }
-                });
-            }, 300);
-        }
-
-        // Logic Actions
         window.laporMisi = (id, st) => updateDoc(doc(db, "misi", id), { done: st });
-        window.validMisi = (id) => updateDoc(doc(db, "misi", id), { approved: true });
+        window.validMisi = (id) => updateDoc(doc(db, "misi", id), { approved: true, claimed: true }); // Misi yang disetujui otomatis masuk history
         window.delD = (c, id) => confirm('Hapus?') && deleteDoc(doc(db, c, id));
 
-        function updateProgress(k) {
-            const p = window.maxKoin ? Math.min(100, Math.floor((k/window.maxKoin)*100)) : 0;
-            document.getElementById('progress-bar').style.width = p+'%';
-            document.getElementById('target-percent').innerText = p+'%';
-            document.getElementById('target-name').innerText = window.targetNama || 'Target';
-        }
-
-        // Form Resets & Save
-        document.getElementById('btn-add-misi-trigger').onclick = () => { document.getElementById('m-id').value=""; document.getElementById('m-nama').value=""; document.getElementById('m-durasi').value=""; openM('modal-misi'); };
-        document.getElementById('btn-add-reward-trigger').onclick = () => { document.getElementById('h-id').value=""; document.getElementById('h-nama').value=""; document.getElementById('h-target').value=""; openM('modal-hadiah'); };
-
-        window.editMisi = (id,n,d) => { if(userNow.r!=='admin') return; document.getElementById('m-id').value=id; document.getElementById('m-nama').value=n; document.getElementById('m-durasi').value=d; openM('modal-misi'); };
-        window.editHadiah = (id,n,t) => { if(userNow.r!=='admin') return; document.getElementById('h-id').value=id; document.getElementById('h-nama').value=n; document.getElementById('h-target').value=t; openM('modal-hadiah'); };
+        // Form Logic (Tetap sama)
+        window.editMisi = (id,n,d) => { if(userNow.r==='admin') { document.getElementById('m-id').value=id; document.getElementById('m-nama').value=n; document.getElementById('m-durasi').value=d; openM('modal-misi'); } };
+        window.editHadiah = (id,n,t) => { if(userNow.r==='admin') { document.getElementById('h-id').value=id; document.getElementById('h-nama').value=n; document.getElementById('h-target').value=t; openM('modal-hadiah'); } };
 
         document.getElementById('btn-save-misi').onclick = async () => {
             const id = document.getElementById('m-id').value;
             const data = { n: document.getElementById('m-nama').value, d: parseInt(document.getElementById('m-durasi').value) };
-            id ? await updateDoc(doc(db,"misi",id), data) : await addDoc(collection(db,"misi"), {...data, order:99, done:false, approved:false, claimed:false, createdAt: serverTimestamp()});
+            id ? await updateDoc(doc(db,"misi",id), data) : await addDoc(collection(db,"misi"), {...data, order:99, done:false, approved:false, claimed:false});
             closeM('modal-misi');
         };
 
         document.getElementById('btn-save-hadiah').onclick = async () => {
             const id = document.getElementById('h-id').value;
             const data = { n: document.getElementById('h-nama').value, t: parseInt(document.getElementById('h-target').value) };
-            id ? await updateDoc(doc(db,"hadiah",id), data) : await addDoc(collection(db,"hadiah"), {...data, order:99});
+            id ? await updateDoc(doc(db,"hadiah",id), data) : await addDoc(collection(db,"hadiah"), {...data, order:99, claimed:false});
             closeM('modal-hadiah');
         };
-
-        function initSort() {
-            new Sortable(document.getElementById('list-misi'), { handle:'.handle', animation:150, onEnd: () => saveO('misi', 'list-misi') });
-            new Sortable(document.getElementById('list-hadiah'), { handle:'.handle', animation:150, onEnd: () => saveO('hadiah', 'list-hadiah') });
-        }
-
-        async function saveO(col, elId) {
-            const items = document.getElementById(elId).querySelectorAll('.card');
-            items.forEach((item, i) => { const id = item.dataset.id; if(id) updateDoc(doc(db, col, id), { order: i }); });
-        }
 
         document.getElementById('form-login').onsubmit = async (e) => {
             e.preventDefault();
@@ -243,9 +217,18 @@
             const p = document.getElementById('pass-in').value;
             if(n==='syifa' && p==='123') { sessionStorage.setItem('u_online', JSON.stringify({n:'Syifa', r:'user'})); location.reload(); }
             else if(n==='papa' && p==='papa') { sessionStorage.setItem('u_online', JSON.stringify({n:'Papa', r:'admin'})); location.reload(); }
-            else { alert("Salah!"); }
+            else alert("Gagal!");
         };
         document.getElementById('nav-logout').onclick = () => { sessionStorage.clear(); location.reload(); };
+
+        function initSort() {
+            new Sortable(document.getElementById('list-misi'), { handle:'.handle', animation:150, onEnd: () => saveO('misi', 'list-misi') });
+            new Sortable(document.getElementById('list-hadiah'), { handle:'.handle', animation:150, onEnd: () => saveO('hadiah', 'list-hadiah') });
+        }
+        async function saveO(col, elId) {
+            const items = document.getElementById(elId).querySelectorAll('.card');
+            items.forEach((item, i) => { const id = item.dataset.id; if(id) updateDoc(doc(db, col, id), { order: i }); });
+        }
     </script>
 </body>
 </html>
