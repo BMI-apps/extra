@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Syifa v13.6 - Hard Filter</title>
+    <title>Quest Syifa v13.7 - Super Strict</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -22,13 +22,12 @@
         .progress-fill { background: linear-gradient(90deg, var(--s), var(--p)); width: 0%; height: 100%; transition: 1s; }
         .card { background: white; padding: 15px; border-radius: 20px; margin-bottom: 12px; display: flex; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border-left: 6px solid #ccc; position: relative; }
         .card.done { border-left-color: #f1c40f; background: #fffef0; }
-        .card.approved { border-left-color: var(--ok); background: #f8fff9; }
         .card.reward { border-left-color: var(--g); }
         .history-item { position: relative; padding-left: 25px; margin-bottom: 8px; }
         .history-item::before { content: ""; position: absolute; left: 5px; top: 0; bottom: -12px; width: 2px; border-left: 2px dashed #ddd; }
         .history-item:last-child::before { display: none; }
         .history-dot { position: absolute; left: 0; top: 8px; width: 12px; height: 12px; border-radius: 50%; background: #ccc; z-index: 2; border: 2px solid white; }
-        .card.history { margin-bottom: 0; font-size: 13px; opacity: 0.85; border-left-width: 4px; padding: 10px 15px; }
+        .card.history { margin-bottom: 0; font-size: 13px; opacity: 0.85; border-left-width: 4px; padding: 10px 15px; border-left-color: var(--ok); }
         .btn-del { color: var(--a); background: none; border: none; font-size: 18px; margin-left: 12px; cursor: pointer; display: flex; align-items: center; }
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index: 100000; align-items:center; justify-content:center; backdrop-filter: blur(4px); }
         .modal.active { display: flex !important; }
@@ -55,7 +54,7 @@
 
         <div class="progress-container">
             <div style="display:flex; justify-content:space-between; font-weight:600;">
-                <span id="target-name">Target</span><span id="target-percent">0%</span>
+                <span id="target-name">Target Hadiah</span><span id="target-percent">0%</span>
             </div>
             <div class="progress-bg"><div class="progress-fill" id="progress-bar"></div></div>
             <p id="target-info" style="font-size:11px; color:#999; text-align:center"></p>
@@ -85,11 +84,69 @@
         </div>
     </div>
 
-    <div class="modal" id="modal-dash"><div class="modal-content"><h3>Statistik 📊</h3><div style="height: 250px;"><canvas id="chartWeekly"></canvas></div><button onclick="closeM('modal-dash')" class="btn-main" style="background:#eee; color:#666">Tutup</button></div></div>
-    <div class="modal" id="modal-misi"><div class="modal-content"><h3>Atur Misi</h3><br><input type="hidden" id="m-id"><input type="text" id="m-nama" class="form-control" placeholder="Nama Misi"><input type="number" id="m-durasi" class="form-control" placeholder="Durasi (Koin = Durasi/10)"><div class="cat-chips" id="cat-chips"><div class="chip active" onclick="setSelect('cat', '🕌 Ibadah', this)">🕌 Ibadah</div><div class="chip" onclick="setSelect('cat', '📚 Belajar', this)">📚 Belajar</div><div class="chip" onclick="setSelect('cat', '🏠 Mandiri', this)">🏠 Mandiri</div><div class="chip" onclick="setSelect('cat', '🤝 Bantu', this)">🤝 Bantu</div></div><input type="hidden" id="m-cat" value="🕌 Ibadah"><button id="btn-save-misi" class="btn-main" style="background:var(--p)">Simpan</button><button onclick="closeM('modal-misi')" style="width:100%; border:none; margin-top:10px; background:none; color:#aaa">Batal</button></div></div>
-    <div class="modal" id="modal-hadiah"><div class="modal-content"><h3>Atur Hadiah</h3><br><input type="hidden" id="h-id"><input type="text" id="h-nama" class="form-control" placeholder="Nama Hadiah"><input type="number" id="h-target" class="form-control" placeholder="Harga Koin"><button id="btn-save-hadiah" class="btn-main" style="background:var(--g)">Simpan</button><button onclick="closeM('modal-hadiah')" style="width:100%; border:none; margin-top:10px; background:none; color:#aaa">Batal</button></div></div>
-    <div class="modal active" id="modal-login"><div class="modal-content"><h2 style="text-align:center">Quest Login</h2><br><input type="text" id="login-u" class="form-control" placeholder="Nama"><input type="password" id="login-p" class="form-control" placeholder="Kode"><button id="btn-login-exec" class="btn-main" style="background:var(--p)">Masuk</button></div></div>
-    <div class="modal" id="modal-user-list"><div class="modal-content"><h3>Kelola User</h3><div id="db-user-list"></div><hr><br><input type="hidden" id="u-id"><input type="text" id="u-nama" class="form-control" placeholder="Nama"><input type="text" id="u-pass" class="form-control" placeholder="Kode"><div class="cat-chips"><div class="chip active" onclick="setSelect('role', 'user', this)">User</div><div class="chip" onclick="setSelect('role', 'admin', this)">Admin</div></div><input type="hidden" id="u-role" value="user"><button id="btn-save-user" class="btn-main" style="background:var(--s)">Simpan User</button><button onclick="closeM('modal-user-list')" style="width:100%; border:none; margin-top:10px; background:none; color:#aaa">Tutup</button></div></div>
+    <div class="modal" id="modal-dash">
+        <div class="modal-content">
+            <h3>Statistik Koin 📊</h3>
+            <div style="height: 250px; width: 100%; margin: 20px 0;"><canvas id="chartWeekly"></canvas></div>
+            <button onclick="closeM('modal-dash')" class="btn-main" style="background:#eee; color:#666">Tutup</button>
+        </div>
+    </div>
+
+    <div class="modal" id="modal-user-list">
+        <div class="modal-content">
+            <h3>Kelola User</h3>
+            <div id="db-user-list" style="margin:15px 0"></div>
+            <hr><br>
+            <input type="hidden" id="u-id">
+            <input type="text" id="u-nama" class="form-control" placeholder="Nama">
+            <input type="text" id="u-pass" class="form-control" placeholder="Kode">
+            <div class="cat-chips" id="role-chips">
+                <div class="chip active" onclick="setSelect('role', 'user', this)">User</div>
+                <div class="chip" onclick="setSelect('role', 'admin', this)">Admin</div>
+            </div>
+            <input type="hidden" id="u-role" value="user">
+            <button id="btn-save-user" class="btn-main" style="background:var(--s)">Simpan User</button>
+            <button onclick="closeM('modal-user-list')" style="width:100%; border:none; margin-top:10px; background:none; color:#aaa">Tutup</button>
+        </div>
+    </div>
+
+    <div class="modal" id="modal-misi">
+        <div class="modal-content">
+            <h3>Atur Misi</h3><br>
+            <input type="hidden" id="m-id">
+            <input type="text" id="m-nama" class="form-control" placeholder="Nama Misi">
+            <input type="number" id="m-durasi" class="form-control" placeholder="Durasi (Koin = Durasi/10)">
+            <div class="cat-chips" id="cat-chips">
+                <div class="chip active" onclick="setSelect('cat', '🕌 Ibadah', this)">🕌 Ibadah</div>
+                <div class="chip" onclick="setSelect('cat', '📚 Belajar', this)">📚 Belajar</div>
+                <div class="chip" onclick="setSelect('cat', '🏠 Mandiri', this)">🏠 Mandiri</div>
+                <div class="chip" onclick="setSelect('cat', '🤝 Bantu', this)">🤝 Bantu</div>
+            </div>
+            <input type="hidden" id="m-cat" value="🕌 Ibadah">
+            <button id="btn-save-misi" class="btn-main" style="background:var(--p)">Simpan</button>
+            <button onclick="closeM('modal-misi')" style="width:100%; border:none; margin-top:10px; background:none; color:#aaa">Batal</button>
+        </div>
+    </div>
+
+    <div class="modal" id="modal-hadiah">
+        <div class="modal-content">
+            <h3>Atur Hadiah</h3><br>
+            <input type="hidden" id="h-id">
+            <input type="text" id="h-nama" class="form-control" placeholder="Nama Hadiah">
+            <input type="number" id="h-target" class="form-control" placeholder="Harga Koin">
+            <button id="btn-save-hadiah" class="btn-main" style="background:var(--g)">Simpan</button>
+            <button onclick="closeM('modal-hadiah')" style="width:100%; border:none; margin-top:10px; background:none; color:#aaa">Batal</button>
+        </div>
+    </div>
+
+    <div class="modal active" id="modal-login">
+        <div class="modal-content">
+            <h2 style="text-align:center">Quest Login</h2><br>
+            <input type="text" id="login-u" class="form-control" placeholder="Nama">
+            <input type="password" id="login-p" class="form-control" placeholder="Kode">
+            <button id="btn-login-exec" class="btn-main" style="background:var(--p)">Masuk</button>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -137,35 +194,53 @@
             let mHtml = ''; let hHtml = ''; let histHtml = '';
             let kTotal = 0; let kPakai = 0;
 
-            // 1. HITUNG KOIN TOTAL DULU
-            misi.forEach(m => { if(m.approved) kTotal += Math.floor(m.d/10); });
-            hadiah.forEach(h => { if(h.claimed) kPakai += h.t; });
+            // 1. HITUNG KOIN TOTAL TERLEBIH DAHULU
+            misi.forEach(m => { if(m.approved === true) kTotal += Math.floor(m.d/10); });
+            hadiah.forEach(h => { if(h.claimed === true) kPakai += h.t; });
             const net = kTotal - kPakai;
 
-            // 2. PROSES DAFTAR MISI (FILTER HARD)
+            // 2. LOGIKA PEMISAHAN SUPER STRICT
             misi.forEach(m => {
                 const v = Math.floor(m.d/10);
                 
-                // JIKA CLAIMED: Masuk History SAJA
-                if(m.claimed === true) {
-                    histHtml += `<div class="history-item"><div class="history-dot" style="background:var(--ok)"></div><div class="card history" style="border-left-color:var(--ok)"><b>${m.cat || ''} ${m.n}</b> &nbsp; <span style="color:var(--ok)">+🪙${v}</span></div></div>`;
+                // JIKA claimed=true ATAU approved=true -> MASUK HISTORY SAJA
+                if (m.claimed === true || m.approved === true) {
+                    histHtml += `
+                        <div class="history-item">
+                            <div class="history-dot" style="background:var(--ok)"></div>
+                            <div class="card history">
+                                <b>${m.cat || ''} ${m.n}</b> &nbsp; 
+                                <span style="color:var(--ok)">+🪙${v}</span>
+                            </div>
+                        </div>`;
                 } 
-                // JIKA BELUM CLAIMED: Masuk Daftar Aktif SAJA
+                // HANYA JIKA BELUM CLAIMED DAN BELUM APPROVED -> MASUK AKTIF
                 else {
-                    mHtml += `<div class="card ${m.approved?'approved':(m.done?'done':'')}" data-id="${m.id}">
-                        ${userNow.r==='admin'?'<i class="fas fa-bars handle"></i>':''}
-                        <input type="checkbox" class="check-box" ${m.done?'checked':''} ${m.approved?'disabled':''} onchange="action('misi','${m.id}',{done:this.checked})">
-                        <div style="flex:1" onclick="editM('${m.id}','${m.n}',${m.d},'${m.cat}')"><b>${m.n}</b><br><small>${m.cat} • 🪙${v}</small></div>
-                        ${userNow.r==='admin' && m.done && !m.approved ? `<button onclick="action('misi','${m.id}',{approved:true, claimed:true})" class="icon-btn" style="background:var(--ok);color:white;width:auto;padding:0 10px;font-size:12px">Valid</button>` : ''}
-                        ${userNow.r==='admin' ? `<button onclick="del('misi','${m.id}')" class="btn-del"><i class="fas fa-trash"></i></button>` : ''}
-                    </div>`;
+                    mHtml += `
+                        <div class="card ${m.done ? 'done' : ''}" data-id="${m.id}">
+                            ${userNow.r === 'admin' ? '<i class="fas fa-bars handle"></i>' : ''}
+                            <input type="checkbox" class="check-box" ${m.done ? 'checked' : ''} onchange="action('misi','${m.id}',{done:this.checked})">
+                            <div style="flex:1" onclick="editM('${m.id}','${m.n}',${m.d},'${m.cat}')">
+                                <b>${m.n}</b><br><small>${m.cat} • 🪙${v}</small>
+                            </div>
+                            ${userNow.r === 'admin' && m.done ? 
+                                `<button onclick="action('misi','${m.id}',{approved:true, claimed:true})" class="icon-btn" style="background:var(--ok);color:white;width:auto;padding:0 10px;font-size:12px">Valid</button>` 
+                                : ''}
+                            ${userNow.r === 'admin' ? `<button onclick="del('misi','${m.id}')" class="btn-del"><i class="fas fa-trash"></i></button>` : ''}
+                        </div>`;
                 }
             });
 
-            // 3. PROSES DAFTAR HADIAH
             hadiah.forEach(h => {
-                if(h.claimed) {
-                    histHtml += `<div class="history-item"><div class="history-dot" style="background:var(--g)"></div><div class="card history" style="border-left-color:var(--g)"><b>🎁 ${h.n}</b> &nbsp; <span style="color:var(--a)">-🪙${h.t}</span></div></div>`;
+                if(h.claimed === true) {
+                    histHtml += `
+                        <div class="history-item">
+                            <div class="history-dot" style="background:var(--g)"></div>
+                            <div class="card history" style="border-left-color:var(--g)">
+                                <b>🎁 ${h.n}</b> &nbsp; 
+                                <span style="color:var(--a)">-🪙${h.t}</span>
+                            </div>
+                        </div>`;
                 } else {
                     hHtml += `<div class="card reward" data-id="${h.id}">
                         ${userNow.r==='admin'?'<i class="fas fa-bars handle"></i>':''}
@@ -177,11 +252,10 @@
             });
 
             document.getElementById('coin-val').innerText = net;
-            document.getElementById('list-misi').innerHTML = mHtml || '<p style="text-align:center;padding:20px;color:#aaa">Semua misi sudah divalidasi Papa!</p>';
+            document.getElementById('list-misi').innerHTML = mHtml || '<p style="text-align:center;padding:20px;color:#aaa;font-size:13px">Semua misi sudah divalidasi Papa!</p>';
             document.getElementById('list-hadiah').innerHTML = hHtml;
             document.getElementById('list-history').innerHTML = histHtml;
 
-            // Target progress
             const target = hadiah.find(h => !h.claimed && h.t > net) || hadiah.find(h => !h.claimed);
             if(target) {
                 const p = Math.min(100, Math.floor((net / target.t) * 100));
@@ -192,9 +266,8 @@
             }
         }
 
-        // FUNGSI LAINNYA
         window.action = (c, id, data) => updateDoc(doc(db, c, id), data);
-        window.del = (c, id) => confirm("Hapus?") && deleteDoc(doc(db, c, id));
+        window.del = (c, id) => confirm("Hapus data ini?") && deleteDoc(doc(db, c, id));
         window.clearFormM = () => { document.getElementById('m-id').value=''; document.getElementById('m-nama').value=''; document.getElementById('m-durasi').value=''; };
         window.clearFormH = () => { document.getElementById('h-id').value=''; document.getElementById('h-nama').value=''; document.getElementById('h-target').value=''; };
         document.getElementById('btn-save-misi').onclick = async () => {
@@ -222,7 +295,7 @@
             openM('modal-dash');
             const ctx = document.getElementById('chartWeekly').getContext('2d');
             if(chartObj) chartObj.destroy();
-            chartObj = new Chart(ctx, { type: 'bar', data: { labels: ['Koin'], datasets: [{ label: 'Total', data: [parseInt(document.getElementById('coin-val').innerText)], backgroundColor: '#6C5CE7' }] }, options: { responsive: true, maintainAspectRatio: false } });
+            chartObj = new Chart(ctx, { type: 'bar', data: { labels: ['Koin Tabungan'], datasets: [{ label: 'Total', data: [parseInt(document.getElementById('coin-val').innerText)], backgroundColor: '#6C5CE7' }] }, options: { responsive: true, maintainAspectRatio: false } });
         }
         function syncUsers() {
             onSnapshot(collection(db, "users"), (s) => {
