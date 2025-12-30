@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Syifa v13.7 - Super Strict</title>
+    <title>Quest Syifa v13.8 - Full Fix</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -95,6 +95,7 @@
     <div class="modal" id="modal-user-list">
         <div class="modal-content">
             <h3>Kelola User</h3>
+            <p style="font-size:11px; color:#999; margin-bottom:10px">Klik nama user untuk edit</p>
             <div id="db-user-list" style="margin:15px 0"></div>
             <hr><br>
             <input type="hidden" id="u-id">
@@ -194,60 +195,24 @@
             let mHtml = ''; let hHtml = ''; let histHtml = '';
             let kTotal = 0; let kPakai = 0;
 
-            // 1. HITUNG KOIN TOTAL TERLEBIH DAHULU
             misi.forEach(m => { if(m.approved === true) kTotal += Math.floor(m.d/10); });
             hadiah.forEach(h => { if(h.claimed === true) kPakai += h.t; });
             const net = kTotal - kPakai;
 
-            // 2. LOGIKA PEMISAHAN SUPER STRICT
             misi.forEach(m => {
                 const v = Math.floor(m.d/10);
-                
-                // JIKA claimed=true ATAU approved=true -> MASUK HISTORY SAJA
                 if (m.claimed === true || m.approved === true) {
-                    histHtml += `
-                        <div class="history-item">
-                            <div class="history-dot" style="background:var(--ok)"></div>
-                            <div class="card history">
-                                <b>${m.cat || ''} ${m.n}</b> &nbsp; 
-                                <span style="color:var(--ok)">+🪙${v}</span>
-                            </div>
-                        </div>`;
-                } 
-                // HANYA JIKA BELUM CLAIMED DAN BELUM APPROVED -> MASUK AKTIF
-                else {
-                    mHtml += `
-                        <div class="card ${m.done ? 'done' : ''}" data-id="${m.id}">
-                            ${userNow.r === 'admin' ? '<i class="fas fa-bars handle"></i>' : ''}
-                            <input type="checkbox" class="check-box" ${m.done ? 'checked' : ''} onchange="action('misi','${m.id}',{done:this.checked})">
-                            <div style="flex:1" onclick="editM('${m.id}','${m.n}',${m.d},'${m.cat}')">
-                                <b>${m.n}</b><br><small>${m.cat} • 🪙${v}</small>
-                            </div>
-                            ${userNow.r === 'admin' && m.done ? 
-                                `<button onclick="action('misi','${m.id}',{approved:true, claimed:true})" class="icon-btn" style="background:var(--ok);color:white;width:auto;padding:0 10px;font-size:12px">Valid</button>` 
-                                : ''}
-                            ${userNow.r === 'admin' ? `<button onclick="del('misi','${m.id}')" class="btn-del"><i class="fas fa-trash"></i></button>` : ''}
-                        </div>`;
+                    histHtml += `<div class="history-item"><div class="history-dot" style="background:var(--ok)"></div><div class="card history"><b>${m.cat || ''} ${m.n}</b> &nbsp; <span style="color:var(--ok)">+🪙${v}</span></div></div>`;
+                } else {
+                    mHtml += `<div class="card ${m.done ? 'done' : ''}" data-id="${m.id}">${userNow.r === 'admin' ? '<i class="fas fa-bars handle"></i>' : ''}<input type="checkbox" class="check-box" ${m.done ? 'checked' : ''} onchange="action('misi','${m.id}',{done:this.checked})"><div style="flex:1" onclick="editM('${m.id}','${m.n}',${m.d},'${m.cat}')"><b>${m.n}</b><br><small>${m.cat} • 🪙${v}</small></div>${userNow.r === 'admin' && m.done ? `<button onclick="action('misi','${m.id}',{approved:true, claimed:true})" class="icon-btn" style="background:var(--ok);color:white;width:auto;padding:0 10px;font-size:12px">Valid</button>` : ''}${userNow.r === 'admin' ? `<button onclick="del('misi','${m.id}')" class="btn-del"><i class="fas fa-trash"></i></button>` : ''}</div>`;
                 }
             });
 
             hadiah.forEach(h => {
                 if(h.claimed === true) {
-                    histHtml += `
-                        <div class="history-item">
-                            <div class="history-dot" style="background:var(--g)"></div>
-                            <div class="card history" style="border-left-color:var(--g)">
-                                <b>🎁 ${h.n}</b> &nbsp; 
-                                <span style="color:var(--a)">-🪙${h.t}</span>
-                            </div>
-                        </div>`;
+                    histHtml += `<div class="history-item"><div class="history-dot" style="background:var(--g)"></div><div class="card history" style="border-left-color:var(--g)"><b>🎁 ${h.n}</b> &nbsp; <span style="color:var(--a)">-🪙${h.t}</span></div></div>`;
                 } else {
-                    hHtml += `<div class="card reward" data-id="${h.id}">
-                        ${userNow.r==='admin'?'<i class="fas fa-bars handle"></i>':''}
-                        <div style="flex:1" onclick="editH('${h.id}','${h.n}',${h.t})"><b>${h.n}</b><br><small>🪙${h.t}</small></div>
-                        ${net >= h.t && userNow.r !== 'admin' ? `<button onclick="action('hadiah','${h.id}',{claimed:true})" class="icon-btn" style="background:var(--ok);color:white;width:auto;padding:0 10px;font-size:12px">Klaim</button>` : ''}
-                        ${userNow.r==='admin' ? `<button onclick="del('hadiah','${h.id}')" class="btn-del"><i class="fas fa-trash"></i></button>` : ''}
-                    </div>`;
+                    hHtml += `<div class="card reward" data-id="${h.id}">${userNow.r==='admin'?'<i class="fas fa-bars handle"></i>':''}<div style="flex:1" onclick="editH('${h.id}','${h.n}',${h.t})"><b>${h.n}</b><br><small>🪙${h.t}</small></div>${net >= h.t && userNow.r !== 'admin' ? `<button onclick="action('hadiah','${h.id}',{claimed:true})" class="icon-btn" style="background:var(--ok);color:white;width:auto;padding:0 10px;font-size:12px">Klaim</button>` : ''}${userNow.r==='admin' ? `<button onclick="del('hadiah','${h.id}')" class="btn-del"><i class="fas fa-trash"></i></button>` : ''}</div>`;
                 }
             });
 
@@ -266,8 +231,41 @@
             }
         }
 
+        // --- MANAJEMEN USER ---
+        function syncUsers() {
+            onSnapshot(collection(db, "users"), (s) => {
+                let h = '';
+                s.forEach(d => {
+                    const u = d.data();
+                    h += `<div class="card" style="padding:10px; cursor:pointer"><div style="flex:1" onclick="window.editUser('${d.id}','${u.n}','${u.p}','${u.r}')"><b>${u.n}</b> <small>(${u.r})</small><br><span style="font-size:11px; color:#aaa">Kode: ${u.p}</span></div><button onclick="del('users','${d.id}')" class="btn-del"><i class="fas fa-trash"></i></button></div>`;
+                });
+                document.getElementById('db-user-list').innerHTML = h;
+            });
+        }
+
+        window.editUser = (id, n, p, r) => {
+            document.getElementById('u-id').value = id;
+            document.getElementById('u-nama').value = n;
+            document.getElementById('u-pass').value = p;
+            document.getElementById('u-role').value = r;
+            document.querySelectorAll('#role-chips .chip').forEach(c => {
+                if(c.innerText.toLowerCase() === r.toLowerCase()) c.classList.add('active');
+                else c.classList.remove('active');
+            });
+        };
+
+        document.getElementById('btn-save-user').onclick = async () => {
+            const id = document.getElementById('u-id').value;
+            const d = { n: document.getElementById('u-nama').value, p: document.getElementById('u-pass').value, r: document.getElementById('u-role').value };
+            if(!d.n || !d.p) return alert("Isi nama dan kode!");
+            id ? await updateDoc(doc(db,"users",id), d) : await addDoc(collection(db,"users"), d);
+            document.getElementById('u-id').value=''; document.getElementById('u-nama').value=''; document.getElementById('u-pass').value='';
+            alert("Berhasil disimpan!");
+        };
+
+        // --- GLOBAL ACTIONS ---
         window.action = (c, id, data) => updateDoc(doc(db, c, id), data);
-        window.del = (c, id) => confirm("Hapus data ini?") && deleteDoc(doc(db, c, id));
+        window.del = (c, id) => confirm("Hapus?") && deleteDoc(doc(db, c, id));
         window.clearFormM = () => { document.getElementById('m-id').value=''; document.getElementById('m-nama').value=''; document.getElementById('m-durasi').value=''; };
         window.clearFormH = () => { document.getElementById('h-id').value=''; document.getElementById('h-nama').value=''; document.getElementById('h-target').value=''; };
         document.getElementById('btn-save-misi').onclick = async () => {
@@ -284,6 +282,7 @@
         };
         window.editM = (id,n,d,c) => { if(userNow.r==='admin'){ document.getElementById('m-id').value=id; document.getElementById('m-nama').value=n; document.getElementById('m-durasi').value=d; document.getElementById('m-cat').value=c; openM('modal-misi'); } };
         window.editH = (id,n,t) => { if(userNow.r==='admin'){ document.getElementById('h-id').value=id; document.getElementById('h-nama').value=n; document.getElementById('h-target').value=t; openM('modal-hadiah'); } };
+        
         document.getElementById('btn-login-exec').onclick = async () => {
             const u = document.getElementById('login-u').value.toLowerCase().trim();
             const p = document.getElementById('login-p').value.trim();
@@ -291,18 +290,14 @@
             const q = await getDocs(collection(db, "users"));
             q.forEach(d => { if(d.data().n.toLowerCase()===u && d.data().p===p){ sessionStorage.setItem('u_online',JSON.stringify(d.data())); location.reload(); } });
         };
+        
         function renderChart() {
             openM('modal-dash');
             const ctx = document.getElementById('chartWeekly').getContext('2d');
             if(chartObj) chartObj.destroy();
             chartObj = new Chart(ctx, { type: 'bar', data: { labels: ['Koin Tabungan'], datasets: [{ label: 'Total', data: [parseInt(document.getElementById('coin-val').innerText)], backgroundColor: '#6C5CE7' }] }, options: { responsive: true, maintainAspectRatio: false } });
         }
-        function syncUsers() {
-            onSnapshot(collection(db, "users"), (s) => {
-                let h = ''; s.forEach(d => { const u = d.data(); h += `<div class="card" style="padding:10px"><div style="flex:1"><b>${u.n}</b> (${u.r})</div><button onclick="del('users','${d.id}')" class="btn-del"><i class="fas fa-trash"></i></button></div>`; });
-                document.getElementById('db-user-list').innerHTML = h;
-            });
-        }
+        
         function initSort() {
             new Sortable(document.getElementById('list-misi'), { handle:'.handle', animation:150, onEnd: () => saveO('misi', 'list-misi') });
             new Sortable(document.getElementById('list-hadiah'), { handle:'.handle', animation:150, onEnd: () => saveO('hadiah', 'list-hadiah') });
