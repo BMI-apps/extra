@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Tracker Online - Admin Dashboard</title>
+    <title>Quest Tracker Online - Family Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -26,13 +26,11 @@
         .card.reward { border-left-color: var(--g); }
         .clickable { cursor: pointer; }
 
-        /* Dashboard Stats inside Modal */
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
         .stat-item { background: #f8f9fa; padding: 15px; border-radius: 15px; text-align: center; }
         .stat-val { display: block; font-size: 20px; font-weight: 600; color: var(--p); }
         .stat-label { font-size: 11px; color: #888; }
 
-        /* Modal Base */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal.active { display: flex; }
         .modal-content { background: white; border-radius: 30px; padding: 25px; width: 90%; max-width: 420px; max-height: 90vh; overflow-y: auto; }
@@ -96,11 +94,11 @@
             <div class="stats-grid">
                 <div class="stat-item">
                     <span class="stat-val" id="total-earned">0</span>
-                    <span class="stat-label">Total Koin</span>
+                    <span class="stat-label">Koin Minggu Ini</span>
                 </div>
                 <div class="stat-item">
                     <span class="stat-val" id="top-cat">-</span>
-                    <span class="stat-label">Fokus</span>
+                    <span class="stat-label">Fokus Utama</span>
                 </div>
             </div>
             <button onclick="closeM('modal-dash')" class="btn-main" style="background:#eee; color:#666; margin-top:20px;">Tutup</button>
@@ -157,7 +155,6 @@
         const openM = (id) => document.getElementById(id).classList.add('active');
         window.closeM = (id) => document.getElementById(id).classList.remove('active');
 
-        // Login Logic
         document.getElementById('form-login').onsubmit = (e) => {
             e.preventDefault();
             const u = document.getElementById('user-in').value.toLowerCase();
@@ -165,7 +162,7 @@
             if((u==='papa'&&p==='papa')||(u==='mama'&&p==='mama')||(u==='syifa'&&p==='syifa')){
                 sessionStorage.setItem('u_online', JSON.stringify({n:u, r:(u==='syifa'?'user':'admin')}));
                 location.reload();
-            } else alert("Salah!");
+            } else alert("Username/Password Salah!");
         };
         document.getElementById('btn-logout-trigger').onclick = () => { sessionStorage.clear(); location.reload(); };
 
@@ -232,8 +229,6 @@
             });
         }
 
-        document.getElementById('btn-dash-trigger').onclick = () => openM('modal-dash');
-
         function renderMisi(ms) {
             let tk = 0;
             document.getElementById('list-misi').innerHTML = ms.sort((a,b)=>b.createdAt-a.createdAt).map(m => {
@@ -243,9 +238,10 @@
                     <input type="checkbox" style="width:25px;height:25px;margin-right:15px" ${m.done?'checked':''} ${userNow.r==='admin'?'disabled':''} onchange="toggleMisi('${m.id}',${m.done})">
                     <div style="flex:1" onclick="prepMisi('${m.id}','${m.n}',${m.d},'${m.c}')">
                         <div style="font-weight:600">${m.n}</div>
-                        <div style="font-size:12px;color:#aaa">${m.c || 'Belajar'} • ${m.d}m</div>
+                        <div style="font-size:12px;color:#aaa">${m.c || '📚 Belajar'} • ${m.d} Menit</div>
                     </div>
-                    ${userNow.r==='admin' && m.done && !m.approved ? `<button onclick="approveMisi('${m.id}')" style="background:var(--ok);color:white;border:none;padding:5px 10px;border-radius:8px">OK</button>` : ''}
+                    ${userNow.r==='admin' && m.done && !m.approved ? `<button onclick="approveMisi('${m.id}')" style="background:var(--ok);color:white;border:none;padding:5px 10px;border-radius:8px;margin-right:10px">OK</button>` : ''}
+                    ${userNow.r==='admin' ? `<button onclick="delDoc('misi','${m.id}')" style="color:var(--a);border:none;background:none;padding:5px"><i class="fas fa-trash"></i></button>` : ''}
                 </div>`;
             }).join('');
             document.getElementById('coin-val').textContent = tk;
@@ -253,23 +249,15 @@
 
         function renderHadiah(hd) {
             document.getElementById('list-hadiah').innerHTML = hd.map(h => `
-                <div class="card reward ${userNow.r==='admin'?'clickable':''}" onclick="prepHadiah('${h.id}','${h.n}',${h.t})">
-                    <div style="flex:1"><b>${h.n}</b></div>
-                    <div style="color:#f39c12"><b>${h.t} <i class="fas fa-coins"></i></b></div>
+                <div class="card reward ${userNow.r==='admin'?'clickable':''}">
+                    <div style="flex:1" onclick="prepHadiah('${h.id}','${h.n}',${h.t})"><b>${h.n}</b><br><small style="color:#f39c12">${h.t} Koin</small></div>
+                    ${userNow.r==='admin' ? `<button onclick="delDoc('hadiah','${h.id}')" style="color:var(--a);border:none;background:none;padding:5px"><i class="fas fa-trash"></i></button>` : ''}
                 </div>`).join('');
         }
 
-        window.prepMisi = (id,n,d,c) => { 
-            if(userNow.r!=='admin') return; 
-            document.getElementById('m-id').value=id; document.getElementById('m-nama').value=n; 
-            document.getElementById('m-durasi').value=d; openM('modal-misi'); 
-        };
-        window.prepHadiah = (id,n,t) => { 
-            if(userNow.r!=='admin') return; 
-            document.getElementById('h-id').value=id; document.getElementById('h-nama').value=n; 
-            document.getElementById('h-target').value=t; openM('modal-hadiah'); 
-        };
-
+        window.delDoc = async (col, id) => { if(confirm('Hapus data ini?')) await deleteDoc(doc(db, col, id)); };
+        window.prepMisi = (id,n,d,c) => { if(userNow.r!=='admin') return; document.getElementById('m-id').value=id; document.getElementById('m-nama').value=n; document.getElementById('m-durasi').value=d; openM('modal-misi'); };
+        window.prepHadiah = (id,n,t) => { if(userNow.r!=='admin') return; document.getElementById('h-id').value=id; document.getElementById('h-nama').value=n; document.getElementById('h-target').value=t; openM('modal-hadiah'); };
         window.toggleMisi = async (id, st) => { await updateDoc(doc(db,"misi",id), {done:!st, approved:false}); };
         window.approveMisi = async (id) => { await updateDoc(doc(db,"misi",id), {approved:true}); };
 
@@ -287,6 +275,7 @@
             closeM('modal-hadiah');
         };
 
+        document.getElementById('btn-dash-trigger').onclick = () => openM('modal-dash');
         document.getElementById('btn-add-misi-trigger').onclick = () => { document.getElementById('m-id').value=""; openM('modal-misi'); };
         document.getElementById('btn-add-reward-trigger').onclick = () => { document.getElementById('h-id').value=""; openM('modal-hadiah'); };
     </script>
