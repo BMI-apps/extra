@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Tracker - Full Function</title>
+    <title>Quest Tracker - Full Dashboard Fixed</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -17,37 +17,30 @@
         .coin-badge { background: white; padding: 10px 15px; border-radius: 50px; border: 2px solid var(--g); font-weight: 600; color: #f39c12; box-shadow: 0 4px 0 #eee; font-size: 20px; }
         .nav-btns { display: flex; gap: 8px; }
         .icon-btn { width: 45px; height: 45px; border-radius: 12px; border: none; cursor: pointer; background: white; box-shadow: 0 4px 0 #ddd; font-size: 18px; display: flex; align-items: center; justify-content: center; }
-        .section-box { margin-bottom: 25px; }
-        h3 { margin-bottom: 15px; color: #333; display: flex; justify-content: space-between; align-items: center; }
-        .card { background: white; padding: 18px; border-radius: 22px; margin-bottom: 12px; display: flex; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 6px solid #eee; transition: 0.2s; }
+        
+        .card { background: white; padding: 18px; border-radius: 22px; margin-bottom: 12px; display: flex; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 6px solid #eee; }
         .card.approved { border-left-color: var(--ok); }
         .card.pending { border-left-color: var(--wait); }
         .card.reward { border-left-color: var(--g); }
-        .admin-mode .card { cursor: grab; }
+        
+        /* Modal Styles */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal.active { display: flex; }
-        .modal-content { background: white; border-radius: 30px; padding: 25px; width: 90%; max-width: 420px; max-height: 90vh; overflow-y: auto; }
+        .modal-content { background: white; border-radius: 30px; padding: 25px; width: 90%; max-width: 420px; max-height: 90vh; overflow-y: auto; position: relative; }
+        
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .stat-item { background: #f8f9fa; padding: 15px; border-radius: 15px; text-align: center; }
+        .stat-val { display: block; font-size: 20px; font-weight: 600; color: var(--p); }
+        .stat-label { font-size: 11px; color: #888; }
+        
         .form-control { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #eee; margin-bottom: 12px; font-size: 16px; }
         .btn-main { width: 100%; padding: 15px; border-radius: 15px; border: none; font-weight: 600; cursor: pointer; color: white; }
         .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
         .cat-item { padding: 10px; background: #f1f2f6; border-radius: 12px; text-align: center; cursor: pointer; font-size: 13px; }
         .cat-item.selected { background: var(--p); color: white; }
-        #loading-ui { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); background: var(--p); color: white; padding: 5px 15px; border-radius: 20px; font-size: 12px; display: none; z-index: 2000; }
     </style>
 </head>
 <body>
-    <div id="loading-ui">Menyimpan...</div>
-
-    <div class="modal active" id="modal-login">
-        <div class="modal-content">
-            <h2 style="text-align:center; margin-bottom:20px;">Quest Login 🚀</h2>
-            <form id="form-login">
-                <input type="text" id="user-in" class="form-control" placeholder="Nama (Papa/Mama/Syifa)" required>
-                <input type="password" id="pass-in" class="form-control" placeholder="Kode Rahasia" required>
-                <button type="submit" class="btn-main" style="background:var(--p)">Masuk</button>
-            </form>
-        </div>
-    </div>
 
     <div class="container" id="app" style="display:none;">
         <header>
@@ -60,26 +53,46 @@
 
         <h1 id="hi-user" style="margin-bottom:20px; color:var(--p)">Halo!</h1>
 
-        <div class="section-box">
-            <h3>Misi Syifa ✨ 
+        <div class="section-box" style="margin-bottom:25px;">
+            <h3 style="margin-bottom:15px; display:flex; justify-content:space-between;">Misi Syifa ✨ 
                 <button class="icon-btn" id="btn-add-misi-trigger" style="display:none; width:35px; height:35px; background:var(--a); color:white;"><i class="fas fa-plus"></i></button>
             </h3>
             <div id="list-misi"></div>
         </div>
 
-        <hr style="margin-bottom:25px; border: 0; border-top: 1px solid #ddd;">
+        <hr style="margin-bottom:25px; border:0; border-top:1px solid #ddd;">
 
         <div class="section-box">
-            <h3>Pilihan Hadiah 🎁 
+            <h3 style="margin-bottom:15px; display:flex; justify-content:space-between;">Pilihan Hadiah 🎁 
                 <button class="icon-btn" id="btn-add-reward-trigger" style="display:none; width:35px; height:35px; background:var(--g); color:white;"><i class="fas fa-plus"></i></button>
             </h3>
             <div id="list-hadiah"></div>
         </div>
     </div>
 
+    <div class="modal" id="modal-dash">
+        <div class="modal-content">
+            <h3 style="text-align:center">Statistik Mingguan 📊</h3>
+            <div style="margin-top:20px;">
+                <canvas id="weeklyChart"></canvas>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-val" id="total-earned">0</span>
+                    <span class="stat-label">Koin Terkumpul</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-val" id="top-cat">-</span>
+                    <span class="stat-label">Fokus Utama</span>
+                </div>
+            </div>
+            <button onclick="closeM('modal-dash')" class="btn-main" style="background:#eee; color:#666; margin-top:20px;">Tutup</button>
+        </div>
+    </div>
+
     <div class="modal" id="modal-misi">
         <div class="modal-content">
-            <h3 id="m-title">Atur Misi</h3><br>
+            <h3>Atur Misi</h3><br>
             <input type="hidden" id="m-id">
             <input type="text" id="m-nama" class="form-control" placeholder="Nama Misi">
             <input type="number" id="m-durasi" class="form-control" placeholder="Durasi (Menit)">
@@ -96,12 +109,23 @@
 
     <div class="modal" id="modal-hadiah">
         <div class="modal-content">
-            <h3 id="h-title">Atur Hadiah</h3><br>
+            <h3>Atur Hadiah</h3><br>
             <input type="hidden" id="h-id">
             <input type="text" id="h-nama" class="form-control" placeholder="Nama Hadiah">
-            <input type="number" id="h-target" class="form-control" placeholder="Harga (Koin)">
+            <input type="number" id="h-target" class="form-control" placeholder="Koin">
             <button id="btn-save-hadiah" class="btn-main" style="background:var(--s)">Simpan</button>
             <button onclick="closeM('modal-hadiah')" style="width:100%; border:none; background:none; margin-top:10px; color:#aaa">Batal</button>
+        </div>
+    </div>
+
+    <div class="modal active" id="modal-login">
+        <div class="modal-content">
+            <h2 style="text-align:center; margin-bottom:20px;">Quest Login 🚀</h2>
+            <form id="form-login">
+                <input type="text" id="user-in" class="form-control" placeholder="Nama" required>
+                <input type="password" id="pass-in" class="form-control" placeholder="Kode" required>
+                <button type="submit" class="btn-main" style="background:var(--p)">Masuk</button>
+            </form>
         </div>
     </div>
 
@@ -113,39 +137,29 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const userNow = JSON.parse(sessionStorage.getItem('u_online'));
-        let selectedCat = "📚 Belajar";
+        let myChart = null;
 
         const openM = (id) => document.getElementById(id).classList.add('active');
         window.closeM = (id) => document.getElementById(id).classList.remove('active');
 
-        // Kategori Selector
-        document.querySelectorAll('.cat-item').forEach(el => {
-            el.onclick = () => {
-                document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('selected'));
-                el.classList.add('selected');
-                selectedCat = el.dataset.cat;
-            };
-        });
-
         if(userNow){
             document.getElementById('modal-login').classList.remove('active');
             document.getElementById('app').style.display = 'block';
-            document.getElementById('hi-user').textContent = `Halo, ${userNow.n.charAt(0).toUpperCase() + userNow.n.slice(1)}!`;
+            document.getElementById('hi-user').textContent = `Halo, ${userNow.n}!`;
 
             if(userNow.r === 'admin') {
-                document.body.classList.add('admin-mode');
                 document.getElementById('btn-dash-trigger').style.display = 'flex';
                 document.getElementById('btn-add-misi-trigger').style.display = 'flex';
                 document.getElementById('btn-add-reward-trigger').style.display = 'flex';
-                
-                new Sortable(document.getElementById('list-misi'), { animation: 150, onEnd: () => saveOrder('misi', 'list-misi') });
-                new Sortable(document.getElementById('list-hadiah'), { animation: 150, onEnd: () => saveOrder('hadiah', 'list-hadiah') });
+                new Sortable(document.getElementById('list-misi'), { animation: 150 });
             }
 
+            // AMBIL DATA & UPDATE DASHBOARD
             onSnapshot(collection(db, "misi"), (snap) => {
                 let ms = []; snap.forEach(d => ms.push({id:d.id, ...d.data()}));
                 ms.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
                 renderMisi(ms);
+                updateStats(ms); // Update data untuk grafik
             });
 
             onSnapshot(collection(db, "hadiah"), (snap) => {
@@ -155,11 +169,37 @@
             });
         }
 
-        async function saveOrder(col, elId) {
-            const items = document.getElementById(elId).querySelectorAll('.card');
-            for(let i=0; i<items.length; i++) {
-                await updateDoc(doc(db, col, items[i].dataset.id), { order: i });
-            }
+        // FUNGSI UPDATE GRAFIK DASHBOARD
+        function updateStats(ms) {
+            let stats = { "📚 Belajar": 0, "🎮 Main": 0, "⚽ Olahraga": 0, "🥗 Sehat": 0 };
+            let total = 0;
+            
+            ms.forEach(m => {
+                if(m.approved) {
+                    let koin = Math.floor(m.d/10);
+                    stats[m.c || "📚 Belajar"] += koin;
+                    total += koin;
+                }
+            });
+
+            document.getElementById('total-earned').textContent = total;
+            const top = Object.keys(stats).reduce((a, b) => stats[a] > stats[b] ? a : b);
+            document.getElementById('top-cat').textContent = total > 0 ? top.split(' ')[1] : '-';
+
+            if(myChart) myChart.destroy();
+            const ctx = document.getElementById('weeklyChart').getContext('2d');
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Belajar', 'Main', 'Olahraga', 'Sehat'],
+                    datasets: [{
+                        data: Object.values(stats),
+                        backgroundColor: ['#6C5CE7', '#00CEC9', '#FF7675', '#2ecc71'],
+                        borderRadius: 8
+                    }]
+                },
+                options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+            });
         }
 
         function renderMisi(ms) {
@@ -171,12 +211,11 @@
                 <div class="card ${m.approved?'approved':(isPending?'pending':'')}" data-id="${m.id}">
                     <input type="checkbox" style="width:22px;height:22px;margin-right:12px" ${m.done?'checked':''} 
                         ${userNow.r==='admin'?'disabled':''} onchange="toggleMisi('${m.id}',${m.done})">
-                    <div style="flex:1" onclick="prepMisi('${m.id}','${m.n}',${m.d},'${m.c}')">
-                        <div style="font-weight:600">${m.n}</div>
-                        <div style="font-size:12px;color:#aaa">${m.c || '📚 Belajar'} • ${m.d}m</div>
+                    <div style="flex:1" onclick="prepEditMisi('${m.id}','${m.n}',${m.d},'${m.c}')">
+                        <b>${m.n}</b><br><small>${m.c || 'Misi'} • ${m.d}m</small>
                     </div>
                     ${userNow.r==='admin' && isPending ? `<button onclick="approveMisi('${m.id}')" style="background:var(--ok);color:white;border:none;padding:6px 10px;border-radius:8px;margin-right:8px;font-size:12px">Validasi</button>` : ''}
-                    ${userNow.r==='admin' ? `<button onclick="delDoc('misi','${m.id}')" style="color:var(--a);border:none;background:none;padding:5px"><i class="fas fa-trash"></i></button>` : ''}
+                    ${userNow.r==='admin' ? `<button onclick="delDoc('misi','${m.id}')" style="color:var(--a);border:none;background:none;"><i class="fas fa-trash"></i></button>` : ''}
                 </div>`;
             }).join('');
             document.getElementById('coin-val').textContent = tk;
@@ -185,46 +224,35 @@
         function renderHadiah(hd) {
             document.getElementById('list-hadiah').innerHTML = hd.map(h => `
                 <div class="card reward" data-id="${h.id}">
-                    <div style="flex:1" onclick="prepHadiah('${h.id}','${h.n}',${h.t})">
-                        <div style="font-weight:600">${h.n}</div>
-                        <div style="font-size:12px;color:#f39c12">${h.t} Koin</div>
+                    <div style="flex:1" onclick="prepEditHadiah('${h.id}','${h.n}',${h.t})">
+                        <b>${h.n}</b><br><small>${h.t} Koin</small>
                     </div>
-                    ${userNow.r==='admin' ? `<button onclick="delDoc('hadiah','${h.id}')" style="color:var(--a);border:none;background:none;padding:5px"><i class="fas fa-trash"></i></button>` : ''}
+                    ${userNow.r==='admin' ? `<button onclick="delDoc('hadiah','${h.id}')" style="color:var(--a);border:none;background:none;"><i class="fas fa-trash"></i></button>` : ''}
                 </div>`).join('');
         }
 
-        // Logic Functions
+        // Event Listener Tombol Dashboard
+        document.getElementById('btn-dash-trigger').onclick = () => openM('modal-dash');
+
+        // Fungsi bantu lainnya
         window.toggleMisi = async (id, st) => { await updateDoc(doc(db,"misi",id), {done:!st, approved:false}); };
         window.approveMisi = async (id) => { await updateDoc(doc(db,"misi",id), {approved:true}); };
         window.delDoc = async (col, id) => { if(confirm('Hapus?')) await deleteDoc(doc(db, col, id)); };
         
-        window.prepMisi = (id,n,d,c) => { 
-            if(userNow.r!=='admin') return; 
-            document.getElementById('m-id').value=id; 
-            document.getElementById('m-nama').value=n; 
-            document.getElementById('m-durasi').value=d; 
-            openM('modal-misi'); 
-        };
-        
-        window.prepHadiah = (id,n,t) => { 
-            if(userNow.r!=='admin') return; 
-            document.getElementById('h-id').value=id; 
-            document.getElementById('h-nama').value=n; 
-            document.getElementById('h-target').value=t; 
-            openM('modal-hadiah'); 
-        };
+        window.prepEditMisi = (id,n,d,c) => { if(userNow.r==='admin'){ document.getElementById('m-id').value=id; document.getElementById('m-nama').value=n; document.getElementById('m-durasi').value=d; openM('modal-misi'); } };
+        window.prepEditHadiah = (id,n,t) => { if(userNow.r==='admin'){ document.getElementById('h-id').value=id; document.getElementById('h-nama').value=n; document.getElementById('h-target').value=t; openM('modal-hadiah'); } };
 
         document.getElementById('btn-save-misi').onclick = async () => {
             const id = document.getElementById('m-id').value;
-            const data = { n: document.getElementById('m-nama').value, d: parseInt(document.getElementById('m-durasi').value), c: selectedCat };
-            id ? await updateDoc(doc(db,"misi",id), data) : await addDoc(collection(db,"misi"), {...data, done:false, approved:false, createdAt:Date.now()});
+            const data = { n: document.getElementById('m-nama').value, d: parseInt(document.getElementById('m-durasi').value), c: document.querySelector('.cat-item.selected').dataset.cat };
+            id ? await updateDoc(doc(db,"misi",id), data) : await addDoc(collection(db,"misi"), {...data, done:false, approved:false, createdAt:Date.now(), order:999});
             closeM('modal-misi');
         };
 
         document.getElementById('btn-save-hadiah').onclick = async () => {
             const id = document.getElementById('h-id').value;
             const data = { n: document.getElementById('h-nama').value, t: parseInt(document.getElementById('h-target').value) };
-            id ? await updateDoc(doc(db,"hadiah",id), data) : await addDoc(collection(db,"hadiah"), {...data, createdAt:Date.now()});
+            id ? await updateDoc(doc(db,"hadiah",id), data) : await addDoc(collection(db,"hadiah"), {...data, createdAt:Date.now(), order:999});
             closeM('modal-hadiah');
         };
 
