@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Syifa v7 - Edit Fixed</title>
+    <title>Quest Syifa v8 - Form Reset Fixed</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -50,7 +50,7 @@
         </header>
 
         <div class="progress-container">
-            <div class="progress-label"><span id="target-name">Target Hadiah</span><span id="target-percent">0%</span></div>
+            <div class="progress-label"><span id="target-name">Target</span><span id="target-percent">0%</span></div>
             <div class="progress-bg"><div class="progress-fill" id="progress-bar"></div></div>
             <div style="font-size: 11px; color: #888; margin-top: 8px; text-align: center;" id="target-desc">Mulai petualanganmu!</div>
         </div>
@@ -90,10 +90,10 @@
         window.openM = (id) => document.getElementById(id).classList.add('active');
         window.closeM = (id) => document.getElementById(id).classList.remove('active');
 
-        // --- EDIT FUNCTIONS ---
-        window.prepEditUser = (id,n,p,r) => { document.getElementById('u-id').value=id; document.getElementById('u-nama').value=n; document.getElementById('u-pass').value=p; document.getElementById('u-role').value=r; openM('modal-user-form'); };
-        window.prepEditMisi = (id,n,d,c) => { if(userNow.r!=='admin') return; document.getElementById('m-id').value=id; document.getElementById('m-nama').value=n; document.getElementById('m-durasi').value=d; document.querySelectorAll('.cat-item').forEach(i => i.classList.toggle('selected', i.dataset.cat===c)); openM('modal-misi'); };
-        window.prepEditHadiah = (id,n,t) => { if(userNow.r!=='admin') return; document.getElementById('h-id').value=id; document.getElementById('h-nama').value=n; document.getElementById('h-target').value=t; openM('modal-hadiah'); };
+        // --- EDIT LOGIC ---
+        window.prepEditUser = (id,n,p,r) => { document.getElementById('u-title-text').innerText="Edit User"; document.getElementById('u-id').value=id; document.getElementById('u-nama').value=n; document.getElementById('u-pass').value=p; document.getElementById('u-role').value=r; openM('modal-user-form'); };
+        window.prepEditMisi = (id,n,d,c) => { if(userNow.r!=='admin') return; document.getElementById('m-title-text').innerText="Edit Misi"; document.getElementById('m-id').value=id; document.getElementById('m-nama').value=n; document.getElementById('m-durasi').value=d; document.querySelectorAll('#cat-misi-list .cat-item').forEach(i => i.classList.toggle('selected', i.dataset.cat===c)); openM('modal-misi'); };
+        window.prepEditHadiah = (id,n,t) => { if(userNow.r!=='admin') return; document.getElementById('h-title-text').innerText="Edit Hadiah"; document.getElementById('h-id').value=id; document.getElementById('h-nama').value=n; document.getElementById('h-target').value=t; openM('modal-hadiah'); };
 
         async function saveOrder(col, elId) {
             const items = document.getElementById(elId).querySelectorAll('.card');
@@ -146,12 +146,37 @@
         window.approveMisi = async (id) => { await updateDoc(doc(db,"misi",id), {approved:true}); };
         window.delDoc = async (col, id) => { if(confirm('Hapus?')) await deleteDoc(doc(db, col, id)); };
 
+        // --- BUTTON ACTIONS (TAMBAH) ---
+        document.getElementById('btn-add-user-trigger').onclick = () => { 
+            document.getElementById('u-title-text').innerText="User Baru";
+            document.getElementById('u-id').value=""; 
+            document.getElementById('u-nama').value=""; 
+            document.getElementById('u-pass').value=""; 
+            openM('modal-user-form'); 
+        };
+        document.getElementById('btn-add-misi-trigger').onclick = () => { 
+            document.getElementById('m-title-text').innerText="Misi Baru";
+            document.getElementById('m-id').value=""; 
+            document.getElementById('m-nama').value=""; 
+            document.getElementById('m-durasi').value=""; 
+            document.querySelectorAll('#cat-misi-list .cat-item').forEach(i => i.classList.toggle('selected', i.dataset.cat==="📚 Belajar"));
+            openM('modal-misi'); 
+        };
+        document.getElementById('btn-add-reward-trigger').onclick = () => { 
+            document.getElementById('h-title-text').innerText="Hadiah Baru";
+            document.getElementById('h-id').value=""; 
+            document.getElementById('h-nama').value=""; 
+            document.getElementById('h-target').value=""; 
+            openM('modal-hadiah'); 
+        };
+
+        // --- SAVE ACTIONS ---
         document.getElementById('btn-save-user').onclick = async () => {
             const d = { n: document.getElementById('u-nama').value.toLowerCase(), p: document.getElementById('u-pass').value, r: document.getElementById('u-role').value };
             const id = document.getElementById('u-id').value; id ? await updateDoc(doc(db,"users",id), d) : await addDoc(collection(db,"users"), d); closeM('modal-user-form');
         };
         document.getElementById('btn-save-misi').onclick = async () => {
-            const d = { n: document.getElementById('m-nama').value, d: parseInt(document.getElementById('m-durasi').value), c: document.querySelector('.cat-item.selected').dataset.cat };
+            const d = { n: document.getElementById('m-nama').value, d: parseInt(document.getElementById('m-durasi').value), c: document.querySelector('#cat-misi-list .cat-item.selected').dataset.cat };
             const id = document.getElementById('m-id').value; id ? await updateDoc(doc(db,"misi",id), d) : await addDoc(collection(db,"misi"), {...d, done:false, approved:false, order:999}); closeM('modal-misi');
         };
         document.getElementById('btn-save-hadiah').onclick = async () => {
@@ -176,9 +201,6 @@
         };
         document.getElementById('btn-user-trigger').onclick = () => openM('modal-user-list');
         document.getElementById('btn-logout-trigger').onclick = () => { sessionStorage.clear(); location.reload(); };
-        document.getElementById('btn-add-misi-trigger').onclick = () => { document.getElementById('m-id').value=""; openM('modal-misi'); };
-        document.getElementById('btn-add-reward-trigger').onclick = () => { document.getElementById('h-id').value=""; openM('modal-hadiah'); };
-        document.getElementById('btn-add-user-trigger').onclick = () => { document.getElementById('u-id').value=""; openM('modal-user-form'); };
         document.querySelectorAll('.cat-item').forEach(el => { el.onclick = () => { document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('selected')); el.classList.add('selected'); }; });
         document.getElementById('form-login').onsubmit = async (e) => {
             e.preventDefault();
