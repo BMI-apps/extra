@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Syifa v16.8</title>
+    <title>Quest Syifa v16.9</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -98,12 +98,10 @@
             <input type="text" id="u-nama" class="form-control" placeholder="Nama">
             <input type="text" id="u-pass" class="form-control" placeholder="Kode">
             <select id="u-role" class="form-control"><option value="user">User</option><option value="admin">Admin</option></select>
-            
             <div class="btn-group">
                 <button id="btn-save-user" class="btn-main" style="background:var(--ok); flex:2">Simpan</button>
                 <button onclick="window.clearU()" class="btn-main" style="background:var(--p); flex:1"><i class="fas fa-plus"></i> Baru</button>
             </div>
-            
             <button onclick="closeM('modal-user-list')" style="width:100%; border:none; margin-top:10px; background:none; color:#aaa; font-size:10px">Tutup</button>
         </div>
     </div>
@@ -141,7 +139,11 @@
         const db = getFirestore(app);
         let userNow = JSON.parse(sessionStorage.getItem('u_online'));
 
-        window.openM = (id) => document.getElementById(id).classList.add('active');
+        // Helper Modal & Focus
+        window.openM = (id, focusId) => {
+            document.getElementById(id).classList.add('active');
+            if(focusId) setTimeout(() => document.getElementById(focusId).focus(), 100);
+        };
         window.closeM = (id) => document.getElementById(id).classList.remove('active');
 
         document.getElementById('btn-login-exec').onclick = async () => {
@@ -230,20 +232,13 @@
         window.actDoc = (c, id, d) => updateDoc(doc(db, c, id), d);
         window.delDoc = (c, id) => confirm("Hapus?") && deleteDoc(doc(db, c, id));
 
-        window.editC = (id, n, v, g) => { if(userNow.r==='admin') { document.getElementById('c-id').value=id; document.getElementById('c-nama').value=n; document.getElementById('c-val').value=v; document.getElementById('c-gift').value=g; document.getElementById('c-title').innerText="Edit Challenge"; openM('modal-challenge'); } };
-        window.editH = (id, n, p) => { if(userNow.r==='admin') { document.getElementById('h-id').value=id; document.getElementById('h-nama').value=n; document.getElementById('h-price').value=p; document.getElementById('h-title').innerText="Edit Hadiah"; openM('modal-hadiah'); } };
+        window.editC = (id, n, v, g) => { if(userNow.r==='admin') { document.getElementById('c-id').value=id; document.getElementById('c-nama').value=n; document.getElementById('c-val').value=v; document.getElementById('c-gift').value=g; document.getElementById('c-title').innerText="Edit Challenge"; window.openM('modal-challenge', 'c-nama'); } };
+        window.editH = (id, n, p) => { if(userNow.r==='admin') { document.getElementById('h-id').value=id; document.getElementById('h-nama').value=n; document.getElementById('h-price').value=p; document.getElementById('h-title').innerText="Edit Hadiah"; window.openM('modal-hadiah', 'h-nama'); } };
         window.editU = (id, n, p, r) => { document.getElementById('u-id').value=id; document.getElementById('u-nama').value=n; document.getElementById('u-pass').value=p; document.getElementById('u-role').value=r; document.getElementById('u-nama').focus(); };
         
-        window.clearU = () => { 
-            document.getElementById('u-id').value=""; 
-            document.getElementById('u-nama').value=""; 
-            document.getElementById('u-pass').value=""; 
-            document.getElementById('u-role').value="user"; 
-            document.getElementById('u-nama').focus(); // Otomatis pindah kursor ke Nama
-        };
-
-        window.clearC = () => { document.getElementById('c-id').value=""; document.getElementById('c-nama').value=""; document.getElementById('c-val').value=""; document.getElementById('c-gift').value=""; document.getElementById('c-title').innerText="Challenge Baru"; };
-        window.clearH = () => { document.getElementById('h-id').value=""; document.getElementById('h-nama').value=""; document.getElementById('h-price').value=""; document.getElementById('h-title').innerText="Hadiah Baru"; };
+        window.clearU = () => { document.getElementById('u-id').value=""; document.getElementById('u-nama').value=""; document.getElementById('u-pass').value=""; document.getElementById('u-role').value="user"; document.getElementById('u-nama').focus(); };
+        window.clearC = () => { document.getElementById('c-id').value=""; document.getElementById('c-nama').value=""; document.getElementById('c-val').value=""; document.getElementById('c-gift').value=""; document.getElementById('c-title').innerText="Challenge Baru"; window.openM('modal-challenge', 'c-nama'); };
+        window.clearH = () => { document.getElementById('h-id').value=""; document.getElementById('h-nama').value=""; document.getElementById('h-price').value=""; document.getElementById('h-title').innerText="Hadiah Baru"; window.openM('modal-hadiah', 'h-nama'); };
 
         document.getElementById('btn-save-challenge').onclick = async () => {
             const id = document.getElementById('c-id').value;
@@ -274,7 +269,7 @@
             window.clearU();
         };
 
-        document.getElementById('nav-user').onclick = () => openM('modal-user-list');
+        document.getElementById('nav-user').onclick = () => openM('modal-user-list', 'u-nama');
         document.getElementById('nav-logout').onclick = () => { sessionStorage.clear(); location.reload(); };
     </script>
 </body>
