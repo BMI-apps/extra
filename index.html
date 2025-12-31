@@ -3,36 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Syifa v15.9</title>
+    <title>Quest Syifa v16.1</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --p: #6C5CE7; --s: #00CEC9; --a: #FF7675; --g: #FFD700; --bg: #F0F2F5; --ok: #2ecc71; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Fredoka', sans-serif; }
         body { background: var(--bg); padding: 12px; padding-bottom: 60px; }
         .container { max-width: 450px; margin: 0 auto; }
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .coin-badge { background: white; padding: 8px 15px; border-radius: 50px; border: 2px solid var(--g); font-weight: 600; color: #f39c12; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+        .coin-badge { background: white; padding: 6px 15px; border-radius: 50px; border: 2px solid var(--g); font-weight: 600; color: #f39c12; font-size: 18px; display: flex; align-items: center; gap: 8px; }
         .nav-btns { display: flex; gap: 8px; }
         .icon-btn { width: 38px; height: 38px; border-radius: 10px; border: none; cursor: pointer; background: white; box-shadow: 0 3px 0 #ddd; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #555; }
         .progress-container { background: white; padding: 12px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .progress-bg { background: #eee; height: 10px; border-radius: 10px; overflow: hidden; margin: 6px 0; }
         .progress-fill { background: linear-gradient(90deg, var(--s), var(--p)); width: 0%; height: 100%; transition: 1s; }
-        .card { background: white; padding: 10px 12px; border-radius: 12px; margin-bottom: 8px; display: flex; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); border-left: 5px solid #ccc; gap: 15px; }
+        
+        /* CARD: Padding Kecil, Jarak Checkbox Pas */
+        .card { background: white; padding: 10px 12px; border-radius: 12px; margin-bottom: 8px; display: flex; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); border-left: 5px solid #ccc; gap: 12px; }
         .card.done { border-left-color: #f1c40f; background: #fffef0; }
         .card.reward { border-left-color: var(--g); }
         .card.history { margin-bottom: 5px; font-size: 12px; padding: 8px 12px; border-left-width: 4px; gap: 5px; opacity: 0.9; }
+        
         .check-box { width: 22px; height: 22px; cursor: pointer; accent-color: var(--p); flex-shrink: 0; }
         .btn-del { color: var(--a); background: none; border: none; font-size: 15px; cursor: pointer; padding: 4px; }
+        
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index: 1000; align-items:center; justify-content:center; backdrop-filter: blur(3px); }
         .modal.active { display: flex !important; }
         .modal-content { background: white; border-radius: 20px; padding: 20px; width: 90%; max-width: 380px; }
         .form-control { width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #eee; margin-bottom: 10px; font-size: 14px; outline: none; }
-        .btn-main { width: 100%; padding: 10px; border-radius: 10px; border: none; font-weight: 600; color: white; cursor: pointer; font-size: 14px; }
+        .btn-main { width: 100%; padding: 10px; border-radius: 10px; border: none; font-weight: 600; color: white; cursor: pointer; }
     </style>
 </head>
 <body>
+
     <div class="modal active" id="modal-login">
         <div class="modal-content" style="text-align:center">
             <h3>Quest Login</h3><br>
@@ -62,7 +66,7 @@
         <div class="section">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
                 <h5>Challenge Aktif ✨</h5>
-                <button onclick="openM('modal-challenge')" id="adm-c" style="display:none; background:var(--p); color:white; padding:4px 10px; border-radius:8px; border:none; font-size:11px;">+ Challenge</button>
+                <button onclick="clearC(); openM('modal-challenge')" id="adm-c" style="display:none; background:var(--p); color:white; padding:4px 10px; border-radius:8px; border:none; font-size:11px;">+ Challenge</button>
             </div>
             <div id="list-challenge"></div>
         </div>
@@ -70,7 +74,7 @@
         <div class="section" style="margin-top:15px">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
                 <h5>Pilihan Hadiah 🎁</h5>
-                <button onclick="openM('modal-hadiah')" id="adm-h" style="display:none; background:var(--g); color:white; padding:4px 10px; border-radius:8px; border:none; font-size:11px;">+ Hadiah</button>
+                <button onclick="clearH(); openM('modal-hadiah')" id="adm-h" style="display:none; background:var(--g); color:white; padding:4px 10px; border-radius:8px; border:none; font-size:11px;">+ Hadiah</button>
             </div>
             <div id="list-hadiah"></div>
         </div>
@@ -84,7 +88,8 @@
     <div class="modal" id="modal-user-list">
         <div class="modal-content">
             <h4>Kelola User</h4>
-            <div id="db-user-list" style="margin:10px 0"></div>
+            <div id="db-user-list" style="margin:10px 0; max-height: 200px; overflow-y: auto;"></div>
+            <input type="hidden" id="u-id">
             <input type="text" id="u-nama" class="form-control" placeholder="Nama">
             <input type="text" id="u-pass" class="form-control" placeholder="Kode">
             <select id="u-role" class="form-control"><option value="user">User</option><option value="admin">Admin</option></select>
@@ -95,17 +100,18 @@
 
     <div class="modal" id="modal-dash">
         <div class="modal-content">
-            <h4>Pencapaian</h4><br>
-            <div id="dash-stats" style="margin-bottom:10px; font-size:13px; background:var(--p); color:white; padding:12px; border-radius:12px"></div>
-            <button onclick="closeM('modal-dash')" class="btn-main" style="background:#eee; color:#666">Tutup</button>
+            <h4>Dashboard Syifa</h4><br>
+            <div id="dash-stats" style="line-height:1.8; font-size:14px; background:var(--p); color:white; padding:15px; border-radius:15px"></div>
+            <button onclick="closeM('modal-dash')" class="btn-main" style="background:#eee; color:#666; margin-top:15px">Tutup</button>
         </div>
     </div>
 
     <div class="modal" id="modal-challenge">
         <div class="modal-content">
-            <h5>Misi Baru</h5><br>
-            <input type="text" id="c-nama" class="form-control" placeholder="Nama Misi">
-            <input type="number" id="c-val" class="form-control" placeholder="Hadiah Koin">
+            <h4 id="c-title">Challenge</h4><br>
+            <input type="hidden" id="c-id">
+            <input type="text" id="c-nama" class="form-control" placeholder="Nama Challenge">
+            <input type="number" id="c-val" class="form-control" placeholder="Nilai Koin">
             <button id="btn-save-challenge" class="btn-main" style="background:var(--p)">Simpan</button>
             <button onclick="closeM('modal-challenge')" style="width:100%; border:none; margin-top:8px; background:none; color:#aaa; font-size:11px">Batal</button>
         </div>
@@ -113,9 +119,12 @@
 
     <div class="modal" id="modal-hadiah">
         <div class="modal-content">
-            <h5>Hadiah Baru</h5><br>
+            <h4 id="h-title">Hadiah</h4><br>
+            <input type="hidden" id="h-id">
             <input type="text" id="h-nama" class="form-control" placeholder="Nama Hadiah">
             <input type="number" id="h-price" class="form-control" placeholder="Harga Koin">
+            <label style="font-size:11px; color:#999">Kunci (Validasi Challenge):</label>
+            <select id="h-lock" class="form-control"><option value="">Tanpa Kunci</option></select>
             <button id="btn-save-hadiah" class="btn-main" style="background:var(--g)">Simpan</button>
             <button onclick="closeM('modal-hadiah')" style="width:100%; border:none; margin-top:8px; background:none; color:#aaa; font-size:11px">Batal</button>
         </div>
@@ -133,7 +142,7 @@
         window.openM = (id) => document.getElementById(id).classList.add('active');
         window.closeM = (id) => document.getElementById(id).classList.remove('active');
 
-        // LOGIN SYSTEM (Fixed)
+        // LOGIN
         document.getElementById('btn-login-exec').onclick = async () => {
             const u = document.getElementById('login-u').value.toLowerCase().trim();
             const p = document.getElementById('login-p').value.trim();
@@ -152,11 +161,20 @@
             }
             
             let allC = []; let allH = [];
-            onSnapshot(collection(db, "challenge"), (s) => { allC = s.docs.map(d => ({id:d.id, ...d.data()})); render(allC, allH); });
-            onSnapshot(collection(db, "hadiah"), (s) => { allH = s.docs.map(d => ({id:d.id, ...d.data()})); render(allC, allH); });
+            onSnapshot(collection(db, "challenge"), (s) => { 
+                allC = s.docs.map(d => ({id:d.id, ...d.data()})); 
+                let opt = '<option value="">Tanpa Kunci</option>';
+                allC.forEach(c => opt += `<option value="${c.id}">${c.n}</option>`);
+                document.getElementById('h-lock').innerHTML = opt;
+                refreshUI(allC, allH); 
+            });
+            onSnapshot(collection(db, "hadiah"), (s) => { 
+                allH = s.docs.map(d => ({id:d.id, ...d.data()})); 
+                refreshUI(allC, allH); 
+            });
         }
 
-        function render(challenges, hadiah) {
+        function refreshUI(challenges, hadiah) {
             let cHtml = ''; let hHtml = ''; let histArr = [];
             let totalKoin = 0; let countC = 0;
 
@@ -167,10 +185,10 @@
                     histArr.push({t:`✅ ${c.n}`, v:`+🪙${v}`, s:'ok', ts:c.ts||0});
                 } else {
                     cHtml += `<div class="card ${c.done?'done':''}">
-                        <input type="checkbox" class="check-box" ${c.done?'checked':''} onchange="window.act('challenge','${c.id}',{done:this.checked})">
-                        <div style="flex:1"><b>${c.n}</b><br><small>🪙 ${v}</small></div>
-                        ${userNow.r==='admin' && c.done ? `<button onclick="window.act('challenge','${c.id}',{approved:true, ts:${Date.now()}})" class="icon-btn" style="background:var(--ok);color:white;width:auto;padding:0 8px;font-size:10px;height:28px">Valid</button>`:''}
-                        ${userNow.r==='admin'? `<button onclick="window.del('challenge','${c.id}')" class="btn-del"><i class="fas fa-trash"></i></button>`:''}
+                        <input type="checkbox" class="check-box" ${c.done?'checked':''} onchange="window.actDoc('challenge','${c.id}',{done:this.checked})">
+                        <div style="flex:1" onclick="window.editC('${c.id}','${c.n}',${v})"><b>${c.n}</b><br><small>🪙 ${v}</small></div>
+                        ${userNow.r==='admin' && c.done ? `<button onclick="window.actDoc('challenge','${c.id}',{approved:true, ts:${Date.now()}})" class="icon-btn" style="background:var(--ok);color:white;width:auto;padding:0 8px;font-size:10px;height:28px">Valid</button>`:''}
+                        ${userNow.r==='admin'? `<button onclick="window.delDoc('challenge','${c.id}')" class="btn-del"><i class="fas fa-trash"></i></button>`:''}
                     </div>`;
                 }
             });
@@ -182,19 +200,36 @@
                     kPakai += p;
                     histArr.push({t:`🎁 ${h.n}`, v:`-🪙${p}`, s:'a', ts:h.ts||0});
                 } else {
-                    hHtml += `<div class="card reward">
-                        <div style="flex:1"><b>${h.n}</b><br><small>🪙 ${p}</small></div>
-                        ${(totalKoin-kPakai)>=p && userNow.r!=='admin'? `<button onclick="window.act('hadiah','${h.id}',{claimed:true, ts:${Date.now()}})" class="icon-btn" style="background:var(--ok);color:white;width:auto;padding:0 8px;font-size:10px;height:28px">Klaim</button>`:''}
-                        ${userNow.r==='admin'? `<button onclick="window.del('hadiah','${h.id}')" class="btn-del"><i class="fas fa-trash"></i></button>`:''}
+                    const lock = challenges.find(c => c.id === h.lock);
+                    const isLocked = h.lock && (!lock || !lock.approved);
+                    hHtml += `<div class="card reward ${isLocked ? 'locked' : ''}">
+                        <div style="flex:1" onclick="window.editH('${h.id}','${h.n}',${p},'${h.lock||''}')"><b>${h.n}</b><br><small>🪙 ${p} ${h.lock && lock ? `• Kunci: ${lock.n}` : ''}</small></div>
+                        ${!isLocked && (totalKoin-kPakai)>=p && userNow.r!=='admin'? `<button onclick="window.actDoc('hadiah','${h.id}',{claimed:true, ts:${Date.now()}})" class="icon-btn" style="background:var(--ok);color:white;width:auto;padding:0 8px;font-size:10px;height:28px">Klaim</button>`:''}
+                        ${userNow.r==='admin'? `<button onclick="window.delDoc('hadiah','${h.id}')" class="btn-del"><i class="fas fa-trash"></i></button>`:''}
                     </div>`;
                 }
             });
 
             const net = totalKoin - kPakai;
             document.getElementById('coin-val').innerText = net;
-            document.getElementById('list-challenge').innerHTML = cHtml || '<p style="text-align:center;color:#999;font-size:11px">Kosong</p>';
-            document.getElementById('list-hadiah').innerHTML = hHtml || '<p style="text-align:center;color:#999;font-size:11px">Kosong</p>';
-            document.getElementById('list-history').innerHTML = histArr.sort((a,b)=>b.ts-a.ts).map(x=>`<div class="card history" style="border-left-color:var(--${x.s})"><b>${x.t}</b> <span style="margin-left:auto; color:var(--${x.s})">${x.v}</span></div>`).join('');
+            document.getElementById('list-challenge').innerHTML = cHtml || '<p style="text-align:center;color:#999;font-size:11px;padding:10px">Tidak ada challenge aktif</p>';
+            document.getElementById('list-hadiah').innerHTML = hHtml || '<p style="text-align:center;color:#999;font-size:11px;padding:10px">Hadiah belum tersedia</p>';
+            
+            // HISTORY: Tampilkan Challenge Approved DAN Hadiah Claimed
+            document.getElementById('list-history').innerHTML = histArr
+                .sort((a,b)=>b.ts-a.ts)
+                .map(x=>`<div class="card history" style="border-left-color:var(--${x.s})"><b>${x.t}</b> <span style="margin-left:auto; color:var(--${x.s})">${x.v}</span></div>`)
+                .join('');
+
+            // DASHBOARD CONSISTENT
+            document.getElementById('nav-dash').onclick = () => {
+                openM('modal-dash');
+                document.getElementById('dash-stats').innerHTML = `
+                    💰 Koin Tersedia: <b>${net}</b><br>
+                    ✅ Challenge Berhasil: <b>${countC}</b><br>
+                    🎁 Hadiah Diklaim: <b>${histArr.filter(x=>x.s==='a').length}</b>
+                `;
+            };
 
             const next = hadiah.find(h => !h.claimed);
             if(next){
@@ -203,39 +238,48 @@
                 document.getElementById('target-percent').innerText = p+'%';
                 document.getElementById('target-name').innerText = `Target: ${next.n}`;
             }
-
-            document.getElementById('nav-dash').onclick = () => {
-                openM('modal-dash');
-                document.getElementById('dash-stats').innerHTML = `💰 Koin: ${net} | ✅ Misi: ${countC} | 🎁 Hadiah: ${histArr.filter(x=>x.s==='a').length}`;
-            };
         }
 
-        window.act = (c, id, d) => updateDoc(doc(db, c, id), d);
-        window.del = (c, id) => confirm("Hapus?") && deleteDoc(doc(db, c, id));
-        document.getElementById('btn-save-challenge').onclick = () => { 
-            const n = document.getElementById('c-nama').value; 
-            const v = document.getElementById('c-val').value;
-            if(n && v) { addDoc(collection(db, "challenge"), {n, val:parseInt(v), done:false, approved:false, ts:Date.now()}); closeM('modal-challenge'); }
-        };
-        document.getElementById('btn-save-hadiah').onclick = () => { 
-            const n = document.getElementById('h-nama').value; 
-            const p = document.getElementById('h-price').value;
-            if(n && p) { addDoc(collection(db, "hadiah"), {n, price:parseInt(p), claimed:false, ts:Date.now()}); closeM('modal-hadiah'); }
+        window.actDoc = (c, id, d) => updateDoc(doc(db, c, id), d);
+        window.delDoc = (c, id) => confirm("Hapus?") && deleteDoc(doc(db, c, id));
+
+        // EDIT LOGIC (Fixed)
+        window.editC = (id, n, v) => { if(userNow.r==='admin') { document.getElementById('c-id').value=id; document.getElementById('c-nama').value=n; document.getElementById('c-val').value=v; openM('modal-challenge'); } };
+        window.editH = (id, n, p, l) => { if(userNow.r==='admin') { document.getElementById('h-id').value=id; document.getElementById('h-nama').value=n; document.getElementById('h-price').value=p; document.getElementById('h-lock').value=l; openM('modal-hadiah'); } };
+        window.editU = (id, n, p, r) => { document.getElementById('u-id').value=id; document.getElementById('u-nama').value=n; document.getElementById('u-pass').value=p; document.getElementById('u-role').value=r; };
+
+        window.clearC = () => { document.getElementById('c-id').value=""; document.getElementById('c-nama').value=""; document.getElementById('c-val').value=""; };
+        window.clearH = () => { document.getElementById('h-id').value=""; document.getElementById('h-nama').value=""; document.getElementById('h-price').value=""; document.getElementById('h-lock').value=""; };
+
+        document.getElementById('btn-save-challenge').onclick = async () => {
+            const id = document.getElementById('c-id').value;
+            const d = { n: document.getElementById('c-nama').value, val: parseInt(document.getElementById('c-val').value) };
+            id ? await updateDoc(doc(db, "challenge", id), d) : await addDoc(collection(db, "challenge"), {...d, done:false, approved:false, ts:Date.now()});
+            closeM('modal-challenge');
         };
 
+        document.getElementById('btn-save-hadiah').onclick = async () => {
+            const id = document.getElementById('h-id').value;
+            const d = { n: document.getElementById('h-nama').value, price: parseInt(document.getElementById('h-price').value), lock: document.getElementById('h-lock').value };
+            id ? await updateDoc(doc(db, "hadiah", id), d) : await addDoc(collection(db, "hadiah"), {...d, claimed:false, ts:Date.now()});
+            closeM('modal-hadiah');
+        };
+
+        // USER SYNC
         function syncUsers() {
             onSnapshot(collection(db, "users"), (s) => {
                 let h = '';
-                s.forEach(d => { h += `<div class="card" style="padding:5px"><b>${d.data().n}</b> <button onclick="window.del('users','${d.id}')" class="btn-del" style="margin-left:auto"><i class="fas fa-trash"></i></button></div>`; });
+                s.forEach(d => { const u = d.data(); h += `<div class="card" style="padding:8px" onclick="window.editU('${d.id}','${u.n}','${u.p}','${u.r}')"><div style="flex:1"><b>${u.n}</b></div><button onclick="window.delDoc('users','${d.id}')" class="btn-del"><i class="fas fa-trash"></i></button></div>`; });
                 document.getElementById('db-user-list').innerHTML = h;
             });
         }
-        document.getElementById('btn-save-user').onclick = () => {
-            const n = document.getElementById('u-nama').value;
-            const p = document.getElementById('u-pass').value;
-            const r = document.getElementById('u-role').value;
-            if(n && p) addDoc(collection(db, "users"), {n, p, r});
+        document.getElementById('btn-save-user').onclick = async () => {
+            const id = document.getElementById('u-id').value;
+            const d = { n: document.getElementById('u-nama').value, p: document.getElementById('u-pass').value, r: document.getElementById('u-role').value };
+            id ? await updateDoc(doc(db, "users", id), d) : await addDoc(collection(db, "users"), d);
+            document.getElementById('u-id').value=""; document.getElementById('u-nama').value=""; document.getElementById('u-pass').value="";
         };
+
         document.getElementById('nav-user').onclick = () => openM('modal-user-list');
         document.getElementById('nav-logout').onclick = () => { sessionStorage.clear(); location.reload(); };
     </script>
