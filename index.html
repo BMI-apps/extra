@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Syifa v16.9</title>
+    <title>Quest Syifa v17.0</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -16,10 +16,11 @@
         .nav-btns { display: flex; gap: 6px; }
         .icon-btn { width: 34px; height: 34px; border-radius: 8px; border: none; cursor: pointer; background: white; box-shadow: 0 2px 0 #ddd; display: flex; align-items: center; justify-content: center; color: #555; }
         
-        .card { background: white; padding: 8px 12px; border-radius: 10px; margin-bottom: 6px; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.03); border-left: 4px solid #ccc; gap: 10px; }
+        .card { background: white; padding: 8px 12px; border-radius: 10px; margin-bottom: 6px; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.03); border-left: 4px solid #ccc; gap: 10px; position: relative; }
         .card.done { border-left-color: #f1c40f; background: #fffef0; }
         .card.reward { border-left-color: var(--g); }
         .card.history { font-size: 11px; padding: 6px 10px; opacity: 0.8; }
+        .target-tag { position: absolute; top: 0; right: 40px; background: var(--p); color: white; font-size: 8px; padding: 2px 5px; border-radius: 0 0 5px 5px; font-weight: 600; }
         
         .clickable { cursor: pointer; transition: 0.1s; }
         .clickable:hover { background: #f8f7ff !important; color: var(--p); }
@@ -61,7 +62,7 @@
         </header>
 
         <div class="progress-container">
-            <div style="display:flex; justify-content:space-between; font-size: 12px; font-weight:600;"><span id="target-name">Target</span><span id="target-percent">0%</span></div>
+            <div style="display:flex; justify-content:space-between; font-size: 12px; font-weight:600;"><span id="target-name">Pilih Target Hadiah</span><span id="target-percent">0%</span></div>
             <div class="progress-bg"><div class="progress-fill" id="progress-bar"></div></div>
         </div>
 
@@ -125,6 +126,10 @@
             <input type="hidden" id="h-id">
             <input type="text" id="h-nama" class="form-control" placeholder="Nama Hadiah">
             <input type="number" id="h-price" class="form-control" placeholder="Harga Koin">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px">
+                <input type="checkbox" id="h-target" style="width:16px; height:16px; accent-color:var(--p)">
+                <label for="h-target" style="font-size:12px; color:var(--p); font-weight:600">Jadikan Target Utama</label>
+            </div>
             <button id="btn-save-hadiah" class="btn-main" style="background:var(--g)">Simpan</button>
             <button onclick="closeM('modal-hadiah')" style="width:100%; border:none; margin-top:5px; background:none; color:#aaa; font-size:10px">Batal</button>
         </div>
@@ -132,17 +137,16 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, updateDoc, doc, deleteDoc, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, updateDoc, doc, deleteDoc, addDoc, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = { projectId: "questsyifa" };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         let userNow = JSON.parse(sessionStorage.getItem('u_online'));
 
-        // Helper Modal & Focus
-        window.openM = (id, focusId) => {
+        window.openM = (id, fId) => {
             document.getElementById(id).classList.add('active');
-            if(focusId) setTimeout(() => document.getElementById(focusId).focus(), 100);
+            if(fId) setTimeout(() => document.getElementById(fId).focus(), 100);
         };
         window.closeM = (id) => document.getElementById(id).classList.remove('active');
 
@@ -207,7 +211,8 @@
                     histArr.push({t:`🎁 ${h.n}`, v:`-🪙${p}`, s:'a', ts:h.ts||0});
                 } else {
                     hHtml += `<div class="card reward">
-                        <div style="flex:1" class="clickable" onclick="window.editH('${h.id}','${h.n}',${p})"><b>${h.n}</b><br><small>🪙 ${p}</small></div>
+                        ${h.isTarget ? '<div class="target-tag">TARGET</div>' : ''}
+                        <div style="flex:1" class="clickable" onclick="window.editH('${h.id}','${h.n}',${p},${h.isTarget||false})"><b>${h.n}</b><br><small>🪙 ${p}</small></div>
                         ${(totalKoin-kPakai)>=p && userNow.r!=='admin'? `<button onclick="window.actDoc('hadiah','${h.id}',{claimed:true, ts:${Date.now()}})" class="icon-btn" style="background:var(--ok);color:white;width:auto;padding:0 8px;font-size:10px;height:28px">Klaim</button>`:''}
                         ${userNow.r==='admin'? `<button onclick="window.delDoc('hadiah','${h.id}')" class="btn-del"><i class="fas fa-trash"></i></button>`:''}
                     </div>`;
@@ -220,12 +225,19 @@
             document.getElementById('list-hadiah').innerHTML = hHtml || '<p style="font-size:11px;color:#999;text-align:center">Kosong</p>';
             document.getElementById('list-history').innerHTML = histArr.sort((a,b)=>b.ts-a.ts).map(x=>`<div class="card history" style="border-left-color:var(--${x.s})"><b>${x.t}</b> <span style="margin-left:auto; color:var(--${x.s})">${x.v}</span></div>`).join('');
 
-            const target = hadiah.find(h => !h.claimed);
+            // Progress Logic
+            let target = hadiah.find(h => !h.claimed && h.isTarget);
+            if(!target) target = hadiah.find(h => !h.claimed); // Fallback ke hadiah pertama jika target belum diatur
+
             if(target){
                 const p = Math.min(100, Math.floor((net / (parseInt(target.price)||1)) * 100));
                 document.getElementById('progress-bar').style.width = p+'%';
                 document.getElementById('target-percent').innerText = p+'%';
                 document.getElementById('target-name').innerText = `Target: ${target.n}`;
+            } else {
+                document.getElementById('target-name').innerText = "Belum Ada Target";
+                document.getElementById('progress-bar').style.width = '0%';
+                document.getElementById('target-percent').innerText = '0%';
             }
         }
 
@@ -233,12 +245,12 @@
         window.delDoc = (c, id) => confirm("Hapus?") && deleteDoc(doc(db, c, id));
 
         window.editC = (id, n, v, g) => { if(userNow.r==='admin') { document.getElementById('c-id').value=id; document.getElementById('c-nama').value=n; document.getElementById('c-val').value=v; document.getElementById('c-gift').value=g; document.getElementById('c-title').innerText="Edit Challenge"; window.openM('modal-challenge', 'c-nama'); } };
-        window.editH = (id, n, p) => { if(userNow.r==='admin') { document.getElementById('h-id').value=id; document.getElementById('h-nama').value=n; document.getElementById('h-price').value=p; document.getElementById('h-title').innerText="Edit Hadiah"; window.openM('modal-hadiah', 'h-nama'); } };
+        window.editH = (id, n, p, isT) => { if(userNow.r==='admin') { document.getElementById('h-id').value=id; document.getElementById('h-nama').value=n; document.getElementById('h-price').value=p; document.getElementById('h-target').checked=isT; document.getElementById('h-title').innerText="Edit Hadiah"; window.openM('modal-hadiah', 'h-nama'); } };
         window.editU = (id, n, p, r) => { document.getElementById('u-id').value=id; document.getElementById('u-nama').value=n; document.getElementById('u-pass').value=p; document.getElementById('u-role').value=r; document.getElementById('u-nama').focus(); };
         
         window.clearU = () => { document.getElementById('u-id').value=""; document.getElementById('u-nama').value=""; document.getElementById('u-pass').value=""; document.getElementById('u-role').value="user"; document.getElementById('u-nama').focus(); };
         window.clearC = () => { document.getElementById('c-id').value=""; document.getElementById('c-nama').value=""; document.getElementById('c-val').value=""; document.getElementById('c-gift').value=""; document.getElementById('c-title').innerText="Challenge Baru"; window.openM('modal-challenge', 'c-nama'); };
-        window.clearH = () => { document.getElementById('h-id').value=""; document.getElementById('h-nama').value=""; document.getElementById('h-price').value=""; document.getElementById('h-title').innerText="Hadiah Baru"; window.openM('modal-hadiah', 'h-nama'); };
+        window.clearH = () => { document.getElementById('h-id').value=""; document.getElementById('h-nama').value=""; document.getElementById('h-price').value=""; document.getElementById('h-target').checked=false; document.getElementById('h-title').innerText="Hadiah Baru"; window.openM('modal-hadiah', 'h-nama'); };
 
         document.getElementById('btn-save-challenge').onclick = async () => {
             const id = document.getElementById('c-id').value;
@@ -249,7 +261,17 @@
 
         document.getElementById('btn-save-hadiah').onclick = async () => {
             const id = document.getElementById('h-id').value;
-            const d = { n: document.getElementById('h-nama').value, price: parseInt(document.getElementById('h-price').value) };
+            const isT = document.getElementById('h-target').checked;
+            const d = { n: document.getElementById('h-nama').value, price: parseInt(document.getElementById('h-price').value), isTarget: isT };
+            
+            // Jika hadiah ini jadi target, matikan target di hadiah lain
+            if(isT) {
+                const batch = writeBatch(db);
+                const q = await getDocs(collection(db, "hadiah"));
+                q.forEach(docSnap => { if(docSnap.id !== id) batch.update(doc(db, "hadiah", docSnap.id), {isTarget: false}); });
+                await batch.commit();
+            }
+
             id ? await updateDoc(doc(db, "hadiah", id), d) : await addDoc(collection(db, "hadiah"), {...d, claimed:false, ts:Date.now()});
             closeM('modal-hadiah');
         };
