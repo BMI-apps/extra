@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Syifa v18.5</title>
+    <title>Quest Syifa v18.6</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -20,18 +20,19 @@
         .card.done { border-left-color: #f1c40f; background: #fffdf0; }
         .card.reward { border-left-color: var(--g); }
 
-        /* MODAL USER COMPACT */
-        .card-user { background: white; padding: 6px 12px; border-radius: 10px; margin-bottom: 6px; display: flex; align-items: center; border: 1px solid #eee; gap: 10px; cursor: pointer; }
-        #db-user-list { max-height: 180px; overflow-y: auto; padding-right: 5px; margin-bottom: 12px; }
+        /* USER LIST COMPACT */
+        .card-user { background: white; padding: 8px 12px; border-radius: 12px; margin-bottom: 6px; display: flex; align-items: center; border: 1px solid #eee; gap: 10px; cursor: pointer; transition: 0.2s; }
+        .card-user:active { transform: scale(0.98); background: #f9f9f9; }
+        #db-user-list { max-height: 180px; overflow-y: auto; padding-right: 5px; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         
-        /* Timeline History */
+        /* TIMELINE JURNAL */
         #list-history { position: relative; padding-left: 20px; margin-left: 15px; border-left: 3px dashed #ddd; margin-top: 20px; }
-        .card.history { border-left: none; margin-bottom: 15px; position: relative; padding: 12px; display: flex; align-items: center; gap: 12px; }
+        .card.history { border-left: none; margin-bottom: 12px; position: relative; padding: 10px 15px; display: flex; align-items: center; gap: 12px; border-radius: 15px; }
         .card.history::before { content: ''; position: absolute; left: -27.5px; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; background: white; border: 3px solid #ddd; border-radius: 50%; z-index: 2; }
         .card.history.status-ok::before { border-color: var(--ok); }
         .card.history.status-a::before { border-color: var(--a); }
         
-        .h-icon { width: 35px; height: 35px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        .h-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
         .h-ok { background: #e8f8f5; color: var(--ok); }
         .h-a { background: #fff5f5; color: var(--a); }
 
@@ -46,9 +47,10 @@
         
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index: 1000; align-items:center; justify-content:center; backdrop-filter: blur(4px); }
         .modal.active { display: flex !important; }
-        .modal-content { background: white; border-radius: 25px; padding: 20px; width: 90%; max-width: 380px; }
-        .form-control { width: 100%; padding: 10px 12px; border-radius: 10px; border: 2px solid #eee; margin-bottom: 8px; font-size: 14px; outline: none; }
-        .btn-main { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: 600; color: white; cursor: pointer; font-size: 15px; }
+        .modal-content { background: white; border-radius: 25px; padding: 20px; width: 92%; max-width: 380px; }
+        .form-control { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #eee; margin-bottom: 8px; font-size: 14px; outline: none; transition: 0.3s; }
+        .form-control:focus { border-color: var(--p); }
+        .btn-main { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 600; color: white; cursor: pointer; font-size: 15px; }
     </style>
 </head>
 <body>
@@ -95,7 +97,7 @@
         </div>
 
         <div class="section" style="margin-top:30px">
-            <small style="color:#aaa; letter-spacing: 1px; display:block; text-align:center;">--- Jurnal Petualangan ---</small>
+            <small style="color:#aaa; letter-spacing: 1px; display:block; text-align:center; font-size: 10px;">--- JURNAL PETUALANGAN ---</small>
             <div id="list-history"></div>
         </div>
     </div>
@@ -117,7 +119,7 @@
                 <button id="btn-save-user" class="btn-main" style="background:var(--ok); flex:2">Simpan</button>
                 <button id="btn-alt-user" onclick="window.handleUserAlt()" class="btn-main" style="background:var(--p); flex:1"><i class="fas fa-plus" id="alt-icon"></i></button>
             </div>
-            <button onclick="closeM('modal-user-list')" style="width:100%; border:none; background:none; color:#bbb; font-size:12px; margin-top:12px; cursor:pointer">Tutup Jendela</button>
+            <button onclick="closeM('modal-user-list')" style="width:100%; border:none; background:none; color:#bbb; font-size:12px; margin-top:15px; cursor:pointer">Tutup Jendela</button>
         </div>
     </div>
 
@@ -128,7 +130,7 @@
             <input type="text" id="c-nama" class="form-control" placeholder="Nama Tugas">
             <input type="number" id="c-val" class="form-control" placeholder="Koin (val)">
             <select id="c-gift" class="form-control"><option value="">Tautkan Hadiah</option></select>
-            <button id="btn-save-challenge" class="btn-main" style="background:var(--p)">Simpan Challenge</button>
+            <button id="btn-save-challenge" class="btn-main" style="background:var(--p)">Simpan</button>
             <button onclick="closeM('modal-challenge')" style="width:100%; border:none; background:none; color:#aaa; font-size:12px; margin-top:10px">Batal</button>
         </div>
     </div>
@@ -138,12 +140,12 @@
             <h5 style="margin-bottom:12px">Hadiah</h5>
             <input type="hidden" id="h-id">
             <input type="text" id="h-nama" class="form-control" placeholder="Nama Hadiah">
-            <input type="number" id="h-price" class="form-control" placeholder="Harga Koin (price)">
+            <input type="number" id="h-price" class="form-control" placeholder="Harga Koin">
             <div style="display:flex; align-items:center; gap:10px; margin:10px 0">
                 <input type="checkbox" id="h-target" style="width:18px; height:18px;">
-                <label for="h-target" style="font-size:14px">Set sebagai Target Utama</label>
+                <label for="h-target" style="font-size:14px">Target Utama</label>
             </div>
-            <button id="btn-save-hadiah" class="btn-main" style="background:var(--g)">Simpan Hadiah</button>
+            <button id="btn-save-hadiah" class="btn-main" style="background:var(--g)">Simpan</button>
             <button onclick="closeM('modal-hadiah')" style="width:100%; border:none; background:none; color:#aaa; font-size:12px; margin-top:10px">Batal</button>
         </div>
     </div>
@@ -157,9 +159,49 @@
         const db = getFirestore(app);
         let userNow = JSON.parse(sessionStorage.getItem('u_online'));
 
-        window.openM = (id, fId) => { document.getElementById(id).classList.add('active'); if(fId) document.getElementById(fId).focus(); };
+        // --- GLOBAL LOGIC ---
+        window.openM = (id, fId) => { 
+            document.getElementById(id).classList.add('active'); 
+            if(id === 'modal-user-list') window.clearU(); //
+            if(fId) document.getElementById(fId).focus(); 
+        };
         window.closeM = (id) => document.getElementById(id).classList.remove('active');
 
+        // --- USER FORM LOGIC ---
+        window.clearU = () => { 
+            ['u-id','u-nama','u-pass'].forEach(i => document.getElementById(i).value = ""); 
+            document.getElementById('u-role').value = "user";
+            document.getElementById('alt-icon').className = "fas fa-plus"; 
+            document.getElementById('btn-alt-user').style.background = "var(--p)"; 
+        };
+
+        window.editU = (id, n, p, r) => { 
+            document.getElementById('u-id').value = id; 
+            document.getElementById('u-nama').value = n; 
+            document.getElementById('u-pass').value = p; 
+            document.getElementById('u-role').value = r; 
+            document.getElementById('alt-icon').className = "fas fa-times"; //
+            document.getElementById('btn-alt-user').style.background = "var(--a)"; 
+        };
+
+        window.handleUserAlt = () => {
+            const hasId = document.getElementById('u-id').value;
+            const hasVal = document.getElementById('u-nama').value.trim();
+            if (hasId || hasVal) { window.clearU(); } // Jika ada isi, tombol X untuk reset
+            else { document.getElementById('u-nama').focus(); }
+        };
+
+        // Deteksi ketikan untuk ganti tombol ke X otomatis
+        document.getElementById('u-nama').addEventListener('input', function() {
+            if(this.value.trim() !== "") {
+                document.getElementById('alt-icon').className = "fas fa-times";
+                document.getElementById('btn-alt-user').style.background = "var(--a)";
+            } else if(!document.getElementById('u-id').value) {
+                window.clearU();
+            }
+        });
+
+        // --- AUTH & SYNC ---
         document.getElementById('btn-login-exec').onclick = async () => {
             const u = document.getElementById('login-u').value.toLowerCase().trim();
             const p = document.getElementById('login-p').value.trim();
@@ -167,7 +209,7 @@
             const q = await getDocs(collection(db, "users"));
             let found = false;
             q.forEach(d => { if(d.data().n.toLowerCase()===u && d.data().p===p){ sessionStorage.setItem('u_online',JSON.stringify(d.data())); location.reload(); found=true; } });
-            if(!found) alert("Akses Ditolak: Nama atau Kode salah");
+            if(!found) alert("Akses Ditolak!");
         };
 
         if(userNow) {
@@ -239,6 +281,7 @@
             document.getElementById('list-challenge').innerHTML = cHtml;
             document.getElementById('list-hadiah').innerHTML = hHtml;
             
+            // RENDER JURNAL TIMELINE
             document.getElementById('list-history').innerHTML = histArr
                 .sort((a,b)=>b.ts - a.ts)
                 .map(x=> `
@@ -247,11 +290,11 @@
                             <i class="fas ${x.type==='c'?'fa-check':'fa-shopping-cart'}"></i>
                         </div>
                         <div style="flex:1">
-                            <div style="font-size:10px; color:#aaa; margin-bottom:2px">${new Date(x.ts).toLocaleDateString('id-ID', {day:'numeric', month:'short'})}</div>
-                            <b style="color:#444">${x.type==='h'?'Tukar: ':''}${x.t}</b>
+                            <div style="font-size:9px; color:#aaa; margin-bottom:1px">${new Date(x.ts).toLocaleDateString('id-ID', {day:'numeric', month:'short'})}</div>
+                            <b style="color:#444; font-size:13px">${x.type==='h'?'Klaim: ':''}${x.t}</b>
                         </div>
                         <div style="text-align:right">
-                            <span style="color:var(--${x.s}); font-weight:700">${x.type==='c'?'+':'-'} 🪙${x.v.toLocaleString()}</span>
+                            <span style="color:var(--${x.s}); font-weight:700; font-size:13px">${x.type==='c'?'+':'-'} 🪙${x.v.toLocaleString()}</span>
                         </div>
                     </div>
                 `).join('');
@@ -266,17 +309,13 @@
             }
         }
 
-        window.handleUserAlt = () => { document.getElementById('u-id').value ? window.clearU() : document.getElementById('u-nama').focus(); };
-        window.clearU = () => { ['u-id','u-nama','u-pass'].forEach(i => document.getElementById(i).value = ""); document.getElementById('alt-icon').className = "fas fa-plus"; document.getElementById('btn-alt-user').style.background = "var(--p)"; };
-        window.editU = (id, n, p, r) => { document.getElementById('u-id').value = id; document.getElementById('u-nama').value = n; document.getElementById('u-pass').value = p; document.getElementById('u-role').value = r; document.getElementById('alt-icon').className = "fas fa-times"; document.getElementById('btn-alt-user').style.background = "var(--a)"; };
-
         function syncUsers() {
             onSnapshot(collection(db, "users"), (s) => {
                 let h = '';
                 s.forEach(d => { 
                     const u = d.data(); 
                     h += `<div class="card-user" onclick="window.editU('${d.id}','${u.n}','${u.p}','${u.r}')">
-                            <div style="flex:1; font-weight:600; color:#444">${u.n} <small style="font-weight:400; color:#999; margin-left:5px">(${u.r})</small></div>
+                            <div style="flex:1; font-weight:600; font-size:14px; color:#444">${u.n} <small style="font-weight:400; color:#999; margin-left:5px">(${u.r})</small></div>
                             <button onclick="event.stopPropagation(); window.delDoc('users','${d.id}')" class="btn-del"><i class="fas fa-trash"></i></button>
                           </div>`; 
                 });
@@ -290,6 +329,14 @@
         window.editH = (id, n, p, isT) => { if(userNow.r==='admin') { document.getElementById('h-id').value=id; document.getElementById('h-nama').value=n; document.getElementById('h-price').value=p; document.getElementById('h-target').checked=isT; window.openM('modal-hadiah', 'h-nama'); } };
         window.clearC = () => { ['c-id','c-nama','c-val','c-gift'].forEach(i=>document.getElementById(i).value=""); };
         window.clearH = () => { ['h-id','h-nama','h-price'].forEach(i=>document.getElementById(i).value=""); document.getElementById('h-target').checked=false; };
+
+        document.getElementById('btn-save-user').onclick = async () => {
+            const id = document.getElementById('u-id').value;
+            const d = { n: document.getElementById('u-nama').value.trim(), p: document.getElementById('u-pass').value.trim(), r: document.getElementById('u-role').value };
+            if(!d.n || !d.p) return alert("Nama dan Kode harus diisi!");
+            id ? await updateDoc(doc(db, "users", id), d) : await addDoc(collection(db, "users"), d);
+            window.clearU();
+        };
 
         document.getElementById('btn-save-challenge').onclick = async () => {
             const id = document.getElementById('c-id').value;
@@ -310,13 +357,7 @@
             id ? await updateDoc(doc(db, "hadiah", id), d) : await addDoc(collection(db, "hadiah"), {...d, claimed:false, ts:Date.now()});
             closeM('modal-hadiah');
         };
-        document.getElementById('btn-save-user').onclick = async () => {
-            const id = document.getElementById('u-id').value;
-            const d = { n: document.getElementById('u-nama').value, p: document.getElementById('u-pass').value, r: document.getElementById('u-role').value };
-            if(!d.n || !d.p) return alert("Nama dan Kode harus diisi!");
-            id ? await updateDoc(doc(db, "users", id), d) : await addDoc(collection(db, "users"), d);
-            window.clearU();
-        };
+
         document.getElementById('nav-user').onclick = () => openM('modal-user-list', 'u-nama');
         document.getElementById('nav-logout').onclick = () => { sessionStorage.clear(); location.reload(); };
     </script>
