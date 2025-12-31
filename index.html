@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Syifa v17.2</title>
+    <title>Quest Syifa v17.3</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -24,18 +24,18 @@
         
         .clickable { cursor: pointer; transition: 0.1s; }
         .clickable:hover { background: #f8f7ff !important; color: var(--p); }
-        .check-box { width: 20px; height: 20px; cursor: pointer; accent-color: var(--p); flex-shrink: 0; }
+        .check-box { width: 22px; height: 22px; cursor: pointer; accent-color: var(--p); flex-shrink: 0; }
         .btn-del { color: var(--a); background: none; border: none; font-size: 14px; cursor: pointer; padding: 5px; opacity: 0.4; }
         
         .progress-container { background: white; padding: 10px; border-radius: 12px; margin-bottom: 12px; }
-        .progress-bg { background: #eee; height: 8px; border-radius: 10px; overflow: hidden; margin: 4px 0; }
+        .progress-bg { background: #eee; height: 10px; border-radius: 10px; overflow: hidden; margin: 4px 0; }
         .progress-fill { background: linear-gradient(90deg, var(--s), var(--p)); width: 0%; height: 100%; transition: 1s; }
         
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index: 1000; align-items:center; justify-content:center; backdrop-filter: blur(2px); }
         .modal.active { display: flex !important; }
-        .modal-content { background: white; border-radius: 15px; padding: 15px; width: 85%; max-width: 350px; }
-        .form-control { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px; font-size: 13px; outline: none; }
-        .btn-main { width: 100%; padding: 8px; border-radius: 8px; border: none; font-weight: 600; color: white; cursor: pointer; }
+        .modal-content { background: white; border-radius: 15px; padding: 20px; width: 85%; max-width: 350px; }
+        .form-control { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 10px; font-size: 14px; outline: none; }
+        .btn-main { width: 100%; padding: 10px; border-radius: 8px; border: none; font-weight: 600; color: white; cursor: pointer; margin-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -67,23 +67,39 @@
 
         <div class="section">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px">
-                <small><b>CHALLENGE AKTIF</b></small>
-                <button onclick="clearC(); openM('modal-challenge', 'c-nama')" id="adm-c" style="display:none; background:var(--p); color:white; padding:3px 8px; border-radius:6px; border:none; font-size:10px;">+ Challenge</button>
+                <small><b>CHALLENGE</b></small>
+                <button onclick="clearC(); openM('modal-challenge', 'c-nama')" id="adm-c" style="display:none; background:var(--p); color:white; padding:4px 10px; border-radius:6px; border:none; font-size:10px;">+ Challenge</button>
             </div>
             <div id="list-challenge"></div>
         </div>
 
-        <div class="section" style="margin-top:10px">
+        <div class="section" style="margin-top:15px">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px">
-                <small><b>PILIHAN HADIAH</b></small>
-                <button onclick="clearH(); openM('modal-hadiah', 'h-nama')" id="adm-h" style="display:none; background:var(--g); color:white; padding:3px 8px; border-radius:6px; border:none; font-size:10px;">+ Hadiah</button>
+                <small><b>HADIAH</b></small>
+                <button onclick="clearH(); openM('modal-hadiah', 'h-nama')" id="adm-h" style="display:none; background:var(--g); color:white; padding:4px 10px; border-radius:6px; border:none; font-size:10px;">+ Hadiah</button>
             </div>
             <div id="list-hadiah"></div>
         </div>
 
-        <div class="section" style="margin-top:15px">
+        <div class="section" style="margin-top:20px">
             <small style="color:#888;"><b>HISTORY AKTIVITAS</b></small>
-            <div id="list-history" style="margin-top:5px"></div>
+            <div id="list-history" style="margin-top:8px"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="modal-user-list">
+        <div class="modal-content">
+            <h5>Kelola User</h5>
+            <div id="db-user-list" style="margin:10px 0; max-height: 150px; overflow-y: auto; border:1px solid #eee; border-radius:8px; padding:5px"></div>
+            <input type="hidden" id="u-id">
+            <input type="text" id="u-nama" class="form-control" placeholder="Nama">
+            <input type="text" id="u-pass" class="form-control" placeholder="Kode">
+            <select id="u-role" class="form-control"><option value="user">User</option><option value="admin">Admin</option></select>
+            <div style="display:flex; gap:10px">
+                <button id="btn-save-user" class="btn-main" style="background:var(--ok); flex:2">Simpan</button>
+                <button onclick="window.clearU()" class="btn-main" style="background:var(--p); flex:1"><i class="fas fa-plus"></i> Baru</button>
+            </div>
+            <button onclick="closeM('modal-user-list')" style="width:100%; border:none; background:none; color:#aaa; font-size:11px; margin-top:10px">Tutup</button>
         </div>
     </div>
 
@@ -93,10 +109,9 @@
             <input type="hidden" id="c-id">
             <input type="text" id="c-nama" class="form-control" placeholder="Nama Challenge">
             <input type="number" id="c-val" class="form-control" placeholder="Jumlah Koin">
-            <label style="font-size:10px; color:#999">Tautkan ke Hadiah:</label>
-            <select id="c-gift" class="form-control"><option value="">Pilih Hadiah</option></select>
+            <select id="c-gift" class="form-control"><option value="">Tautkan ke Hadiah (Opsional)</option></select>
             <button id="btn-save-challenge" class="btn-main" style="background:var(--p)">Simpan</button>
-            <button onclick="closeM('modal-challenge')" style="width:100%; border:none; margin-top:5px; background:none; color:#aaa; font-size:10px">Batal</button>
+            <button onclick="closeM('modal-challenge')" style="width:100%; border:none; background:none; color:#aaa; font-size:11px">Batal</button>
         </div>
     </div>
 
@@ -106,12 +121,12 @@
             <input type="hidden" id="h-id">
             <input type="text" id="h-nama" class="form-control" placeholder="Nama Hadiah">
             <input type="number" id="h-price" class="form-control" placeholder="Harga Koin">
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px">
-                <input type="checkbox" id="h-target" style="width:16px; height:16px; accent-color:var(--p)">
-                <label for="h-target" style="font-size:12px; color:var(--p); font-weight:600">Jadikan Target Utama</label>
+            <div style="display:flex; align-items:center; gap:8px; margin:10px 0">
+                <input type="checkbox" id="h-target" style="width:18px; height:18px;">
+                <label for="h-target" style="font-size:13px">Jadikan Target Utama</label>
             </div>
             <button id="btn-save-hadiah" class="btn-main" style="background:var(--g)">Simpan</button>
-            <button onclick="closeM('modal-hadiah')" style="width:100%; border:none; margin-top:5px; background:none; color:#aaa; font-size:10px">Batal</button>
+            <button onclick="closeM('modal-hadiah')" style="width:100%; border:none; background:none; color:#aaa; font-size:11px">Batal</button>
         </div>
     </div>
 
@@ -124,18 +139,22 @@
         const db = getFirestore(app);
         let userNow = JSON.parse(sessionStorage.getItem('u_online'));
 
+        // UI Helpers
         window.openM = (id, fId) => {
             document.getElementById(id).classList.add('active');
-            if(fId) setTimeout(() => document.getElementById(fId).focus(), 100);
+            if(fId) setTimeout(() => document.getElementById(fId).focus(), 150);
         };
         window.closeM = (id) => document.getElementById(id).classList.remove('active');
 
+        // Login
         document.getElementById('btn-login-exec').onclick = async () => {
             const u = document.getElementById('login-u').value.toLowerCase().trim();
             const p = document.getElementById('login-p').value.trim();
             if(u==='papa' && p==='papa'){ sessionStorage.setItem('u_online',JSON.stringify({n:'Papa', r:'admin'})); location.reload(); return; }
             const q = await getDocs(collection(db, "users"));
-            q.forEach(d => { if(d.data().n.toLowerCase()===u && d.data().p===p){ sessionStorage.setItem('u_online',JSON.stringify(d.data())); location.reload(); } });
+            let found = false;
+            q.forEach(d => { if(d.data().n.toLowerCase()===u && d.data().p===p){ sessionStorage.setItem('u_online',JSON.stringify(d.data())); location.reload(); found=true; } });
+            if(!found) alert("Nama atau Kode salah!");
         };
 
         if(userNow) {
@@ -143,13 +162,16 @@
             document.getElementById('app').style.display = 'block';
             document.getElementById('hi-user').innerText = `Halo, ${userNow.n}!`;
             if(userNow.r === 'admin') { 
-                ['nav-user','adm-c','adm-h'].forEach(id => document.getElementById(id).style.display='flex');
+                document.getElementById('nav-user').style.display='flex';
+                document.getElementById('adm-c').style.display='block';
+                document.getElementById('adm-h').style.display='block';
+                syncUsers();
             }
             
             let allC = []; let allH = [];
             onSnapshot(collection(db, "hadiah"), (s) => { 
                 allH = s.docs.map(d => ({id:d.id, ...d.data()})); 
-                let opt = '<option value="">Pilih Hadiah</option>';
+                let opt = '<option value="">Tautkan ke Hadiah (Opsional)</option>';
                 allH.forEach(h => opt += `<option value="${h.id}">${h.n}</option>`);
                 document.getElementById('c-gift').innerHTML = opt;
                 refreshUI(allC, allH); 
@@ -162,75 +184,85 @@
 
         function refreshUI(challenges, hadiah) {
             let cHtml = ''; let hHtml = ''; let histArr = [];
-            let totalKoin = 0;
+            let totalKoin = 0; let kPakai = 0;
 
+            // 1. Process Challenges
             challenges.forEach(c => {
-                const v = parseInt(c.val) || 0;
+                const val = parseInt(c.val || c.d) || 0; // Support field 'd' dari gambar Papa
+                const name = c.n || "Tanpa Nama";
+
                 if(c.approved === true) {
-                    totalKoin += v;
-                    // Tampilkan di History: Challenge yang selesai
-                    histArr.push({t: `${c.n}`, v:`+🪙${v}`, s:'ok', ts:c.ts||0, type:'challenge'});
+                    totalKoin += val;
+                    histArr.push({t: name, v: val, s:'ok', ts:c.ts||0, type:'challenge'});
                 } else {
-                    const linkedGift = hadiah.find(h => h.id === c.gift);
+                    const linked = hadiah.find(h => h.id === c.gift);
                     cHtml += `<div class="card ${c.done?'done':''}">
                         <input type="checkbox" class="check-box" ${c.done?'checked':''} onchange="window.actDoc('challenge','${c.id}',{done:this.checked})">
-                        <div style="flex:1" class="clickable" onclick="window.editC('${c.id}','${c.n}',${v},'${c.gift||''}')">
-                            <b>${c.n}</b><br><small>🪙 ${v} ${linkedGift?'| 🎁 '+linkedGift.n:''}</small>
+                        <div style="flex:1" class="clickable" onclick="window.editC('${c.id}','${name}',${val},'${c.gift||''}')">
+                            <b>${name}</b><br><small>🪙 ${val} ${linked?'| 🎁 '+linked.n:''}</small>
                         </div>
-                        ${userNow.r==='admin' && c.done ? `<button onclick="window.actDoc('challenge','${c.id}',{approved:true, ts:${Date.now()}})" class="icon-btn" style="background:var(--ok);color:white;width:auto;padding:0 8px;font-size:10px;height:26px">Valid</button>`:''}
+                        ${userNow.r==='admin' && c.done ? `<button onclick="window.actDoc('challenge','${c.id}',{approved:true, ts:${Date.now()}})" class="icon-btn" style="background:var(--ok);color:white;width:auto;padding:0 10px;font-size:10px;height:28px;box-shadow:none">Valid</button>`:''}
                         ${userNow.r==='admin'? `<button onclick="window.delDoc('challenge','${c.id}')" class="btn-del"><i class="fas fa-trash"></i></button>`:''}
                     </div>`;
                 }
             });
 
-            let kPakai = 0;
+            // 2. Process Hadiah
             hadiah.forEach(h => {
-                const p = parseInt(h.price) || 0;
+                const price = parseInt(h.price || h.p) || 0;
+                const name = h.n || "Hadiah";
+
                 if(h.claimed === true) {
-                    kPakai += p;
-                    // Tampilkan di History: Hadiah yang diklaim
-                    histArr.push({t: `Tukar: ${h.n}`, v:`-🪙${p}`, s:'a', ts:h.ts||0, type:'gift'});
+                    kPakai += price;
+                    histArr.push({t: `Tukar: ${name}`, v: price, s:'a', ts:h.ts||0, type:'gift'});
                 } else {
                     hHtml += `<div class="card reward">
                         ${h.isTarget ? '<div class="target-tag">TARGET</div>' : ''}
-                        <div style="flex:1" class="clickable" onclick="window.editH('${h.id}','${h.n}',${p},${h.isTarget||false})"><b>${h.n}</b><br><small>🪙 ${p}</small></div>
-                        ${(totalKoin-kPakai)>=p && userNow.r!=='admin'? `<button onclick="window.actDoc('hadiah','${h.id}',{claimed:true, ts:${Date.now()}})" class="icon-btn" style="background:var(--ok);color:white;width:auto;padding:0 8px;font-size:10px;height:28px">Klaim</button>`:''}
+                        <div style="flex:1" class="clickable" onclick="window.editH('${h.id}','${name}',${price},${h.isTarget||false})"><b>${name}</b><br><small>🪙 ${price}</small></div>
+                        ${(totalKoin-kPakai)>=price && userNow.r!=='admin'? `<button onclick="window.actDoc('hadiah','${h.id}',{claimed:true, ts:${Date.now()}})" class="icon-btn" style="background:var(--ok);color:white;width:auto;padding:0 10px;font-size:10px;height:28px;box-shadow:none">Klaim</button>`:''}
                         ${userNow.r==='admin'? `<button onclick="window.delDoc('hadiah','${h.id}')" class="btn-del"><i class="fas fa-trash"></i></button>`:''}
                     </div>`;
                 }
             });
 
+            // 3. Update Balance
             const net = totalKoin - kPakai;
-            document.getElementById('coin-val').innerText = net;
-            document.getElementById('list-challenge').innerHTML = cHtml || '<p style="font-size:11px;color:#999;text-align:center">Kosong</p>';
-            document.getElementById('list-hadiah').innerHTML = hHtml || '<p style="font-size:11px;color:#999;text-align:center">Kosong</p>';
+            document.getElementById('coin-val').innerText = net.toLocaleString();
+
+            // 4. Render Lists
+            document.getElementById('list-challenge').innerHTML = cHtml || '<p style="font-size:11px;color:#999;text-align:center">Semua challenge sudah divalidasi</p>';
+            document.getElementById('list-hadiah').innerHTML = hHtml || '<p style="font-size:11px;color:#999;text-align:center">Belum ada hadiah</p>';
             
-            // Perbaikan tampilan list history agar menampilkan Challenge
             document.getElementById('list-history').innerHTML = histArr
                 .sort((a,b)=>b.ts - a.ts)
                 .map(x=>`<div class="card history" style="border-left-color:var(--${x.s})">
                     <i class="fas ${x.type==='challenge'?'fa-check-circle':'fa-gift'}" style="color:var(--${x.s}); font-size:14px"></i>
                     <div style="flex:1"><b>${x.t}</b></div>
-                    <span style="color:var(--${x.s}); font-weight:600">${x.v}</span>
+                    <span style="color:var(--${x.s}); font-weight:600">${x.type==='challenge'?'+':'-'}🪙${x.v.toLocaleString()}</span>
                 </div>`).join('');
 
+            // 5. Progress Bar
             let target = hadiah.find(h => !h.claimed && h.isTarget) || hadiah.find(h => !h.claimed);
             if(target){
-                const p = Math.min(100, Math.floor((net / (parseInt(target.price)||1)) * 100));
+                const tPrice = parseInt(target.price || target.p) || 1;
+                const p = Math.min(100, Math.floor((net / tPrice) * 100));
                 document.getElementById('progress-bar').style.width = p+'%';
                 document.getElementById('target-percent').innerText = p+'%';
                 document.getElementById('target-name').innerText = `Target: ${target.n}`;
             }
         }
 
+        // Global Actions
         window.actDoc = (c, id, d) => updateDoc(doc(db, c, id), d);
-        window.delDoc = (c, id) => confirm("Hapus?") && deleteDoc(doc(db, c, id));
+        window.delDoc = (c, id) => confirm("Hapus data ini?") && deleteDoc(doc(db, c, id));
 
         window.editC = (id, n, v, g) => { if(userNow.r==='admin') { document.getElementById('c-id').value=id; document.getElementById('c-nama').value=n; document.getElementById('c-val').value=v; document.getElementById('c-gift').value=g; document.getElementById('c-title').innerText="Edit Challenge"; window.openM('modal-challenge', 'c-nama'); } };
         window.editH = (id, n, p, isT) => { if(userNow.r==='admin') { document.getElementById('h-id').value=id; document.getElementById('h-nama').value=n; document.getElementById('h-price').value=p; document.getElementById('h-target').checked=isT; document.getElementById('h-title').innerText="Edit Hadiah"; window.openM('modal-hadiah', 'h-nama'); } };
-
-        window.clearC = () => { document.getElementById('c-id').value=""; document.getElementById('c-nama').value=""; document.getElementById('c-val').value=""; document.getElementById('c-gift').value=""; document.getElementById('c-title').innerText="Challenge Baru"; };
-        window.clearH = () => { document.getElementById('h-id').value=""; document.getElementById('h-nama').value=""; document.getElementById('h-price').value=""; document.getElementById('h-target').checked=false; document.getElementById('h-title').innerText="Hadiah Baru"; };
+        window.editU = (id, n, p, r) => { document.getElementById('u-id').value=id; document.getElementById('u-nama').value=n; document.getElementById('u-pass').value=p; document.getElementById('u-role').value=r; document.getElementById('u-nama').focus(); };
+        
+        window.clearU = () => { ['u-id','u-nama','u-pass'].forEach(i=>document.getElementById(i).value=""); document.getElementById('u-role').value="user"; document.getElementById('u-nama').focus(); };
+        window.clearC = () => { ['c-id','c-nama','c-val','c-gift'].forEach(i=>document.getElementById(i).value=""); document.getElementById('c-title').innerText="Challenge Baru"; };
+        window.clearH = () => { ['h-id','h-nama','h-price'].forEach(i=>document.getElementById(i).value=""); document.getElementById('h-target').checked=false; document.getElementById('h-title').innerText="Hadiah Baru"; };
 
         document.getElementById('btn-save-challenge').onclick = async () => {
             const id = document.getElementById('c-id').value;
@@ -253,6 +285,28 @@
             closeM('modal-hadiah');
         };
 
+        function syncUsers() {
+            onSnapshot(collection(db, "users"), (s) => {
+                let h = '';
+                s.forEach(d => { 
+                    const u = d.data(); 
+                    h += `<div class="card clickable" style="padding:5px 10px; margin-bottom:4px; font-size:12px;" onclick="window.editU('${d.id}','${u.n}','${u.p}','${u.r}')">
+                        <div style="flex:1"><b>${u.n}</b> (${u.r})</div>
+                        <button onclick="window.delDoc('users','${d.id}')" class="btn-del"><i class="fas fa-trash"></i></button>
+                    </div>`; 
+                });
+                document.getElementById('db-user-list').innerHTML = h || '<p style="text-align:center; font-size:10px; color:#999">Belum ada user</p>';
+            });
+        }
+        document.getElementById('btn-save-user').onclick = async () => {
+            const id = document.getElementById('u-id').value;
+            const d = { n: document.getElementById('u-nama').value, p: document.getElementById('u-pass').value, r: document.getElementById('u-role').value };
+            if(!d.n || !d.p) return alert("Isi nama dan kode!");
+            id ? await updateDoc(doc(db, "users", id), d) : await addDoc(collection(db, "users"), d);
+            window.clearU();
+        };
+
+        document.getElementById('nav-user').onclick = () => openM('modal-user-list', 'u-nama');
         document.getElementById('nav-logout').onclick = () => { sessionStorage.clear(); location.reload(); };
     </script>
 </body>
