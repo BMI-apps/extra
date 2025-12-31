@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Syifa v17.0</title>
+    <title>Quest Syifa v17.1</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -19,7 +19,7 @@
         .card { background: white; padding: 8px 12px; border-radius: 10px; margin-bottom: 6px; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.03); border-left: 4px solid #ccc; gap: 10px; position: relative; }
         .card.done { border-left-color: #f1c40f; background: #fffef0; }
         .card.reward { border-left-color: var(--g); }
-        .card.history { font-size: 11px; padding: 6px 10px; opacity: 0.8; }
+        .card.history { font-size: 11px; padding: 6px 10px; opacity: 0.9; border-left-width: 3px; }
         .target-tag { position: absolute; top: 0; right: 40px; background: var(--p); color: white; font-size: 8px; padding: 2px 5px; border-radius: 0 0 5px 5px; font-weight: 600; }
         
         .clickable { cursor: pointer; transition: 0.1s; }
@@ -36,7 +36,6 @@
         .modal.active { display: flex !important; }
         .modal-content { background: white; border-radius: 15px; padding: 15px; width: 85%; max-width: 350px; }
         .form-control { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px; font-size: 13px; outline: none; }
-        .form-control:focus { border-color: var(--p); box-shadow: 0 0 5px rgba(108, 92, 231, 0.2); }
         .btn-main { width: 100%; padding: 8px; border-radius: 8px; border: none; font-weight: 600; color: white; cursor: pointer; }
         .btn-group { display: flex; gap: 8px; margin-top: 5px; }
     </style>
@@ -62,7 +61,7 @@
         </header>
 
         <div class="progress-container">
-            <div style="display:flex; justify-content:space-between; font-size: 12px; font-weight:600;"><span id="target-name">Pilih Target Hadiah</span><span id="target-percent">0%</span></div>
+            <div style="display:flex; justify-content:space-between; font-size: 12px; font-weight:600;"><span id="target-name">Target</span><span id="target-percent">0%</span></div>
             <div class="progress-bg"><div class="progress-fill" id="progress-bar"></div></div>
         </div>
 
@@ -71,7 +70,7 @@
         <div class="section">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px">
                 <small><b>CHALLENGE AKTIF</b></small>
-                <button onclick="clearC(); openM('modal-challenge')" id="adm-c" style="display:none; background:var(--p); color:white; padding:3px 8px; border-radius:6px; border:none; font-size:10px;">+ Challenge</button>
+                <button onclick="clearC(); openM('modal-challenge', 'c-nama')" id="adm-c" style="display:none; background:var(--p); color:white; padding:3px 8px; border-radius:6px; border:none; font-size:10px;">+ Challenge</button>
             </div>
             <div id="list-challenge"></div>
         </div>
@@ -79,7 +78,7 @@
         <div class="section" style="margin-top:10px">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px">
                 <small><b>PILIHAN HADIAH</b></small>
-                <button onclick="clearH(); openM('modal-hadiah')" id="adm-h" style="display:none; background:var(--g); color:white; padding:3px 8px; border-radius:6px; border:none; font-size:10px;">+ Hadiah</button>
+                <button onclick="clearH(); openM('modal-hadiah', 'h-nama')" id="adm-h" style="display:none; background:var(--g); color:white; padding:3px 8px; border-radius:6px; border:none; font-size:10px;">+ Hadiah</button>
             </div>
             <div id="list-hadiah"></div>
         </div>
@@ -189,7 +188,7 @@
                 const v = parseInt(c.val) || 0;
                 if(c.approved === true) {
                     totalKoin += v;
-                    histArr.push({t:`✅ ${c.n}`, v:`+🪙${v}`, s:'ok', ts:c.ts||0});
+                    histArr.push({t:`Koin: ${c.n}`, v:`+🪙${v}`, s:'ok', ts:c.ts||0});
                 } else {
                     const linkedGift = hadiah.find(h => h.id === c.gift);
                     cHtml += `<div class="card ${c.done?'done':''}">
@@ -208,7 +207,7 @@
                 const p = parseInt(h.price) || 0;
                 if(h.claimed === true) {
                     kPakai += p;
-                    histArr.push({t:`🎁 ${h.n}`, v:`-🪙${p}`, s:'a', ts:h.ts||0});
+                    histArr.push({t:`Tukar: ${h.n}`, v:`-🪙${p}`, s:'a', ts:h.ts||0});
                 } else {
                     hHtml += `<div class="card reward">
                         ${h.isTarget ? '<div class="target-tag">TARGET</div>' : ''}
@@ -223,21 +222,23 @@
             document.getElementById('coin-val').innerText = net;
             document.getElementById('list-challenge').innerHTML = cHtml || '<p style="font-size:11px;color:#999;text-align:center">Kosong</p>';
             document.getElementById('list-hadiah').innerHTML = hHtml || '<p style="font-size:11px;color:#999;text-align:center">Kosong</p>';
-            document.getElementById('list-history').innerHTML = histArr.sort((a,b)=>b.ts-a.ts).map(x=>`<div class="card history" style="border-left-color:var(--${x.s})"><b>${x.t}</b> <span style="margin-left:auto; color:var(--${x.s})">${x.v}</span></div>`).join('');
+            
+            // Render History
+            document.getElementById('list-history').innerHTML = histArr
+                .sort((a,b)=>b.ts - a.ts)
+                .map(x=>`<div class="card history" style="border-left-color:var(--${x.s})">
+                    <i class="fas ${x.s==='ok'?'fa-check-circle':'fa-gift'}" style="color:var(--${x.s}); font-size:14px"></i>
+                    <div style="flex:1"><b>${x.t}</b></div>
+                    <span style="color:var(--${x.s}); font-weight:600">${x.v}</span>
+                </div>`).join('');
 
-            // Progress Logic
-            let target = hadiah.find(h => !h.claimed && h.isTarget);
-            if(!target) target = hadiah.find(h => !h.claimed); // Fallback ke hadiah pertama jika target belum diatur
-
+            // Progress Bar
+            let target = hadiah.find(h => !h.claimed && h.isTarget) || hadiah.find(h => !h.claimed);
             if(target){
                 const p = Math.min(100, Math.floor((net / (parseInt(target.price)||1)) * 100));
                 document.getElementById('progress-bar').style.width = p+'%';
                 document.getElementById('target-percent').innerText = p+'%';
                 document.getElementById('target-name').innerText = `Target: ${target.n}`;
-            } else {
-                document.getElementById('target-name').innerText = "Belum Ada Target";
-                document.getElementById('progress-bar').style.width = '0%';
-                document.getElementById('target-percent').innerText = '0%';
             }
         }
 
@@ -249,8 +250,8 @@
         window.editU = (id, n, p, r) => { document.getElementById('u-id').value=id; document.getElementById('u-nama').value=n; document.getElementById('u-pass').value=p; document.getElementById('u-role').value=r; document.getElementById('u-nama').focus(); };
         
         window.clearU = () => { document.getElementById('u-id').value=""; document.getElementById('u-nama').value=""; document.getElementById('u-pass').value=""; document.getElementById('u-role').value="user"; document.getElementById('u-nama').focus(); };
-        window.clearC = () => { document.getElementById('c-id').value=""; document.getElementById('c-nama').value=""; document.getElementById('c-val').value=""; document.getElementById('c-gift').value=""; document.getElementById('c-title').innerText="Challenge Baru"; window.openM('modal-challenge', 'c-nama'); };
-        window.clearH = () => { document.getElementById('h-id').value=""; document.getElementById('h-nama').value=""; document.getElementById('h-price').value=""; document.getElementById('h-target').checked=false; document.getElementById('h-title').innerText="Hadiah Baru"; window.openM('modal-hadiah', 'h-nama'); };
+        window.clearC = () => { document.getElementById('c-id').value=""; document.getElementById('c-nama').value=""; document.getElementById('c-val').value=""; document.getElementById('c-gift').value=""; document.getElementById('c-title').innerText="Challenge Baru"; };
+        window.clearH = () => { document.getElementById('h-id').value=""; document.getElementById('h-nama').value=""; document.getElementById('h-price').value=""; document.getElementById('h-target').checked=false; document.getElementById('h-title').innerText="Hadiah Baru"; };
 
         document.getElementById('btn-save-challenge').onclick = async () => {
             const id = document.getElementById('c-id').value;
@@ -263,15 +264,12 @@
             const id = document.getElementById('h-id').value;
             const isT = document.getElementById('h-target').checked;
             const d = { n: document.getElementById('h-nama').value, price: parseInt(document.getElementById('h-price').value), isTarget: isT };
-            
-            // Jika hadiah ini jadi target, matikan target di hadiah lain
             if(isT) {
                 const batch = writeBatch(db);
                 const q = await getDocs(collection(db, "hadiah"));
-                q.forEach(docSnap => { if(docSnap.id !== id) batch.update(doc(db, "hadiah", docSnap.id), {isTarget: false}); });
+                q.forEach(s => { if(s.id !== id) batch.update(doc(db, "hadiah", s.id), {isTarget: false}); });
                 await batch.commit();
             }
-
             id ? await updateDoc(doc(db, "hadiah", id), d) : await addDoc(collection(db, "hadiah"), {...d, claimed:false, ts:Date.now()});
             closeM('modal-hadiah');
         };
