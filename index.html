@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Syifa v18.3</title>
+    <title>Quest Syifa v18.4</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -16,12 +16,23 @@
         .nav-btns { display: flex; gap: 8px; }
         .icon-btn { width: 38px; height: 38px; border-radius: 10px; border: none; cursor: pointer; background: white; box-shadow: 0 3px 0 #ddd; display: flex; align-items: center; justify-content: center; color: #555; }
         
+        /* Card Styles */
         .card { background: white; padding: 12px; border-radius: 15px; margin-bottom: 10px; display: flex; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.04); border-left: 5px solid #ccc; gap: 12px; position: relative; }
         .card.done { border-left-color: #f1c40f; background: #fffdf0; }
         .card.reward { border-left-color: var(--g); }
-        .card.history { font-size: 13px; padding: 12px; border-left-width: 4px; opacity: 0.95; }
-        .target-tag { position: absolute; top: 0; right: 40px; background: var(--p); color: white; font-size: 9px; padding: 3px 8px; border-radius: 0 0 8px 8px; font-weight: 600; text-transform: uppercase; }
         
+        /* Timeline History Styles */
+        #list-history { position: relative; padding-left: 20px; margin-left: 15px; border-left: 3px dashed #ddd; margin-top: 20px; }
+        .card.history { border-left: none; margin-bottom: 15px; position: relative; padding: 12px; display: flex; align-items: center; gap: 12px; }
+        .card.history::before { content: ''; position: absolute; left: -27.5px; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; background: white; border: 3px solid #ddd; border-radius: 50%; z-index: 2; }
+        .card.history.status-ok::before { border-color: var(--ok); }
+        .card.history.status-a::before { border-color: var(--a); }
+        
+        .h-icon { width: 35px; height: 35px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        .h-ok { background: #e8f8f5; color: var(--ok); }
+        .h-a { background: #fff5f5; color: var(--a); }
+
+        .target-tag { position: absolute; top: 0; right: 40px; background: var(--p); color: white; font-size: 9px; padding: 3px 8px; border-radius: 0 0 8px 8px; font-weight: 600; text-transform: uppercase; }
         .clickable { cursor: pointer; flex: 1; }
         .check-box { width: 24px; height: 24px; cursor: pointer; accent-color: var(--p); flex-shrink: 0; }
         .btn-del { color: var(--a); background: none; border: none; font-size: 16px; cursor: pointer; padding: 5px; opacity: 0.3; }
@@ -81,7 +92,7 @@
         </div>
 
         <div class="section" style="margin-top:30px">
-            <small style="color:#aaa; letter-spacing: 1px; display:block; text-align:center; margin-bottom:10px">--- Jurnal Petualangan ---</small>
+            <small style="color:#aaa; letter-spacing: 1px; display:block; text-align:center;">--- Jurnal Petualangan ---</small>
             <div id="list-history"></div>
         </div>
     </div>
@@ -104,7 +115,7 @@
 
     <div class="modal" id="modal-challenge">
         <div class="modal-content">
-            <h5 id="c-title">Challenge</h5>
+            <h5>Challenge</h5>
             <input type="hidden" id="c-id">
             <input type="text" id="c-nama" class="form-control" placeholder="Nama Tugas">
             <input type="number" id="c-val" class="form-control" placeholder="Koin (val)">
@@ -116,7 +127,7 @@
 
     <div class="modal" id="modal-hadiah">
         <div class="modal-content">
-            <h5 id="h-title">Hadiah</h5>
+            <h5>Hadiah</h5>
             <input type="hidden" id="h-id">
             <input type="text" id="h-nama" class="form-control" placeholder="Nama Hadiah">
             <input type="number" id="h-price" class="form-control" placeholder="Harga Koin (price)">
@@ -180,7 +191,6 @@
             let cHtml = ''; let hHtml = ''; let histArr = [];
             let totalKoin = 0; let kPakai = 0;
 
-            // FIX: Baca field 'val' untuk koin challenge
             challenges.forEach(c => {
                 const val = parseInt(c.val) || 0; 
                 if(c.approved === true) {
@@ -199,12 +209,11 @@
                 }
             });
 
-            // FIX: Baca field 'price' untuk harga hadiah
             hadiah.forEach(h => {
                 const prc = parseInt(h.price) || 0;
                 if(h.claimed === true) {
                     kPakai += prc;
-                    histArr.push({t: `Klaim: ${h.n}`, v: prc, s:'a', ts:h.ts||0, type:'h'});
+                    histArr.push({t: `${h.n}`, v: prc, s:'a', ts:h.ts||0, type:'h'});
                 } else {
                     hHtml += `<div class="card reward">
                         ${h.isTarget ? '<div class="target-tag">Target</div>' : ''}
@@ -222,13 +231,23 @@
             document.getElementById('list-challenge').innerHTML = cHtml;
             document.getElementById('list-hadiah').innerHTML = hHtml;
             
+            // --- RENDER TIMELINE HISTORY ---
             document.getElementById('list-history').innerHTML = histArr
                 .sort((a,b)=>b.ts - a.ts)
-                .map(x=>`<div class="card history" style="border-left-color:var(--${x.s})">
-                    <i class="fas ${x.type==='c'?'fa-check-circle':'fa-gift'}" style="color:var(--${x.s}); font-size:18px"></i>
-                    <div style="flex:1"><b>${x.t}</b></div>
-                    <span style="color:var(--${x.s}); font-weight:700">${x.type==='c'?'+':'-'} 🪙${x.v.toLocaleString()}</span>
-                </div>`).join('');
+                .map(x=> `
+                    <div class="card history status-${x.s}">
+                        <div class="h-icon ${x.s==='ok'?'h-ok':'h-a'}">
+                            <i class="fas ${x.type==='c'?'fa-check':'fa-shopping-cart'}"></i>
+                        </div>
+                        <div style="flex:1">
+                            <div style="font-size:10px; color:#aaa; margin-bottom:2px">${new Date(x.ts).toLocaleDateString('id-ID', {day:'numeric', month:'short'})}</div>
+                            <b style="color:#444">${x.type==='h'?'Tukar: ':''}${x.t}</b>
+                        </div>
+                        <div style="text-align:right">
+                            <span style="color:var(--${x.s}); font-weight:700">${x.type==='c'?'+':'-'} 🪙${x.v.toLocaleString()}</span>
+                        </div>
+                    </div>
+                `).join('');
 
             let target = hadiah.find(h => !h.claimed && h.isTarget) || hadiah.find(h => !h.claimed);
             if(target){
