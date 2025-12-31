@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Syifa v16.7</title>
+    <title>Quest Syifa v16.8</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -24,7 +24,6 @@
         .clickable { cursor: pointer; transition: 0.1s; }
         .clickable:hover { background: #f8f7ff !important; color: var(--p); }
         .user-item { padding: 4px 10px !important; margin-bottom: 4px; font-size: 13px; border-radius: 8px; }
-
         .check-box { width: 20px; height: 20px; cursor: pointer; accent-color: var(--p); flex-shrink: 0; }
         .btn-del { color: var(--a); background: none; border: none; font-size: 14px; cursor: pointer; padding: 5px; opacity: 0.4; }
         
@@ -36,6 +35,7 @@
         .modal.active { display: flex !important; }
         .modal-content { background: white; border-radius: 15px; padding: 15px; width: 85%; max-width: 350px; }
         .form-control { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px; font-size: 13px; outline: none; }
+        .form-control:focus { border-color: var(--p); box-shadow: 0 0 5px rgba(108, 92, 231, 0.2); }
         .btn-main { width: 100%; padding: 8px; border-radius: 8px; border: none; font-weight: 600; color: white; cursor: pointer; }
         .btn-group { display: flex; gap: 8px; margin-top: 5px; }
     </style>
@@ -232,8 +232,15 @@
 
         window.editC = (id, n, v, g) => { if(userNow.r==='admin') { document.getElementById('c-id').value=id; document.getElementById('c-nama').value=n; document.getElementById('c-val').value=v; document.getElementById('c-gift').value=g; document.getElementById('c-title').innerText="Edit Challenge"; openM('modal-challenge'); } };
         window.editH = (id, n, p) => { if(userNow.r==='admin') { document.getElementById('h-id').value=id; document.getElementById('h-nama').value=n; document.getElementById('h-price').value=p; document.getElementById('h-title').innerText="Edit Hadiah"; openM('modal-hadiah'); } };
-        window.editU = (id, n, p, r) => { document.getElementById('u-id').value=id; document.getElementById('u-nama').value=n; document.getElementById('u-pass').value=p; document.getElementById('u-role').value=r; };
-        window.clearU = () => { document.getElementById('u-id').value=""; document.getElementById('u-nama').value=""; document.getElementById('u-pass').value=""; document.getElementById('u-role').value="user"; alert("Form dibersihkan, silakan isi data baru."); };
+        window.editU = (id, n, p, r) => { document.getElementById('u-id').value=id; document.getElementById('u-nama').value=n; document.getElementById('u-pass').value=p; document.getElementById('u-role').value=r; document.getElementById('u-nama').focus(); };
+        
+        window.clearU = () => { 
+            document.getElementById('u-id').value=""; 
+            document.getElementById('u-nama').value=""; 
+            document.getElementById('u-pass').value=""; 
+            document.getElementById('u-role').value="user"; 
+            document.getElementById('u-nama').focus(); // Otomatis pindah kursor ke Nama
+        };
 
         window.clearC = () => { document.getElementById('c-id').value=""; document.getElementById('c-nama').value=""; document.getElementById('c-val').value=""; document.getElementById('c-gift').value=""; document.getElementById('c-title').innerText="Challenge Baru"; };
         window.clearH = () => { document.getElementById('h-id').value=""; document.getElementById('h-nama').value=""; document.getElementById('h-price').value=""; document.getElementById('h-title').innerText="Hadiah Baru"; };
