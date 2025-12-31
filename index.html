@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Syifa v15.1 - Fix Calculation</title>
+    <title>Quest Syifa v15.2 - Full Fix</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -47,6 +47,7 @@
             <div class="coin-badge"><i class="fas fa-coins"></i> <span id="coin-val">0</span></div>
             <div class="nav-btns">
                 <button class="icon-btn" id="nav-user" style="display:none;"><i class="fas fa-users"></i></button>
+                <button class="icon-btn" id="nav-dash" style="display:none;"><i class="fas fa-chart-bar"></i></button>
                 <button class="icon-btn" id="nav-logout" style="color:var(--a)"><i class="fas fa-power-off"></i></button>
             </div>
         </header>
@@ -61,7 +62,7 @@
 
         <div class="section">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
-                <h3>Challenge Aktif ✨</h3>
+                <h3>Challenge ✨</h3>
                 <button onclick="clearFormC(); openM('modal-challenge')" id="adm-c" style="display:none; background:var(--p); color:white; padding:8px 15px; border-radius:12px; border:none; font-weight:600">+ Challenge</button>
             </div>
             <div id="list-challenge"></div>
@@ -69,7 +70,7 @@
 
         <div class="section" style="margin-top:30px">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
-                <h3>Pilihan Hadiah 🎁</h3>
+                <h3>Hadiah 🎁</h3>
                 <button onclick="clearFormH(); openM('modal-hadiah')" id="adm-h" style="display:none; background:var(--g); color:white; padding:8px 15px; border-radius:12px; border:none; font-weight:600">+ Hadiah</button>
             </div>
             <div id="list-hadiah"></div>
@@ -87,7 +88,7 @@
             <input type="hidden" id="c-id">
             <input type="text" id="c-nama" class="form-control" placeholder="Nama Challenge">
             <div class="cat-chips">
-                <div class="chip active" onclick="setTargetType('coin')">Koin Langsung</div>
+                <div class="chip active" onclick="setTargetType('coin')">Koin</div>
                 <div class="chip" onclick="setTargetType('time')">Durasi (Menit)</div>
             </div>
             <input type="number" id="c-val" class="form-control" placeholder="Jumlah">
@@ -98,7 +99,7 @@
                 <div class="chip" onclick="setSelect('cat', '🏠 Mandiri', this)">🏠 Mandiri</div>
             </div>
             <input type="hidden" id="c-cat" value="🕌 Ibadah">
-            <button id="btn-save-challenge" class="btn-main" style="background:var(--p)">Simpan</button>
+            <button id="btn-save-challenge" class="btn-main" style="background:var(--p)">Simpan Challenge</button>
             <button onclick="closeM('modal-challenge')" style="width:100%; border:none; margin-top:10px; background:none; color:#aaa">Batal</button>
         </div>
     </div>
@@ -110,15 +111,25 @@
             <input type="text" id="h-nama" class="form-control" placeholder="Nama Hadiah">
             <input type="number" id="h-price" class="form-control" placeholder="Harga Koin">
             <select id="h-lock" class="form-control"><option value="">Semua Challenge</option></select>
-            <button id="btn-save-hadiah" class="btn-main" style="background:var(--g)">Simpan</button>
+            <button id="btn-save-hadiah" class="btn-main" style="background:var(--g)">Simpan Hadiah</button>
             <button onclick="closeM('modal-hadiah')" style="width:100%; border:none; margin-top:10px; background:none; color:#aaa">Batal</button>
+        </div>
+    </div>
+
+    <div class="modal" id="modal-dash">
+        <div class="modal-content">
+            <h3>Statistik Koin</h3>
+            <div style="height:200px"><canvas id="chartWeekly"></canvas></div>
+            <button onclick="closeM('modal-dash')" class="btn-main" style="background:#eee; color:#666">Tutup</button>
         </div>
     </div>
 
     <div class="modal" id="modal-user-list">
         <div class="modal-content">
-            <h3>User</h3><div id="db-user-list" style="margin:15px 0"></div><hr><br>
-            <input type="hidden" id="u-id"><input type="text" id="u-nama" class="form-control" placeholder="Nama"><input type="text" id="u-pass" class="form-control" placeholder="Kode">
+            <h3>Kelola User</h3><div id="db-user-list" style="margin:15px 0"></div><hr><br>
+            <input type="hidden" id="u-id">
+            <input type="text" id="u-nama" class="form-control" placeholder="Nama">
+            <input type="text" id="u-pass" class="form-control" placeholder="Kode">
             <div class="cat-chips" id="role-chips">
                 <div class="chip active" onclick="setSelect('role', 'user', this)">User</div>
                 <div class="chip" onclick="setSelect('role', 'admin', this)">Admin</div>
@@ -131,7 +142,7 @@
 
     <div class="modal active" id="modal-login">
         <div class="modal-content">
-            <h2 style="text-align:center">Login</h2><br>
+            <h2 style="text-align:center">Quest Login</h2><br>
             <input type="text" id="login-u" class="form-control" placeholder="Nama">
             <input type="password" id="login-p" class="form-control" placeholder="Kode">
             <button id="btn-login-exec" class="btn-main" style="background:var(--p)">Masuk</button>
@@ -146,6 +157,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         let userNow = JSON.parse(sessionStorage.getItem('u_online'));
+        let chartObj = null;
 
         window.openM = (id) => document.getElementById(id).classList.add('active');
         window.closeM = (id) => document.getElementById(id).classList.remove('active');
@@ -168,7 +180,7 @@
             document.getElementById('app').style.display = 'block';
             document.getElementById('hi-user').innerText = `Halo, ${userNow.n}!`;
             if(userNow.r === 'admin') {
-                ['nav-user','adm-c','adm-h'].forEach(id => document.getElementById(id).style.display='flex');
+                ['nav-user','nav-dash','adm-c','adm-h'].forEach(id => document.getElementById(id).style.display='flex');
                 syncUsers(); initSort();
             }
             let allC = []; let allH = [];
@@ -190,25 +202,17 @@
             let cHtml = ''; let hHtml = ''; let histHtml = '';
             let kTotal = 0; let kPakai = 0;
 
-            // FIX: Perhitungan koin menggunakan properti val dan price yang baru
             challenges.forEach(c => { 
                 const val = parseInt(c.val) || 0;
                 const coin = c.type === 'time' ? Math.floor(val/10) : val;
-                if(c.approved) kTotal += coin; 
-            });
-            hadiah.forEach(h => { if(h.claimed) kPakai += (parseInt(h.price) || 0); });
-            const net = kTotal - kPakai;
-
-            challenges.forEach(c => {
-                const val = parseInt(c.val) || 0;
-                const coin = c.type === 'time' ? Math.floor(val/10) : val;
-                if (c.approved) {
-                    histHtml += `<div class="history-item"><div class="history-dot" style="background:var(--ok)"></div><div class="card history"><b>${c.n}</b> <span style="color:var(--ok)">+🪙${coin}</span></div></div>`;
+                if(c.approved) {
+                    kTotal += coin;
+                    histHtml += `<div class="history-item"><div class="history-dot" style="background:var(--ok)"></div><div class="card history"><b>✅ ${c.n}</b> <span style="color:var(--ok)">+🪙${coin}</span></div></div>`;
                 } else {
                     cHtml += `<div class="card ${c.done ? 'done' : ''}" data-id="${c.id}">
                         ${userNow.r === 'admin' ? '<i class="fas fa-bars handle"></i>' : ''}
                         <input type="checkbox" class="check-box" ${c.done ? 'checked' : ''} onchange="action('challenge','${c.id}',{done:this.checked})">
-                        <div style="flex:1"><b>${c.n}</b><br><small>${c.cat} • 🪙${coin}</small></div>
+                        <div style="flex:1" onclick="editC('${c.id}','${c.n}',${val},'${c.type}','${c.cat}')"><b>${c.n}</b><br><small>${c.cat} • 🪙${coin}</small></div>
                         ${userNow.r === 'admin' && c.done ? `<button onclick="action('challenge','${c.id}',{approved:true})" class="icon-btn" style="background:var(--ok);color:white;width:auto;padding:0 10px;font-size:12px">Valid</button>` : ''}
                         ${userNow.r === 'admin' ? `<button onclick="del('challenge','${c.id}')" class="btn-del"><i class="fas fa-trash"></i></button>` : ''}
                     </div>`;
@@ -223,13 +227,15 @@
                     const lockChallenge = challenges.find(c => c.id === h.lock);
                     const isLocked = h.lock && (!lockChallenge || !lockChallenge.approved);
                     hHtml += `<div class="card reward ${isLocked ? 'locked' : ''}" data-id="${h.id}">
-                        <div style="flex:1"><b>${h.n}</b><br><small>Harga: 🪙${price} ${isLocked ? '(Terkunci)' : ''}</small></div>
+                        ${userNow.r==='admin'?'<i class="fas fa-bars handle"></i>':''}
+                        <div style="flex:1" onclick="editH('${h.id}','${h.n}',${price},'${h.lock||''}')"><b>${h.n}</b><br><small>Harga: 🪙${price} ${isLocked ? '(Terkunci)' : ''}</small></div>
                         ${!isLocked && net >= price && userNow.r !== 'admin' ? `<button onclick="action('hadiah','${h.id}',{claimed:true})" class="icon-btn" style="background:var(--ok);color:white;width:auto;padding:0 10px;font-size:12px">Klaim</button>` : ''}
                         ${userNow.r==='admin' ? `<button onclick="del('hadiah','${h.id}')" class="btn-del"><i class="fas fa-trash"></i></button>` : ''}
                     </div>`;
                 }
             });
 
+            const net = kTotal - kPakai;
             document.getElementById('coin-val').innerText = net;
             document.getElementById('list-challenge').innerHTML = cHtml || '<p style="text-align:center;padding:20px;color:#aaa">Kosong</p>';
             document.getElementById('list-hadiah').innerHTML = hHtml;
@@ -246,10 +252,24 @@
             }
         }
 
+        window.editC = (id,n,v,t,c) => { 
+            if(userNow.r==='admin'){ 
+                document.getElementById('c-id').value=id; document.getElementById('c-nama').value=n; 
+                document.getElementById('c-val').value=v; setTargetType(t);
+                document.getElementById('c-cat').value=c; openM('modal-challenge'); 
+            } 
+        };
+        window.editH = (id,n,p,l) => { 
+            if(userNow.r==='admin'){ 
+                document.getElementById('h-id').value=id; document.getElementById('h-nama').value=n; 
+                document.getElementById('h-price').value=p; document.getElementById('h-lock').value=l; openM('modal-hadiah'); 
+            } 
+        };
+
         window.action = (col, id, data) => updateDoc(doc(db, col, id), data);
         window.del = (col, id) => confirm("Hapus?") && deleteDoc(doc(db, col, id));
         window.clearFormC = () => { document.getElementById('c-id').value=''; document.getElementById('c-nama').value=''; document.getElementById('c-val').value=''; };
-        window.clearFormH = () => { document.getElementById('h-id').value=''; document.getElementById('h-nama').value=''; document.getElementById('h-price').value=''; };
+        window.clearFormH = () => { document.getElementById('h-id').value=''; document.getElementById('h-nama').value=''; document.getElementById('h-price').value=''; document.getElementById('h-lock').value=''; };
 
         document.getElementById('btn-save-challenge').onclick = async () => {
             const id = document.getElementById('c-id').value;
@@ -265,6 +285,29 @@
             closeM('modal-hadiah');
         };
 
+        // --- USER MGMT FIX ---
+        function syncUsers() {
+            onSnapshot(collection(db, "users"), (s) => {
+                let h = '';
+                s.forEach(d => { 
+                    const u = d.data(); 
+                    h += `<div class="card" style="padding:10px" onclick="window.editUser('${d.id}','${u.n}','${u.p}','${u.r}')"><b>${u.n}</b> (${u.r})</div>`; 
+                });
+                document.getElementById('db-user-list').innerHTML = h;
+            });
+        }
+        window.editUser = (id, n, p, r) => {
+            document.getElementById('u-id').value = id; document.getElementById('u-nama').value = n; 
+            document.getElementById('u-pass').value = p; document.getElementById('u-role').value = r;
+            document.querySelectorAll('#role-chips .chip').forEach(c => c.classList.toggle('active', c.innerText.toLowerCase() === r.toLowerCase()));
+        };
+        document.getElementById('btn-save-user').onclick = async () => {
+            const id = document.getElementById('u-id').value;
+            const d = { n: document.getElementById('u-nama').value, p: document.getElementById('u-pass').value, r: document.getElementById('u-role').value };
+            id ? await updateDoc(doc(db,"users",id), d) : await addDoc(collection(db,"users"), d);
+            alert("Selesai!");
+        };
+
         document.getElementById('btn-login-exec').onclick = async () => {
             const u = document.getElementById('login-u').value.toLowerCase().trim();
             const p = document.getElementById('login-p').value.trim();
@@ -273,13 +316,11 @@
             q.forEach(d => { if(d.data().n.toLowerCase()===u && d.data().p===p){ sessionStorage.setItem('u_online',JSON.stringify(d.data())); location.reload(); } });
         };
 
-        function syncUsers() {
-            onSnapshot(collection(db, "users"), (s) => {
-                let h = '';
-                s.forEach(d => { const u = d.data(); h += `<div class="card" style="padding:10px"><b>${u.n}</b></div>`; });
-                document.getElementById('db-user-list').innerHTML = h;
-            });
-        }
+        document.getElementById('nav-dash').onclick = () => {
+            openM('modal-dash'); const ctx = document.getElementById('chartWeekly').getContext('2d');
+            if(chartObj) chartObj.destroy();
+            chartObj = new Chart(ctx, { type:'bar', data: { labels:['Koin'], datasets:[{label:'Saku', data:[parseInt(document.getElementById('coin-val').innerText)], backgroundColor:'#6C5CE7'}] }, options:{responsive:true, maintainAspectRatio:false} });
+        };
 
         function initSort() {
             new Sortable(document.getElementById('list-challenge'), { handle:'.handle', animation:150, onEnd: () => saveO('challenge', 'list-challenge') });
