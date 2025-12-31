@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Syifa v15.2 - Full Fix</title>
+    <title>Quest Syifa v15.3</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -99,7 +99,7 @@
                 <div class="chip" onclick="setSelect('cat', '🏠 Mandiri', this)">🏠 Mandiri</div>
             </div>
             <input type="hidden" id="c-cat" value="🕌 Ibadah">
-            <button id="btn-save-challenge" class="btn-main" style="background:var(--p)">Simpan Challenge</button>
+            <button id="btn-save-challenge" class="btn-main" style="background:var(--p)">Simpan</button>
             <button onclick="closeM('modal-challenge')" style="width:100%; border:none; margin-top:10px; background:none; color:#aaa">Batal</button>
         </div>
     </div>
@@ -111,16 +111,8 @@
             <input type="text" id="h-nama" class="form-control" placeholder="Nama Hadiah">
             <input type="number" id="h-price" class="form-control" placeholder="Harga Koin">
             <select id="h-lock" class="form-control"><option value="">Semua Challenge</option></select>
-            <button id="btn-save-hadiah" class="btn-main" style="background:var(--g)">Simpan Hadiah</button>
+            <button id="btn-save-hadiah" class="btn-main" style="background:var(--g)">Simpan</button>
             <button onclick="closeM('modal-hadiah')" style="width:100%; border:none; margin-top:10px; background:none; color:#aaa">Batal</button>
-        </div>
-    </div>
-
-    <div class="modal" id="modal-dash">
-        <div class="modal-content">
-            <h3>Statistik Koin</h3>
-            <div style="height:200px"><canvas id="chartWeekly"></canvas></div>
-            <button onclick="closeM('modal-dash')" class="btn-main" style="background:#eee; color:#666">Tutup</button>
         </div>
     </div>
 
@@ -128,8 +120,8 @@
         <div class="modal-content">
             <h3>Kelola User</h3><div id="db-user-list" style="margin:15px 0"></div><hr><br>
             <input type="hidden" id="u-id">
-            <input type="text" id="u-nama" class="form-control" placeholder="Nama">
-            <input type="text" id="u-pass" class="form-control" placeholder="Kode">
+            <input type="text" id="u-nama" class="form-control" placeholder="Nama Baru">
+            <input type="text" id="u-pass" class="form-control" placeholder="Kode Baru">
             <div class="cat-chips" id="role-chips">
                 <div class="chip active" onclick="setSelect('role', 'user', this)">User</div>
                 <div class="chip" onclick="setSelect('role', 'admin', this)">Admin</div>
@@ -157,16 +149,16 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         let userNow = JSON.parse(sessionStorage.getItem('u_online'));
-        let chartObj = null;
 
-        window.openM = (id) => document.getElementById(id).classList.add('active');
+        window.openM = (id) => {
+            if(id === 'modal-user-list') clearUserForm();
+            document.getElementById(id).classList.add('active');
+        };
         window.closeM = (id) => document.getElementById(id).classList.remove('active');
         
         window.setTargetType = (t) => {
             document.getElementById('c-type').value = t;
-            const chips = document.querySelectorAll('#modal-challenge .chip');
-            chips[0].classList.toggle('active', t === 'coin');
-            chips[1].classList.toggle('active', t === 'time');
+            document.querySelectorAll('#modal-challenge .chip').forEach((c,i) => c.classList.toggle('active', (i===0 && t==='coin') || (i===1 && t==='time')));
         };
 
         window.setSelect = (type, val, el) => {
@@ -180,7 +172,7 @@
             document.getElementById('app').style.display = 'block';
             document.getElementById('hi-user').innerText = `Halo, ${userNow.n}!`;
             if(userNow.r === 'admin') {
-                ['nav-user','nav-dash','adm-c','adm-h'].forEach(id => document.getElementById(id).style.display='flex');
+                ['nav-user','adm-c','adm-h'].forEach(id => document.getElementById(id).style.display='flex');
                 syncUsers(); initSort();
             }
             let allC = []; let allH = [];
@@ -199,7 +191,7 @@
         }
 
         function render(challenges, hadiah) {
-            let cHtml = ''; let hHtml = ''; let histHtml = '';
+            let cHtml = ''; let hHtml = ''; let histArr = [];
             let kTotal = 0; let kPakai = 0;
 
             challenges.forEach(c => { 
@@ -207,7 +199,7 @@
                 const coin = c.type === 'time' ? Math.floor(val/10) : val;
                 if(c.approved) {
                     kTotal += coin;
-                    histHtml += `<div class="history-item"><div class="history-dot" style="background:var(--ok)"></div><div class="card history"><b>✅ ${c.n}</b> <span style="color:var(--ok)">+🪙${coin}</span></div></div>`;
+                    histArr.push({t: `✅ ${c.n}`, v: `+🪙${coin}`, s: 'ok', o: c.order || 0});
                 } else {
                     cHtml += `<div class="card ${c.done ? 'done' : ''}" data-id="${c.id}">
                         ${userNow.r === 'admin' ? '<i class="fas fa-bars handle"></i>' : ''}
@@ -219,10 +211,12 @@
                 }
             });
 
+            const net = kTotal - (hadiah.reduce((acc, h) => h.claimed ? acc + (parseInt(h.price) || 0) : acc, 0));
+
             hadiah.forEach(h => {
                 const price = parseInt(h.price) || 0;
                 if(h.claimed) {
-                    histHtml += `<div class="history-item"><div class="history-dot" style="background:var(--g)"></div><div class="card history"><b>🎁 ${h.n}</b> <span style="color:var(--a)">-🪙${price}</span></div></div>`;
+                    histArr.push({t: `🎁 ${h.n}`, v: `-🪙${price}`, s: 'a', o: h.order || 0});
                 } else {
                     const lockChallenge = challenges.find(c => c.id === h.lock);
                     const isLocked = h.lock && (!lockChallenge || !lockChallenge.approved);
@@ -235,11 +229,10 @@
                 }
             });
 
-            const net = kTotal - kPakai;
             document.getElementById('coin-val').innerText = net;
             document.getElementById('list-challenge').innerHTML = cHtml || '<p style="text-align:center;padding:20px;color:#aaa">Kosong</p>';
-            document.getElementById('list-hadiah').innerHTML = hHtml;
-            document.getElementById('list-history').innerHTML = histHtml;
+            document.getElementById('list-hadiah').innerHTML = hHtml || '<p style="text-align:center;padding:20px;color:#aaa">Belum ada hadiah</p>';
+            document.getElementById('list-history').innerHTML = histArr.map(x => `<div class="history-item"><div class="history-dot" style="background:var(--${x.s})"></div><div class="card history"><b>${x.t}</b> <span style="color:var(--${x.s})">${x.v}</span></div></div>`).join('');
 
             const nextH = hadiah.find(h => !h.claimed && (parseInt(h.price)||0) > net) || hadiah.find(h => !h.claimed);
             if(nextH) {
@@ -252,61 +245,52 @@
             }
         }
 
+        // --- EDIT FUNCTIONS ---
         window.editC = (id,n,v,t,c) => { 
-            if(userNow.r==='admin'){ 
-                document.getElementById('c-id').value=id; document.getElementById('c-nama').value=n; 
-                document.getElementById('c-val').value=v; setTargetType(t);
-                document.getElementById('c-cat').value=c; openM('modal-challenge'); 
-            } 
+            if(userNow.r==='admin'){ document.getElementById('c-id').value=id; document.getElementById('c-nama').value=n; document.getElementById('c-val').value=v; setTargetType(t); document.getElementById('c-cat').value=c; openM('modal-challenge'); } 
         };
         window.editH = (id,n,p,l) => { 
-            if(userNow.r==='admin'){ 
-                document.getElementById('h-id').value=id; document.getElementById('h-nama').value=n; 
-                document.getElementById('h-price').value=p; document.getElementById('h-lock').value=l; openM('modal-hadiah'); 
-            } 
+            if(userNow.r==='admin'){ document.getElementById('h-id').value=id; document.getElementById('h-nama').value=n; document.getElementById('h-price').value=p; document.getElementById('h-lock').value=l; openM('modal-hadiah'); } 
+        };
+        window.editUser = (id, n, p, r) => {
+            document.getElementById('u-id').value = id; document.getElementById('u-nama').value = n; document.getElementById('u-pass').value = p; document.getElementById('u-role').value = r;
+            document.querySelectorAll('#role-chips .chip').forEach(c => c.classList.toggle('active', c.innerText.toLowerCase() === r.toLowerCase()));
         };
 
-        window.action = (col, id, data) => updateDoc(doc(db, col, id), data);
-        window.del = (col, id) => confirm("Hapus?") && deleteDoc(doc(db, col, id));
+        // --- FORM HELPERS ---
+        window.clearUserForm = () => { document.getElementById('u-id').value = ''; document.getElementById('u-nama').value = ''; document.getElementById('u-pass').value = ''; document.getElementById('u-role').value = 'user'; document.querySelectorAll('#role-chips .chip').forEach((c,i) => c.classList.toggle('active', i===0)); };
         window.clearFormC = () => { document.getElementById('c-id').value=''; document.getElementById('c-nama').value=''; document.getElementById('c-val').value=''; };
         window.clearFormH = () => { document.getElementById('h-id').value=''; document.getElementById('h-nama').value=''; document.getElementById('h-price').value=''; document.getElementById('h-lock').value=''; };
 
+        // --- DB ACTIONS ---
+        window.action = (col, id, data) => updateDoc(doc(db, col, id), data);
+        window.del = (col, id) => confirm("Hapus?") && deleteDoc(doc(db, col, id));
         document.getElementById('btn-save-challenge').onclick = async () => {
             const id = document.getElementById('c-id').value;
             const d = { n: document.getElementById('c-nama').value, val: parseInt(document.getElementById('c-val').value), type: document.getElementById('c-type').value, cat: document.getElementById('c-cat').value };
             id ? await updateDoc(doc(db,"challenge",id), d) : await addDoc(collection(db,"challenge"), {...d, order:99, done:false, approved:false});
             closeM('modal-challenge');
         };
-
         document.getElementById('btn-save-hadiah').onclick = async () => {
             const id = document.getElementById('h-id').value;
             const d = { n: document.getElementById('h-nama').value, price: parseInt(document.getElementById('h-price').value), lock: document.getElementById('h-lock').value };
             id ? await updateDoc(doc(db,"hadiah",id), d) : await addDoc(collection(db,"hadiah"), {...d, order:99, claimed:false});
             closeM('modal-hadiah');
         };
-
-        // --- USER MGMT FIX ---
-        function syncUsers() {
-            onSnapshot(collection(db, "users"), (s) => {
-                let h = '';
-                s.forEach(d => { 
-                    const u = d.data(); 
-                    h += `<div class="card" style="padding:10px" onclick="window.editUser('${d.id}','${u.n}','${u.p}','${u.r}')"><b>${u.n}</b> (${u.r})</div>`; 
-                });
-                document.getElementById('db-user-list').innerHTML = h;
-            });
-        }
-        window.editUser = (id, n, p, r) => {
-            document.getElementById('u-id').value = id; document.getElementById('u-nama').value = n; 
-            document.getElementById('u-pass').value = p; document.getElementById('u-role').value = r;
-            document.querySelectorAll('#role-chips .chip').forEach(c => c.classList.toggle('active', c.innerText.toLowerCase() === r.toLowerCase()));
-        };
         document.getElementById('btn-save-user').onclick = async () => {
             const id = document.getElementById('u-id').value;
             const d = { n: document.getElementById('u-nama').value, p: document.getElementById('u-pass').value, r: document.getElementById('u-role').value };
             id ? await updateDoc(doc(db,"users",id), d) : await addDoc(collection(db,"users"), d);
-            alert("Selesai!");
+            clearUserForm();
         };
+
+        function syncUsers() {
+            onSnapshot(collection(db, "users"), (s) => {
+                let h = '';
+                s.forEach(d => { const u = d.data(); h += `<div class="card" style="padding:10px" onclick="window.editUser('${d.id}','${u.n}','${u.p}','${u.r}')"><div style="flex:1"><b>${u.n}</b> (${u.r})</div><button onclick="del('users','${d.id}')" class="btn-del"><i class="fas fa-trash"></i></button></div>`; });
+                document.getElementById('db-user-list').innerHTML = h;
+            });
+        }
 
         document.getElementById('btn-login-exec').onclick = async () => {
             const u = document.getElementById('login-u').value.toLowerCase().trim();
@@ -314,12 +298,6 @@
             if(u==='papa' && p==='papa'){ sessionStorage.setItem('u_online',JSON.stringify({n:'Papa', r:'admin'})); location.reload(); return; }
             const q = await getDocs(collection(db, "users"));
             q.forEach(d => { if(d.data().n.toLowerCase()===u && d.data().p===p){ sessionStorage.setItem('u_online',JSON.stringify(d.data())); location.reload(); } });
-        };
-
-        document.getElementById('nav-dash').onclick = () => {
-            openM('modal-dash'); const ctx = document.getElementById('chartWeekly').getContext('2d');
-            if(chartObj) chartObj.destroy();
-            chartObj = new Chart(ctx, { type:'bar', data: { labels:['Koin'], datasets:[{label:'Saku', data:[parseInt(document.getElementById('coin-val').innerText)], backgroundColor:'#6C5CE7'}] }, options:{responsive:true, maintainAspectRatio:false} });
         };
 
         function initSort() {
