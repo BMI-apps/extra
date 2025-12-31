@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Syifa v18.0</title>
+    <title>Quest Syifa v18.2</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -26,7 +26,6 @@
         .clickable { cursor: pointer; flex: 1; }
         .check-box { width: 24px; height: 24px; cursor: pointer; accent-color: var(--p); flex-shrink: 0; }
         .btn-del { color: var(--a); background: none; border: none; font-size: 16px; cursor: pointer; padding: 5px; opacity: 0.3; transition: 0.3s; }
-        .btn-del:hover { opacity: 1; }
         
         .progress-container { background: white; padding: 15px; border-radius: 18px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .progress-bg { background: #eee; height: 12px; border-radius: 10px; overflow: hidden; margin: 8px 0; }
@@ -93,13 +92,20 @@
         <div class="modal-content">
             <h5 style="margin-bottom:15px">Pengaturan User</h5>
             <div id="db-user-list" style="margin-bottom:15px; max-height: 200px; overflow-y: auto; border:2px solid #f9f9f9; border-radius:15px; padding:5px"></div>
+            
             <input type="hidden" id="u-id">
             <input type="text" id="u-nama" class="form-control" placeholder="Nama User">
             <input type="text" id="u-pass" class="form-control" placeholder="Kode">
-            <select id="u-role" class="form-control"><option value="user">User (Syifa)</option><option value="admin">Admin (Papa)</option></select>
+            <select id="u-role" class="form-control">
+                <option value="user">User (Syifa)</option>
+                <option value="admin">Admin (Papa)</option>
+            </select>
+
             <div style="display:flex; gap:10px">
                 <button id="btn-save-user" class="btn-main" style="background:var(--ok); flex:2">Simpan</button>
-                <button onclick="window.clearU()" class="btn-main" style="background:var(--p); flex:1"><i class="fas fa-plus"></i></button>
+                <button id="btn-alt-user" onclick="window.handleUserAlt()" class="btn-main" style="background:var(--p); flex:1">
+                    <i class="fas fa-plus" id="alt-icon"></i>
+                </button>
             </div>
             <button onclick="closeM('modal-user-list')" style="width:100%; border:none; background:none; color:#aaa; font-size:13px; margin-top:15px; cursor:pointer">Tutup</button>
         </div>
@@ -110,7 +116,7 @@
             <h5 id="c-title">Tambah Challenge</h5>
             <input type="hidden" id="c-id">
             <input type="text" id="c-nama" class="form-control" placeholder="Nama Tugas">
-            <input type="number" id="c-val" class="form-control" placeholder="Koin Hadiah (Contoh: 5000)">
+            <input type="number" id="c-val" class="form-control" placeholder="Koin Hadiah">
             <select id="c-gift" class="form-control"><option value="">Tautkan Hadiah (Opsional)</option></select>
             <button id="btn-save-challenge" class="btn-main" style="background:var(--p)">Simpan Tugas</button>
             <button onclick="closeM('modal-challenge')" style="width:100%; border:none; background:none; color:#aaa; font-size:13px; margin-top:10px; cursor:pointer">Batal</button>
@@ -122,10 +128,10 @@
             <h5 id="h-title">Tambah Hadiah</h5>
             <input type="hidden" id="h-id">
             <input type="text" id="h-nama" class="form-control" placeholder="Nama Hadiah">
-            <input type="number" id="h-price" class="form-control" placeholder="Harga Koin (Contoh: 50000)">
+            <input type="number" id="h-price" class="form-control" placeholder="Harga Koin">
             <div style="display:flex; align-items:center; gap:12px; margin:15px 0">
                 <input type="checkbox" id="h-target" style="width:22px; height:22px;">
-                <label for="h-target" style="font-size:15px; color:#555">Jadikan Target Utama</label>
+                <label for="h-target" style="font-size:15px; color:#555">Target Utama</label>
             </div>
             <button id="btn-save-hadiah" class="btn-main" style="background:var(--g)">Simpan Hadiah</button>
             <button onclick="closeM('modal-hadiah')" style="width:100%; border:none; background:none; color:#aaa; font-size:13px; margin-top:10px; cursor:pointer">Batal</button>
@@ -154,7 +160,7 @@
             const q = await getDocs(collection(db, "users"));
             let found = false;
             q.forEach(d => { if(d.data().n.toLowerCase()===u && d.data().p===p){ sessionStorage.setItem('u_online',JSON.stringify(d.data())); location.reload(); found=true; } });
-            if(!found) alert("Nama atau kode salah, Pa!");
+            if(!found) alert("Nama atau kode salah!");
         };
 
         if(userNow) {
@@ -186,9 +192,8 @@
             let cHtml = ''; let hHtml = ''; let histArr = [];
             let totalKoin = 0; let kPakai = 0;
 
-            // Logic Challenge
             challenges.forEach(c => {
-                const val = parseInt(c.val) || 0; // Standard Field
+                const val = parseInt(c.val) || 0;
                 if(c.approved === true) {
                     totalKoin += val;
                     histArr.push({t: c.n, v: val, s:'ok', ts:c.ts||0, type:'c'});
@@ -197,7 +202,7 @@
                     cHtml += `<div class="card ${c.done?'done':''}">
                         <input type="checkbox" class="check-box" ${c.done?'checked':''} onchange="window.actDoc('challenge','${c.id}',{done:this.checked})">
                         <div class="clickable" onclick="window.editC('${c.id}','${c.n}',${val},'${c.gift||''}')">
-                            <b style="color:#444">${c.n}</b><br><small style="color:var(--p);font-weight:600">🪙 ${val.toLocaleString()} ${lkd?' | 🎁 '+lkd.n:''}</small>
+                            <b>${c.n}</b><br><small style="color:var(--p)">🪙 ${val.toLocaleString()} ${lkd?' | 🎁 '+lkd.n:''}</small>
                         </div>
                         ${userNow.r==='admin' && c.done ? `<button onclick="window.actDoc('challenge','${c.id}',{approved:true, ts:${Date.now()}})" class="icon-btn" style="background:var(--ok);color:white;width:auto;padding:0 12px;font-size:11px;height:32px;box-shadow:none;border-radius:8px">Valid</button>`:''}
                         ${userNow.r==='admin'? `<button onclick="window.delDoc('challenge','${c.id}')" class="btn-del"><i class="fas fa-trash"></i></button>`:''}
@@ -205,9 +210,8 @@
                 }
             });
 
-            // Logic Hadiah
             hadiah.forEach(h => {
-                const prc = parseInt(h.price) || 0; // Standard Field
+                const prc = parseInt(h.price) || 0;
                 if(h.claimed === true) {
                     kPakai += prc;
                     histArr.push({t: `Klaim: ${h.n}`, v: prc, s:'a', ts:h.ts||0, type:'h'});
@@ -215,7 +219,7 @@
                     hHtml += `<div class="card reward">
                         ${h.isTarget ? '<div class="target-tag">Target</div>' : ''}
                         <div class="clickable" onclick="window.editH('${h.id}','${h.n}',${prc},${h.isTarget||false})">
-                            <b style="color:#444">${h.n}</b><br><small style="color:#f39c12;font-weight:600">🪙 ${prc.toLocaleString()}</small>
+                            <b>${h.n}</b><br><small style="color:#f39c12">🪙 ${prc.toLocaleString()}</small>
                         </div>
                         ${(totalKoin-kPakai)>=prc && userNow.r!=='admin'? `<button onclick="window.actDoc('hadiah','${h.id}',{claimed:true, ts:${Date.now()}})" class="icon-btn" style="background:var(--ok);color:white;width:auto;padding:0 12px;font-size:11px;height:32px;box-shadow:none;border-radius:8px">Klaim</button>`:''}
                         ${userNow.r==='admin'? `<button onclick="window.delDoc('hadiah','${h.id}')" class="btn-del"><i class="fas fa-trash"></i></button>`:''}
@@ -225,10 +229,6 @@
 
             const net = totalKoin - kPakai;
             document.getElementById('coin-val').innerText = net.toLocaleString();
-            document.getElementById('list-challenge').innerHTML = cHtml || '<p style="text-align:center;font-size:12px;color:#999">Belum ada tugas baru.</p>';
-            document.getElementById('list-hadiah').innerHTML = hHtml || '<p style="text-align:center;font-size:12px;color:#999">Belum ada hadiah tersedia.</p>';
-            
-            // Render History
             document.getElementById('list-history').innerHTML = histArr
                 .sort((a,b)=>b.ts - a.ts)
                 .map(x=>`<div class="card history" style="border-left-color:var(--${x.s})">
@@ -237,7 +237,6 @@
                     <span style="color:var(--${x.s}); font-weight:700">${x.type==='c'?'+':'-'} 🪙${x.v.toLocaleString()}</span>
                 </div>`).join('');
 
-            // Progress Bar
             let target = hadiah.find(h => !h.claimed && h.isTarget) || hadiah.find(h => !h.claimed);
             if(target){
                 const tp = parseInt(target.price) || 1;
@@ -248,24 +247,64 @@
             }
         }
 
+        // --- Logika Khusus User ---
+        window.handleUserAlt = () => {
+            const uId = document.getElementById('u-id').value;
+            uId ? window.clearU() : document.getElementById('u-nama').focus();
+        };
+
+        window.clearU = () => {
+            ['u-id','u-nama','u-pass'].forEach(i => document.getElementById(i).value = "");
+            document.getElementById('u-role').value = "user";
+            document.getElementById('alt-icon').className = "fas fa-plus";
+            document.getElementById('btn-alt-user').style.background = "var(--p)";
+        };
+
+        window.editU = (id, n, p, r) => {
+            document.getElementById('u-id').value = id;
+            document.getElementById('u-nama').value = n;
+            document.getElementById('u-pass').value = p;
+            document.getElementById('u-role').value = r;
+            document.getElementById('alt-icon').className = "fas fa-times";
+            document.getElementById('btn-alt-user').style.background = "var(--a)";
+            document.getElementById('u-nama').focus();
+        };
+
+        function syncUsers() {
+            onSnapshot(collection(db, "users"), (s) => {
+                let h = '';
+                s.forEach(d => { 
+                    const u = d.data(); 
+                    h += `<div class="card clickable" style="padding:10px; margin-bottom:8px; border-left-color:var(--p)" onclick="window.editU('${d.id}','${u.n}','${u.p}','${u.r}')">
+                        <div style="flex:1"><b>${u.n}</b> <small>(${u.r})</small></div>
+                        <button onclick="window.delDoc('users','${d.id}')" class="btn-del"><i class="fas fa-trash"></i></button>
+                    </div>`; 
+                });
+                document.getElementById('db-user-list').innerHTML = h || '<p style="text-align:center; font-size:11px; color:#999">User kosong</p>';
+            });
+        }
+
+        document.getElementById('btn-save-user').onclick = async () => {
+            const id = document.getElementById('u-id').value;
+            const d = { n: document.getElementById('u-nama').value, p: document.getElementById('u-pass').value, r: document.getElementById('u-role').value };
+            if(!d.n || !d.p) return alert("Lengkapi data!");
+            id ? await updateDoc(doc(db, "users", id), d) : await addDoc(collection(db, "users"), d);
+            window.clearU();
+        };
+
+        // --- Standard Global Actions ---
         window.actDoc = (c, id, d) => updateDoc(doc(db, c, id), d);
         window.delDoc = (c, id) => confirm("Hapus data ini?") && deleteDoc(doc(db, c, id));
-
         window.editC = (id, n, v, g) => { if(userNow.r==='admin') { document.getElementById('c-id').value=id; document.getElementById('c-nama').value=n; document.getElementById('c-val').value=v; document.getElementById('c-gift').value=g; document.getElementById('c-title').innerText="Edit Challenge"; window.openM('modal-challenge', 'c-nama'); } };
         window.editH = (id, n, p, isT) => { if(userNow.r==='admin') { document.getElementById('h-id').value=id; document.getElementById('h-nama').value=n; document.getElementById('h-price').value=p; document.getElementById('h-target').checked=isT; document.getElementById('h-title').innerText="Edit Hadiah"; window.openM('modal-hadiah', 'h-nama'); } };
-        window.editU = (id, n, p, r) => { document.getElementById('u-id').value=id; document.getElementById('u-nama').value=n; document.getElementById('u-pass').value=p; document.getElementById('u-role').value=r; document.getElementById('u-nama').focus(); };
-        
-        window.clearU = () => { ['u-id','u-nama','u-pass'].forEach(i=>document.getElementById(i).value=""); document.getElementById('u-role').value="user"; document.getElementById('u-nama').focus(); };
         window.clearC = () => { ['c-id','c-nama','c-val','c-gift'].forEach(i=>document.getElementById(i).value=""); document.getElementById('c-title').innerText="Tambah Challenge"; };
         window.clearH = () => { ['h-id','h-nama','h-price'].forEach(i=>document.getElementById(i).value=""); document.getElementById('h-target').checked=false; document.getElementById('h-title').innerText="Tambah Hadiah"; };
-
         document.getElementById('btn-save-challenge').onclick = async () => {
             const id = document.getElementById('c-id').value;
             const d = { n: document.getElementById('c-nama').value, val: parseInt(document.getElementById('c-val').value), gift: document.getElementById('c-gift').value };
             id ? await updateDoc(doc(db, "challenge", id), d) : await addDoc(collection(db, "challenge"), {...d, done:false, approved:false, ts:Date.now()});
             closeM('modal-challenge');
         };
-
         document.getElementById('btn-save-hadiah').onclick = async () => {
             const id = document.getElementById('h-id').value;
             const isT = document.getElementById('h-target').checked;
@@ -279,28 +318,6 @@
             id ? await updateDoc(doc(db, "hadiah", id), d) : await addDoc(collection(db, "hadiah"), {...d, claimed:false, ts:Date.now()});
             closeM('modal-hadiah');
         };
-
-        function syncUsers() {
-            onSnapshot(collection(db, "users"), (s) => {
-                let h = '';
-                s.forEach(d => { 
-                    const u = d.data(); 
-                    h += `<div class="card clickable" style="padding:10px; margin-bottom:8px; border-left-color:var(--p)" onclick="window.editU('${d.id}','${u.n}','${u.p}','${u.r}')">
-                        <div style="flex:1"><b>${u.n}</b> <small>(${u.r})</small></div>
-                        <button onclick="window.delDoc('users','${d.id}')" class="btn-del"><i class="fas fa-trash"></i></button>
-                    </div>`; 
-                });
-                document.getElementById('db-user-list').innerHTML = h || '<p style="text-align:center; font-size:12px; color:#999">User kosong</p>';
-            });
-        }
-        document.getElementById('btn-save-user').onclick = async () => {
-            const id = document.getElementById('u-id').value;
-            const d = { n: document.getElementById('u-nama').value, p: document.getElementById('u-pass').value, r: document.getElementById('u-role').value };
-            if(!d.n || !d.p) return alert("Lengkapi data!");
-            id ? await updateDoc(doc(db, "users", id), d) : await addDoc(collection(db, "users"), d);
-            window.clearU();
-        };
-
         document.getElementById('nav-user').onclick = () => openM('modal-user-list', 'u-nama');
         document.getElementById('nav-logout').onclick = () => { sessionStorage.clear(); location.reload(); };
     </script>
